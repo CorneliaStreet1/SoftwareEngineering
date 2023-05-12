@@ -16,16 +16,16 @@ public class WaitingZone {
         size = 0;
         isOnService = true;
     }
-    public void StartService() {
+    public synchronized void StartService() {
         isOnService = true;
     }
-    public void StopService() {
+    public synchronized void StopService() {
         isOnService = false;
     }
-    public boolean isOnService() {
+    public synchronized boolean isOnService() {
         return isOnService;
     }
-    public static int getTotalCarCount() {
+    public synchronized static int getTotalCarCount() {
         return TotalCarCount;
     }
     public boolean AddToFastQueue(Car car) {
@@ -55,7 +55,7 @@ public class WaitingZone {
         }
         return false;
     }
-    public boolean JoinWaitingZone(Car car) {
+    public synchronized boolean JoinWaitingZone(Car car) {
         if (car.isFastCharging()) {
             return AddToFastQueue(car);
         }
@@ -97,5 +97,19 @@ public class WaitingZone {
             SlowQueue.remove(car);
         }
         return true;
+    }
+    public synchronized boolean isEmpty() {
+        return size == 0;
+    }
+    public synchronized int size() {
+        return FastQueue.size() + SlowQueue.size();
+    }
+
+    public ArrayDeque<Car> getFastQueue() {
+        return FastQueue;
+    }
+
+    public ArrayDeque<Car> getSlowQueue() {
+        return SlowQueue;
     }
 }

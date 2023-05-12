@@ -8,7 +8,7 @@ public class ChargeStation {
         CarQueue = new ArrayDeque<>();
     }
 
-    public boolean JoinStation(Car car) {
+    public synchronized boolean JoinStation(Car car) {
         if (CarQueue.size() < MAX_SIZE) {
             CarQueue.addLast(car);
             return true;
@@ -32,7 +32,11 @@ public class ChargeStation {
             return false;
         }
     }
-    public boolean hasEmptySlot() {
+    public synchronized boolean hasEmptySlot() {
         return this.Size() < 2;
+    }
+
+    public synchronized ArrayDeque<Car> getCarQueue() {
+        return CarQueue;
     }
 }

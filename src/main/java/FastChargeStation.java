@@ -4,10 +4,17 @@ public class FastChargeStation extends ChargeStation{
         super();
     }
 
-    public boolean JoinFastStation(Car car) {
+    public synchronized boolean JoinFastStation(Car car) {
         if (car.isFastCharging()) {
             return super.JoinStation(car);
         }
         return false;
+    }
+    public synchronized double getWaitingTime() {
+        double time = 0;
+        for (Car car : super.getCarQueue()) {
+            time += car.getChargingCapacity() / ChargingSpeed;
+        }
+        return time;
     }
 }
