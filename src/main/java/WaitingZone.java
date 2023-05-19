@@ -90,7 +90,7 @@ public class WaitingZone {
         }
         return false;
     }
-    public boolean CancelCharging(Car car) {
+    public boolean CancelCharging_Waiting(Car car) {
         if (car.isFastCharging()) {
             FastQueue.remove(car);
         }else {

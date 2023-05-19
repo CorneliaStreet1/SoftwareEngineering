@@ -1,4 +1,4 @@
-public class Car implements Comparable{
+public class Car implements Comparable<Car>{
     private static int nextPrimaryKey = 0;
     private boolean isFastCharge; //是否是快充模式
     private int QueueSeq; //到达的序号
@@ -53,13 +53,12 @@ public class Car implements Comparable{
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(Car o) {
         if (o == null) {
             throw new NullPointerException("Don't Give Me a NULL Car!");
         }
         if (o.getClass() == this.getClass()) {
-            Car c = (Car) o;
-            return this.QueueSeq - c.QueueSeq;
+            return this.QueueSeq - o.QueueSeq;
         }
         throw new IllegalArgumentException("Don't Give Me something that is NOT a Car!");
     }

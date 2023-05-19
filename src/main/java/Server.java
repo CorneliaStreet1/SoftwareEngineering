@@ -27,6 +27,14 @@ public class Server {
     public void Schedule() {
         while (true) {
             while (waitingZone.isOnService() && !waitingZone.isEmpty()) {
+                /*
+                  每个循环只调度最多一辆慢充车和一辆快充车。
+                  我个人觉得这是合理的，因为每调度一辆车，充电桩们的状态就发生了变化，需要重新调度
+                  举个例子，一开始两个快充站AB都是空的，我们有两辆快充车。
+                  我们选择最短等待时间的充电桩，这种情况下任选一个
+                  如果批量调度的话，两辆车可能会被放到同一个快充站。
+                  但是如果一个循环调度一辆的话，这一轮第一辆被放到A。第二路，B的等待时间小于A，第二辆车会被丢给B。
+                 */
                 List<FastChargeStation> fast = new ArrayList<>();
                 List<SlowChargeStation> slow = new ArrayList<>();
                 for (FastChargeStation fastStation : FastStations) {
