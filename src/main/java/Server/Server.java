@@ -1,18 +1,26 @@
+package Server;
+
+import Car.Car;
+import ChargeStation.ChargeStation;
+import ChargeStation.FastChargeStation;
+import ChargeStation.SlowChargeStation;
+import WaitingZone.WaitingZone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 
 public class Server {
+    private boolean StopServer;
     private static final Logger logger = LogManager.getLogger(Server.class);
     private WaitingZone waitingZone;
     private List<FastChargeStation> FastStations;
     private List<SlowChargeStation> SlowStations;
 
     public Server(int FastStationCount, int SlowStationCount) {
+        StopServer = false;
         FastStations = new ArrayList<>(FastStationCount);
         SlowStations = new ArrayList<>(SlowStationCount);
         waitingZone = new WaitingZone();
@@ -23,9 +31,12 @@ public class Server {
             SlowStations.add(new SlowChargeStation());
         }
     }
+    public void StopServer() {
+        StopServer = true;
+    }
     //会有单独一个线程负责做调度的工作
     public void Schedule() {
-        while (true) {
+        while (!StopServer) {
             while (waitingZone.isOnService() && !waitingZone.isEmpty()) {
                 /*
                   每个循环只调度最多一辆慢充车和一辆快充车。
@@ -48,7 +59,7 @@ public class Server {
                     }
                 }
                 if (!fast.isEmpty()) {
-                    Deque<Car> fastQueue =  waitingZone.getFastQueue();
+                    Deque<Car> fastQueue = waitingZone.getFastQueue();
                     if (!fastQueue.isEmpty()) {
                         int ShortestIndex = 0;
                         for (int i = 0; i < fast.size(); i++) {

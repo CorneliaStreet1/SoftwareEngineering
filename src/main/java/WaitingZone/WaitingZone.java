@@ -1,3 +1,7 @@
+package WaitingZone;
+
+import Car.Car;
+
 import java.util.ArrayDeque;
 
 public class WaitingZone {
@@ -79,12 +83,12 @@ public class WaitingZone {
     public boolean changeChargeCapacity_Waiting(Car car, double NewValue) {
         if (car.isFastCharging()) {
             if (FastQueue.contains(car)) {
-                car.setChargingCapacity(NewValue);
+                car.setRequestedChargingCapacity(NewValue);
                 return true;
             }
         }else {
             if (SlowQueue.contains(car)) {
-                car.setChargingCapacity(NewValue);
+                car.setRequestedChargingCapacity(NewValue);
                 return true;
             }
         }

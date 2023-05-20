@@ -1,25 +1,33 @@
+package Car;
+
 public class Car implements Comparable<Car>{
     private static int nextPrimaryKey = 0;
     private boolean isFastCharge; //是否是快充模式
     private int QueueSeq; //到达的序号
     private int PrimaryKey;
-    private double ChargingCapacity;
-
-    public double getChargingCapacity() {
-        return ChargingCapacity;
-    }
-
-    public void setChargingCapacity(double chargingCapacity) {
-        ChargingCapacity = chargingCapacity;
-    }
-
-    public Car(boolean isFastCharge, int queueSeq, double chargingCapacity) {
+    private double RequestedChargingCapacity; //车辆的请求充电量
+    private double CarBatteryCapacity;// 车辆的电池容量
+    public Car(boolean isFastCharge, int queueSeq, double requestedChargingCapacity, double carBatteryCapacity) {
         this.isFastCharge = isFastCharge;
         QueueSeq = queueSeq;
         PrimaryKey = nextPrimaryKey;
-        ChargingCapacity = chargingCapacity;
+        RequestedChargingCapacity = requestedChargingCapacity;
+        CarBatteryCapacity = carBatteryCapacity;
         nextPrimaryKey ++;
     }
+    public double getCarBatteryCapacity() {
+        return CarBatteryCapacity;
+    }
+
+    public double getRequestedChargingCapacity() {
+        return RequestedChargingCapacity;
+    }
+
+    public void setRequestedChargingCapacity(double requestedChargingCapacity) {
+        RequestedChargingCapacity = requestedChargingCapacity;
+    }
+
+
     public boolean isFastCharging() {
         return isFastCharge;
     }
@@ -55,11 +63,11 @@ public class Car implements Comparable<Car>{
     @Override
     public int compareTo(Car o) {
         if (o == null) {
-            throw new NullPointerException("Don't Give Me a NULL Car!");
+            throw new NullPointerException("Don't Give Me a NULL Car.Car!");
         }
         if (o.getClass() == this.getClass()) {
             return this.QueueSeq - o.QueueSeq;
         }
-        throw new IllegalArgumentException("Don't Give Me something that is NOT a Car!");
+        throw new IllegalArgumentException("Don't Give Me something that is NOT a Car.Car!");
     }
 }

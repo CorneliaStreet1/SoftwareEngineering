@@ -1,6 +1,9 @@
 # SoftwareEngineering
+
 软工
 DDL两周,狠狠大干赶英超美
+
+# 服务端
 
 ## 调度算法
 
@@ -33,9 +36,65 @@ DDL两周,狠狠大干赶英超美
 - 当 F1 被调度时，由于快充桩 A、B 均有空位，它可以分派到这两个队列;同样当 T1 被调度时，它可以分派到慢充桩 D、E 两个队列。
 - 它们最终被分配到哪个队列需要按照调度策略，即 F1 完成充电所需时长(等待时间+自己充电时间) 最短，以及 T1 完成充电所需时长 (等待时间+自己充电时间) 最短。
 
+## 服务端需要做的事情（业务逻辑）
+
+- 用户信息维护。这个目前做不了，要等持久化层就位
+- 车辆排队号码生成。做完了
+- 调度策略生成。大部分做了
+- 计费。还没做
+- 充电桩监控：
+- 数据统计（详单、报表数据生成）
+- 用户请求修改场景。基本上做完了
+  - 修改电量和充电类型：都只允许在等候区修改，**不允许在充电桩处修改**。
+  - 取消充电：都可以。
+- 调度策略基本上做完了
+
+需要给用户客户单提供的接口：
+
+- 注册、登录
+- 查看充电详单
+  - 详单编号
+  - 详单生成时间
+  - 充电桩编号
+  - 充电电量
+  - 充电时长
+  - 启动时间
+  - 停止时间
+  - 充电费用
+  - 服务费用
+  - 总费用
+- 提交或者修改充电请求：修改充电模式、本次请求充电量
+- 查看本车排队号码
+- 查看本充电模式下前车等待数量
+- 结束充电
+
+需要给管理员端提供的接口：
+
+- 启动、关闭充电桩：`TurnOnStation()`、`TurnOffStation()`
+- 查看所有充电桩的状态
+  - 是否正常工作：`ChargeStation.isOnService()`
+  - 系统启动后累计充电次数：`ChargeStation.getAccumulated_Charging_Times()`
+  - 充电总时长：`ChargeStation.getTotal_Charging_TimeLength()`
+  - 充电总电量：`ChargeStation.getTotal_ElectricityAmount_Charged()`
+- 查看各充电桩等候服务的车辆信息
+  - 用户ID：
+  - 车辆电池容量：`Car.getCarBatteryCapacity()`
+    - 关于车辆信息的，先调用充电桩的 `ChargeStation.getCarQueue()`得到充电桩的车的队列，然后遍历这个队列，调用Car类的方法即可。
+  - 车辆请求充电量：`Car.getRequestedChargingCapacity()`
+  - 排队时长：`SlowChargeStation.getWaitingTime()`和`FastChargeStation.getWaitingTime()`
+- 报表展示
+  - 时间：日、周、月
+  - 充电桩编号
+  - 下面的都直接调用相应充电桩（快/慢充桩）相应的Getter和Setter
+    - 累计充电次数
+    - 累计充电时长
+    - 累计充电费用
+    - 累计服务费用
+    - 累计总费用：充电费用 + 服务费用。调前两个的Setter，加起来就行了。
+
 ## 目前已有的各个类的说明
 
-### Car
+### Car.Car
 
 车子类。
 
@@ -55,7 +114,7 @@ private double ChargingCapacity;//车的充电容量。就是需要充多少电
 - 并且实现这些需求的方法的参数，都是传入一个Car类型。
 - 所以我们需要某种方式，来定义“参数里传入的那辆车和我们现在打算移除的这辆车是同一辆车”这件事。
 
-### ChargeStation
+### ChargeStation.ChargeStation
 
 充电桩（充电站）。这是一个父类，他有两个子类：快充站和慢充站
 
@@ -71,7 +130,7 @@ private double ChargingCapacity;//车的充电容量。就是需要充多少电
 
 ```java
     protected static final int MAX_SIZE = 2;//充电桩的等待队列的最大长度。一个充电桩最多两辆车
-    private ArrayDeque<Car> CarQueue;//队列本身，默认0号是正在充电的车，1号是正在等待的车
+    private ArrayDeque<Car.Car> CarQueue;//队列本身，默认0号是正在充电的车，1号是正在等待的车
 ```
 
 大部分的方法可以看名字推知其功能，挑几个说明一下：
@@ -79,7 +138,7 @@ private double ChargingCapacity;//车的充电容量。就是需要充多少电
 - 这个是用于取消正在充电的车的充电的。
 
 ```java
-public boolean CancelCharging(Car car) {
+public boolean CancelCharging(Car.Car car) {
     if (!CarQueue.isEmpty()) {
         if (CarQueue.getFirst().equals(car)) {
             CarQueue.removeFirst();
@@ -102,7 +161,7 @@ public synchronized boolean hasEmptySlot() {
 }
 ```
 
-#### FastChargeStation
+#### ChargeStation.FastChargeStation
 
 充电桩的子类，快充桩。
 
@@ -112,11 +171,11 @@ public synchronized boolean hasEmptySlot() {
 
 ```java
 public static final int ChargingSpeed = 30;
-public FastChargeStation() {
+public ChargeStation.FastChargeStation() {
     super();
 }
 
-public synchronized boolean JoinFastStation(Car car) {
+public synchronized boolean JoinFastStation(Car.Car car) {
     if (car.isFastCharging()) {
         return super.JoinStation(car);
     }
@@ -124,7 +183,7 @@ public synchronized boolean JoinFastStation(Car car) {
 }
     public synchronized double getWaitingTime() {//得到当前充电桩的等待时间
         double time = 0;
-        for (Car car : super.getCarQueue()) {
+        for (Car.Car car : super.getCarQueue()) {
             time += car.getChargingCapacity() / ChargingSpeed;
         }
 //TODO：目前这个方法使用每辆车的充电容量除以充电速度来估计充电时间。但是对于正在充电的车，应该用其剩余充电容量（比如要冲100度，已经充了80度了，应该用20除以30，而不是1000/30）
@@ -132,17 +191,17 @@ public synchronized boolean JoinFastStation(Car car) {
     }
 ```
 
-#### SlowChargeStation
+#### ChargeStation.SlowChargeStation
 
 慢充桩就不多说了
 
 ```java
     public static final int ChargingSpeed = 7;
-    public SlowChargeStation() {
+    public ChargeStation.SlowChargeStation() {
         super();
     }
 
-    public synchronized boolean JoinSlowStation(Car car) {
+    public synchronized boolean JoinSlowStation(Car.Car car) {
         if (!car.isFastCharging()) {
             return super.JoinStation(car);
         }
@@ -150,7 +209,7 @@ public synchronized boolean JoinFastStation(Car car) {
     }
     public synchronized double getWaitingTime() {
         double time = 0;
-        for (Car car : super.getCarQueue()) {
+        for (Car.Car car : super.getCarQueue()) {
             time += car.getChargingCapacity() / ChargingSpeed;
         }
         //TODO：目前这个方法使用每辆车的充电容量除以充电速度来估计充电时间。但是对于正在充电的车，应该用其剩余充电容量（比如要冲100度，已经充了80度了，应该用20除以30，而不是1000/30）
@@ -158,7 +217,7 @@ public synchronized boolean JoinFastStation(Car car) {
     }
 ```
 
-### WaitingZone
+### WaitingZone.WaitingZone
 
 等候区
 
@@ -172,8 +231,8 @@ private static final int MAX_SIZE = 6;//等候区里最多六辆车
 public static final int Priority_Scheduling = 0;//优先级调度
 public static final int Time_Sequence_Scheduling = 1;//时间顺序调度
 private boolean isOnService;//等候区当前是否提供服务
-private ArrayDeque<Car> FastQueue;//快充车的等待队列
-private ArrayDeque<Car> SlowQueue;//慢充车的等待队列
+private ArrayDeque<Car.Car> FastQueue;//快充车的等待队列
+private ArrayDeque<Car.Car> SlowQueue;//慢充车的等待队列
 private static int TotalCarCount = 0;//充电的总车次数(是车次数，不是车辆数，如果一辆车充一百次，那么车次要加一百)
 
 private int size;//当前等候区的车辆数，不超过6
@@ -181,20 +240,20 @@ private int size;//当前等候区的车辆数，不超过6
 
 然后挑几个方法说一下：
 
-- `changeChargeMode_Waiting(Car car)`：这个来源于用户请求修改的场景。下划线后面的Waiting代表是处于等待区，改变充电模式。
+- `changeChargeMode_Waiting(Car.Car car)`：这个来源于用户请求修改的场景。下划线后面的Waiting代表是处于等待区，改变充电模式。
   - 这里传入的参数不需要“是快充还是慢充”这个参数。因为Car自带当前它是快充还是慢充，反正往相反的改就行了
-- `changeChargeCapacity_Waiting(Car car, double NewValue)`：也来源于用户请求修改的场景。改变“这辆车要充多少电”这件事
-- `CancelCharging_Waiting(Car car)`：取消充电呗
+- `changeChargeCapacity_Waiting(Car.Car car, double NewValue)`：也来源于用户请求修改的场景。改变“这辆车要充多少电”这件事
+- `CancelCharging_Waiting(Car.Car car)`：取消充电呗
 
-### Server
+### Server.Server
 
 服务端。目前只写了服务端调度（等候区叫号等等）、处理充电桩出错。
 
 字段目前就这些。应该不需要解释吧。
 
 ```java
-private WaitingZone waitingZone;
-private List<FastChargeStation> FastStations;
-private List<SlowChargeStation> SlowStations;
+private WaitingZone.WaitingZone waitingZone;
+private List<ChargeStation.FastChargeStation> FastStations;
+private List<ChargeStation.SlowChargeStation> SlowStations;
 ```
 
