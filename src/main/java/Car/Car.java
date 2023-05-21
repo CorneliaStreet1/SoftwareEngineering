@@ -4,7 +4,7 @@ public class Car implements Comparable<Car>{
     private static int nextPrimaryKey = 0;
     private boolean isFastCharge; //是否是快充模式
     private int QueueSeq; //到达的序号
-    private int PrimaryKey;
+    protected int PrimaryKey;
     private double RequestedChargingCapacity; //车辆的请求充电量
     private double CarBatteryCapacity;// 车辆的电池容量
     public Car(boolean isFastCharge, int queueSeq, double requestedChargingCapacity, double carBatteryCapacity) {
@@ -14,6 +14,13 @@ public class Car implements Comparable<Car>{
         RequestedChargingCapacity = requestedChargingCapacity;
         CarBatteryCapacity = carBatteryCapacity;
         nextPrimaryKey ++;
+    }
+    public Car(boolean isFastCharge, int queueSeq, double requestedChargingCapacity, double carBatteryCapacity, int primaryKey) {
+        this.isFastCharge = isFastCharge;
+        QueueSeq = queueSeq;
+        PrimaryKey = primaryKey;
+        RequestedChargingCapacity = requestedChargingCapacity;
+        CarBatteryCapacity = carBatteryCapacity;
     }
     public double getCarBatteryCapacity() {
         return CarBatteryCapacity;
@@ -69,5 +76,8 @@ public class Car implements Comparable<Car>{
             return this.QueueSeq - o.QueueSeq;
         }
         throw new IllegalArgumentException("Don't Give Me something that is NOT a Car.Car!");
+    }
+    public Car getDeepCopy() {
+       return new Car(this.isFastCharge, this.getQueueSeq(), this.getRequestedChargingCapacity(), this.getCarBatteryCapacity(), this.PrimaryKey);
     }
 }
