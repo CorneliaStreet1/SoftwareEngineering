@@ -3,20 +3,21 @@ package WaitingZone;
 import Car.Car;
 
 import java.util.ArrayDeque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class WaitingZone {
     private static final int MAX_SIZE = 6;
     public static final int Priority_Scheduling = 0;
     public static final int Time_Sequence_Scheduling = 1;
     private boolean isOnService;
-    private ArrayDeque<Car> FastQueue;
-    private ArrayDeque<Car> SlowQueue;
+    private ConcurrentLinkedDeque<Car> FastQueue;
+    private ConcurrentLinkedDeque<Car> SlowQueue;
     private static int TotalCarCount = 0;//充电的总车次数(是车次数，不是车辆数，如果一辆车充一百次，那么车次要加一百)
 
     private int size;//当前等候区的车辆数，不超过6
     public WaitingZone() {
-        FastQueue = new ArrayDeque<>();
-        SlowQueue = new ArrayDeque<>();
+        FastQueue = new ConcurrentLinkedDeque<Car>();
+        SlowQueue = new ConcurrentLinkedDeque<Car>();
         size = 0;
         isOnService = true;
     }
@@ -109,11 +110,11 @@ public class WaitingZone {
         return FastQueue.size() + SlowQueue.size();
     }
 
-    public ArrayDeque<Car> getFastQueue() {
+    public ConcurrentLinkedDeque<Car> getFastQueue() {
         return FastQueue;
     }
 
-    public ArrayDeque<Car> getSlowQueue() {
+    public ConcurrentLinkedDeque<Car> getSlowQueue() {
         return SlowQueue;
     }
 }

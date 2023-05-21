@@ -48,7 +48,7 @@ public class SlowChargeStation extends ChargeStation{
     }
     @Override
     public void Charging() {
-        while (!this.getCarQueue().isEmpty()) {
+        while (this.isOnService() && (!this.isFaulty()) && (!this.getCarQueue().isEmpty())) {
             Car firstCar = this.getCarQueue().getFirst().getDeepCopy(); //getCarQueue()是线程安全的.CarQueue也是线程安全的队列
             Charge_StartTime = LocalDateTime.now();
             double requestedChargingCapacity = firstCar.getRequestedChargingCapacity();
