@@ -80,4 +80,15 @@ public class Car implements Comparable<Car>{
     public Car getDeepCopy() {
        return new Car(this.isFastCharge, this.getQueueSeq(), this.getRequestedChargingCapacity(), this.getCarBatteryCapacity(), this.PrimaryKey);
     }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "isFastCharge=" + isFastCharge +
+                ", QueueSeq=" + QueueSeq +
+                ", PrimaryKey=" + PrimaryKey +
+                ", RequestedChargingCapacity=" + RequestedChargingCapacity +
+                ", CarBatteryCapacity=" + CarBatteryCapacity +
+                '}';
+    }
 }

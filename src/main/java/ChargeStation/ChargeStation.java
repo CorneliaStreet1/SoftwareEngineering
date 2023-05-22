@@ -133,7 +133,7 @@ public class ChargeStation {
         if (!CarQueue.isEmpty()) {
             if (CarQueue.getFirst().equals(car)) {
                 CarQueue.removeFirst();
-                //TODO:如果有第二辆车,让等待的第二辆车去充电
+                //TODO: 如果有第二辆车,让等待的第二辆车去充电
             }else {
                 CarQueue.removeLast();
             }

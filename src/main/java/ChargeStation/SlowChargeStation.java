@@ -129,9 +129,10 @@ public class SlowChargeStation extends ChargeStation{
             ChargingForm usrForm = new ChargingForm(FORM_ID, RealEndTime, this.getChargeStationNumber(),
                     TotalElectricity,Charge_StartTime, RealEndTime, chargeFee, ServiceFee, ChargeTime);
             //TODO：将表单写入用户对应的数据库
+            UpdateStationState(ChargeTime, TotalElectricity, chargeFee, ServiceFee);
         }
     }
-    private void UpdateStationState() {
+    private void UpdateStationState(double ChargeTime, double TotalElectricity, double chargeFee, double ServiceFee) {
         /*
          * 需要更改的充电桩的数据：
          * 累计充电次数

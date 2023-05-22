@@ -16,8 +16,8 @@ public class WaitingZone {
 
     private int size;//当前等候区的车辆数，不超过6
     public WaitingZone() {
-        FastQueue = new ConcurrentLinkedDeque<Car>();
-        SlowQueue = new ConcurrentLinkedDeque<Car>();
+        FastQueue = new ConcurrentLinkedDeque<>();
+        SlowQueue = new ConcurrentLinkedDeque<>();
         size = 0;
         isOnService = true;
     }

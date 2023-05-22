@@ -11,12 +11,12 @@ public class ClientInterface {
         System.out.println("please input your password");
         String password = scanner.nextLine();
 
-        Unirest.setTimeouts(0, 0);
+/*        Unirest.setTimeouts(0, 0);
         HttpResponse<String> response = Unirest.post("http://127.0.0.1:8000/account_register")
                 .header("User-Agent", "Apifox/1.0.0 (https://www.apifox.cn)")
                 .header("Content-Type", "application/json")
                 .body("{\r\n  \"username\": \"12345678\",\r\n  \"password\": \"87654321\",\r\n  \"re_password\": \"87654321\"\r\n}")
-                .asString();
+                .asString();*/
         return 0;
     }
 
