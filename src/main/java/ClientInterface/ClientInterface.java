@@ -13,7 +13,7 @@ public class ClientInterface {
         String realName = scanner.nextLine();
         System.out.println("please input your password");
         String password = scanner.nextLine();
-
+        
         Unirest.setTimeouts(0, 0);
         try {
             HttpResponse<String> response = Unirest.post("http://127.0.0.1:8000/account_register")
