@@ -5,6 +5,7 @@ import ChargeStation.ChargeStation;
 import ChargeStation.FastChargeStation;
 import ChargeStation.SlowChargeStation;
 import Message.*;
+import UserManagement.UserManager;
 import WaitingZone.WaitingZone;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Server {
-    public ConcurrentLinkedDeque<String> MessageQueue; //消息队列。每个消息是一个JSON字符串
+    public static ConcurrentLinkedDeque<String> MessageQueue = new ConcurrentLinkedDeque<>();; //消息队列。每个消息是一个JSON字符串
     private boolean StopServer;
     private static final Logger logger = LogManager.getLogger(Server.class);
     private WaitingZone waitingZone;
@@ -28,13 +29,39 @@ public class Server {
         FastStations = new ArrayList<>(FastStationCount);
         SlowStations = new ArrayList<>(SlowStationCount);
         waitingZone = new WaitingZone();
-        MessageQueue = new ConcurrentLinkedDeque<>();
         for (int i = 0; i < FastStationCount; i++) {
             FastStations.add(new FastChargeStation());
         }
         for (int i = 0; i < SlowStationCount; i++) {
             SlowStations.add(new SlowChargeStation());
         }
+    }
+    public boolean CancelCharging_Server(Car car) {
+        if (car.isFastCharging()) {
+            if (waitingZone.contains(car)) {
+                return waitingZone.CancelCharging_Waiting(car);
+            }else {
+                for (FastChargeStation fastStation : FastStations) {
+                    if (fastStation.contains(car)) {
+                        return fastStation.CancelCharging(car);
+                    }
+                }
+            }
+        }else {
+            if (waitingZone.contains(car)) {
+                return waitingZone.CancelCharging_Waiting(car);
+            }else {
+                for (SlowChargeStation slowStation : SlowStations) {
+                    if (slowStation.contains(car)) {
+                        return slowStation.CancelCharging(car);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    public boolean ChangeChargeMode_Server(Car car) {
+
     }
     public void run() {
         this.MessageProcessing();
@@ -53,25 +80,33 @@ public class Server {
                         //TODO：加入进入等候区的函数，可能需要进行修改
                         msg_EnterWaitingZone m = gson.fromJson(JsonMsg, msg_EnterWaitingZone.class);
                         boolean success =  waitingZone.JoinWaitingZone(m.UserCar);
-                        if (success) {
+                        if (success) {//如果加入成功，尝试一次调度
                             Schedule();
-                            //TODO 给客户端返回一个加入等候区成功的消息
+                            //TODO 给客户端返回一个加入等候区成功的消息。这个True代表加入等候区成功，不代表其他事情。
                         }
                         break;
                     case "Charging_Complete":
-                        //TODO 进行一次调度
+                        //TODO 充电完成，进行一次调度。充电那边需要生成详单，以及结算费用。以及往消息队列里插入消息
+                        Schedule();
                         break;
                     case "Cancel_Charging":
-                        //TODO 进行一次充电的调度
+                        msg_CancelCharging cancelCharging = gson.fromJson(JsonMsg, msg_CancelCharging.class);
+                        boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
+                        Schedule();
+                        //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端
                         break;
                     case "Check_Charging_Form":
                         //TODO 计算充电详单
                         break;
                     case "User_Registration":
-                        //TODO 用户注册
+                        msg_UserRegistration msgUserRegistration = gson.fromJson(JsonMsg, msg_UserRegistration.class);
+                        //TODO 用户注册。并把结果返回客户端
+                        boolean Result = UserManager.UserRegistration(msgUserRegistration.UserName, msgUserRegistration.UserPassword);
                         break;
                     case "User_Login":
-                        //TODO 用户登录
+                        //TODO 用户登录、并把结果返回客户端
+                        msg_UserLogin msgUserLogin = gson.fromJson(JsonMsg, msg_UserLogin.class);
+                        boolean Login_Success = UserManager.UserLogIn(msgUserLogin.UserName, msgUserLogin.UserPassword);
                         break;
                     case "Change_Charging_Mode":
                         //TODO 改变充电模式

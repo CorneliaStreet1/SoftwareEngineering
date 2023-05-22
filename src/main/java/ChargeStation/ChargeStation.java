@@ -99,6 +99,9 @@ public class ChargeStation {
     public void setAccumulated_Service_Cost(double accumulated_Service_Cost) {
         Accumulated_Service_Cost = accumulated_Service_Cost;
     }
+    public boolean contains(Car car) {
+        return CarQueue.contains(car);
+    }
 /***************************************分割线结束***********************************************************/
     public synchronized boolean isOnService() {
         return isOnService;
@@ -134,6 +137,7 @@ public class ChargeStation {
             if (CarQueue.getFirst().equals(car)) {
                 CarQueue.removeFirst();
                 //TODO: 如果有第二辆车,让等待的第二辆车去充电
+                //TODO 结算各种。虽然是不收费，但是还是要生成一张详单才行
             }else {
                 CarQueue.removeLast();
             }

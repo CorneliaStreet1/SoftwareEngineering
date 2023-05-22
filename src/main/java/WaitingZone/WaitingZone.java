@@ -2,7 +2,6 @@ package WaitingZone;
 
 import Car.Car;
 
-import java.util.ArrayDeque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class WaitingZone {
@@ -116,5 +115,21 @@ public class WaitingZone {
 
     public ConcurrentLinkedDeque<Car> getSlowQueue() {
         return SlowQueue;
+    }
+    public boolean contains(Car car) {
+        if (car == null) {
+            return false;
+        }
+        for (Car car1 : FastQueue) {
+            if (car.equals(car1)) {
+                return true;
+            }
+        }
+        for (Car car1 : SlowQueue) {
+            if (car.equals(car1)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
