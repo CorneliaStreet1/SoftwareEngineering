@@ -1,13 +1,16 @@
 package ChargeStation;
 
 import Car.Car;
-import Form.ChargingForm;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class SlowChargeStation extends ChargeStation{
+    double HighTime_Min = 0,NormalTime_Min = 0,LowTime_Min = 0;//充电过程中处于高峰、平常、低谷的总时间。单位：分钟
+    double HighTime_Min1 = 0,HighTime_Min2 = 0;//高峰两个时间段分别统计的时间
+    double LowTime_Min1 = 0,LowTime_Min2 = 0;//低谷两个时间段分别统计的时间
+    double NormalTime_Min1 = 0, NormalTime_Min2 = 0, NormalTime_Min3 = 0;//正常的三个时间段的分别统计的时间
     public static final double ChargingSpeed = 7;
     public static final double ChargingSpeed_PerMinute = 0.1166667; // 7.0 / 60.0
     private LocalDateTime Charge_StartTime;//当前正在充电的车，充电的开始时间
@@ -48,19 +51,14 @@ public class SlowChargeStation extends ChargeStation{
     }
     @Override
     public void Charging() {
-        while (this.isOnService() && (!this.isFaulty()) && (!this.getCarQueue().isEmpty())) {
+        if (this.isOnService() && (!this.isFaulty()) && (!this.getCarQueue().isEmpty())) {
             Car firstCar = this.getCarQueue().getFirst().getDeepCopy(); //getCarQueue()是线程安全的.CarQueue也是线程安全的队列
             Charge_StartTime = LocalDateTime.now();
             double requestedChargingCapacity = firstCar.getRequestedChargingCapacity();
             double ExpectedCharging_Hour = requestedChargingCapacity / ChargingSpeed;//单位:小时
             long ExpectedCharging_Min = (long) (ExpectedCharging_Hour * 60);//单位:分钟
             Expected_Charge_EndTime = Charge_StartTime.plusMinutes(ExpectedCharging_Min);
-            double HighTime_Min = 0,NormalTime_Min = 0,LowTime_Min = 0;//充电过程中处于高峰、平常、低谷的总时间。单位：分钟
-            double HighTime_Min1 = 0,HighTime_Min2 = 0;//高峰两个时间段分别统计的时间
-            double LowTime_Min1 = 0,LowTime_Min2 = 0;//低谷两个时间段分别统计的时间
-            double NormalTime_Min1 = 0, NormalTime_Min2 = 0, NormalTime_Min3 = 0;//正常的三个时间段的分别统计的时间
-
-            while (LocalDateTime.now().isBefore(Expected_Charge_EndTime) && firstCar.equals(this.getCarQueue().getFirst())) {
+            if (LocalDateTime.now().isBefore(Expected_Charge_EndTime) && firstCar.equals(this.getCarQueue().getFirst())) {
                 LocalDateTime Now = LocalDateTime.now();
                 LocalTime Hour_Min = LocalTime.of(Now.getHour(), Now.getMinute()); //得到Now的小时和分钟部分
                 if (isAtHighPoint(Now)) {//高峰时(10:00~15:00,18:00 ~ 21:00)
@@ -98,38 +96,41 @@ public class SlowChargeStation extends ChargeStation{
                         NormalTime_Min3 = Duration.between(ChargeStation.Normal_Start3, Hour_Min).toMinutes();
                     }
                 }
+            }else {
                 //TODO:更新充电详单的信息，跳出循环后，更新父类的统计信息（已做）。生成一个详单（做了一半。
                 // 但是怎么把详单传递给客户端呢？用网络通信？还是直接存到用户对应的数据库表单里面？
                 // 更新处于高峰、低谷、正常的时间长度（做了）
+                // TODO：把队列头部的车remove。如果车子不在头部，那么说明是被取消了。否则就是正常充电到结束
+
+                /*
+                 * 需要生成详单的数据：
+                 * 详单编号：生成时间 + 车辆ID的形式
+                 * 详单生成时间
+                 * 充电桩编号
+                 * 充电电量
+                 * 充电时长
+                 * 启动时间/停止时间
+                 * 充电费用
+                 * 服务费用
+                 * 总费用
+                 * */
+                HighTime_Min = HighTime_Min1 + HighTime_Min2;// 计算两个高峰段的时间之和
+                NormalTime_Min = NormalTime_Min1 + NormalTime_Min2 + NormalTime_Min3; //计算三个正常时间段的和
+                LowTime_Min = LowTime_Min1 + LowTime_Min2;// 计算两个低谷时间段的和
+                LocalDateTime RealEndTime = LocalDateTime.now();//充电结束的时间也是订单的生成时间
+                String FORM_ID = RealEndTime.toString() + " CarID = " + firstCar.getPrimaryKey();
+                Duration duration = Duration.between(Charge_StartTime, RealEndTime);
+                double ChargeTime = (double) duration.toMinutes();
+                double TotalElectricity = (HighTime_Min + LowTime_Min + NormalTime_Min) * ChargingSpeed_PerMinute;
+                double chargeFee = HighTime_Min * ChargingSpeed_PerMinute * ChargeStation.HIGH_ELECTRICITY_PRICE
+                        + NormalTime_Min * ChargingSpeed_PerMinute * ChargeStation.NORMAL_ELECTRICITY_PRICE
+                        + LowTime_Min * ChargingSpeed_PerMinute * ChargeStation.LOW_ELECTRICITY_PRICE;
+                double ServiceFee = ChargeStation.SERVICE_PRICE * TotalElectricity;
+                ChargingForm usrForm = new ChargingForm(FORM_ID, RealEndTime, this.getChargeStationNumber(),
+                        TotalElectricity, Charge_StartTime, RealEndTime, chargeFee, ServiceFee, ChargeTime);
+                //TODO：将表单写入用户对应的数据库
+                UpdateStationState(ChargeTime, TotalElectricity, chargeFee, ServiceFee);
             }
-            /*
-             * 需要生成详单的数据：
-             * 详单编号：生成时间 + 车辆ID的形式
-             * 详单生成时间
-             * 充电桩编号
-             * 充电电量
-             * 充电时长
-             * 启动时间/停止时间
-             * 充电费用
-             * 服务费用
-             * 总费用
-             * */
-            HighTime_Min = HighTime_Min1 + HighTime_Min2;// 计算两个高峰段的时间之和
-            NormalTime_Min = NormalTime_Min1 + NormalTime_Min2 + NormalTime_Min3; //计算三个正常时间段的和
-            LowTime_Min = LowTime_Min1 + LowTime_Min2;// 计算两个低谷时间段的和
-            LocalDateTime RealEndTime = LocalDateTime.now();//充电结束的时间也是订单的生成时间
-            String FORM_ID = RealEndTime.toString() + " CarID = " + firstCar.getPrimaryKey();
-            Duration duration = Duration.between(Charge_StartTime, RealEndTime);
-            double ChargeTime = (double) duration.toMinutes();
-            double TotalElectricity = (HighTime_Min + LowTime_Min + NormalTime_Min) * ChargingSpeed_PerMinute;
-            double chargeFee = HighTime_Min * ChargingSpeed_PerMinute * ChargeStation.HIGH_ELECTRICITY_PRICE
-                    + NormalTime_Min * ChargingSpeed_PerMinute * ChargeStation.NORMAL_ELECTRICITY_PRICE
-                    + LowTime_Min * ChargingSpeed_PerMinute * ChargeStation.LOW_ELECTRICITY_PRICE;
-            double ServiceFee = ChargeStation.SERVICE_PRICE * TotalElectricity;
-            ChargingForm usrForm = new ChargingForm(FORM_ID, RealEndTime, this.getChargeStationNumber(),
-                    TotalElectricity,Charge_StartTime, RealEndTime, chargeFee, ServiceFee, ChargeTime);
-            //TODO：将表单写入用户对应的数据库
-            UpdateStationState(ChargeTime, TotalElectricity, chargeFee, ServiceFee);
         }
     }
     private void UpdateStationState(double ChargeTime, double TotalElectricity, double chargeFee, double ServiceFee) {

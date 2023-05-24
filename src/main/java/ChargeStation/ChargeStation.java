@@ -157,6 +157,9 @@ public class ChargeStation {
         return CarQueue;
     }
     public void Charging() {
-        return;
+        throw new UnsupportedOperationException("Should NOT Call Parent's Method");
+    }
+    public void CompleteCharge() {
+        throw new UnsupportedOperationException("Should NOT Call Parent's Method");
     }
 }
