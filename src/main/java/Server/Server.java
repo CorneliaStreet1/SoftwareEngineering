@@ -61,7 +61,7 @@ public class Server {
         return false;
     }
     public boolean ChangeChargeMode_Server(Car car) {
-
+        return false;
     }
     public void run() {
         this.MessageProcessing();
