@@ -1,4 +1,4 @@
-package Form;
+package ChargeStation;
 
 import java.time.LocalDateTime;
 
