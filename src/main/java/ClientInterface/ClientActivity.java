@@ -6,10 +6,12 @@ public class ClientActivity {
     private ViewActivity viewActivity;
     private OrderActivity orderActivity;
     private Scanner scanner;
+    private String url;
     private String token;
 
-    ClientActivity(Scanner scanner){
+    ClientActivity(Scanner scanner, String url){
         this.scanner = scanner;
+        this.url = url;
     }
 
     public void writeToken(String token){
@@ -17,8 +19,8 @@ public class ClientActivity {
     }
 
     public void run() {
-        viewActivity = new ViewActivity(scanner);
-        orderActivity = new OrderActivity(scanner);
+        viewActivity = new ViewActivity( scanner, url );
+        orderActivity = new OrderActivity( scanner, url );
         viewActivity.writeToken(token);
         orderActivity.writeToken(token);
 

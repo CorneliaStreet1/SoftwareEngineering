@@ -12,28 +12,28 @@ import java.util.concurrent.ExecutionException;
 
 public class Demo {
     public static void main(String[] args) throws Exception {
-//        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
-//        server.createContext("/account_register", new MyHandler());
-//        server.setExecutor(null);
-//        server.start();
-//        System.out.println("Server started on port 8000");
+        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+        server.createContext("/account_login", new MyHandler());
+        server.setExecutor(null);
+        server.start();
+        System.out.println("Server started on port 8000");
 
-        CompletableFuture<String> future = new CompletableFuture<>();
-        future.complete("os");
-
-
-        Gson gson = new Gson();
-        String s = gson.toJson(future, CompletableFuture.class);
-        System.out.println(s);
-        CompletableFuture<String> temp = gson.fromJson(s,CompletableFuture.class);
-
-
-        Thread threadProcessor = new Thread(new receiver(temp));
-        Thread threadProducor = new Thread( new sender(temp));
-
-        threadProducor.start();
-        Thread.sleep(3000);
-        threadProcessor.start();
+//        CompletableFuture<String> future = new CompletableFuture<>();
+//        future.complete("os");
+//
+//
+//        Gson gson = new Gson();
+//        String s = gson.toJson(future, CompletableFuture.class);
+//        System.out.println(s);
+//        CompletableFuture<String> temp = gson.fromJson(s,CompletableFuture.class);
+//
+//
+//        Thread threadProcessor = new Thread(new receiver(temp));
+//        Thread threadProducor = new Thread( new sender(temp));
+//
+//        threadProducor.start();
+//        Thread.sleep(3000);
+//        threadProcessor.start();
     }
 
     static class sender implements Runnable {
@@ -95,7 +95,16 @@ public class Demo {
             String method = t.getRequestMethod();
             if (method.equals("GET")) {
                 String query = t.getRequestURI().getQuery();
-                String response = "Hello, " + query + "!";
+//                String response = "Hello, " + query + "!";
+                String response = "{\n" +
+                        "    \"code\": 0,\n" +
+                        "    \"data\": {\n" +
+                        "        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImppbnVvIiwiaWF0IjoxNTE2MjM5MDIyfQ.WhOxJUL0ZfPW6zrLNdkbQvoE8JObEB_5kr9DkgEVDeE\",\n" +
+                        "        \"is_admin\": false\n" +
+                        "    },\n" +
+                        "    \"message\": \"success\"\n" +
+                        "}";
+
                 t.sendResponseHeaders(200, response.length());
                 OutputStream os = t.getResponseBody();
                 os.write(response.getBytes());
@@ -109,7 +118,16 @@ public class Demo {
                     sb.append(line);
                 }
                 String requestBody = sb.toString();
-                String response = "Hello, " + requestBody + "!";
+//                String response = "Hello, " + requestBody + "!";
+
+                String response = "{\n" +
+                        "    \"code\": 0,\n" +
+                        "    \"data\": {\n" +
+                        "        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImppbnVvIiwiaWF0IjoxNTE2MjM5MDIyfQ.WhOxJUL0ZfPW6zrLNdkbQvoE8JObEB_5kr9DkgEVDeE\",\n" +
+                        "        \"is_admin\": false\n" +
+                        "    },\n" +
+                        "    \"message\": \"success\"\n" +
+                        "}";
                 t.sendResponseHeaders(200, response.length());
                 OutputStream os = t.getResponseBody();
                 os.write(response.getBytes());

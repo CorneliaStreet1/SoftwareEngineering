@@ -36,29 +36,29 @@ public class LogActivity {
     }
 
     private Scanner scanner;
+    private String url;
     private ClientActivity clientActivity;
 
-    LogActivity(Scanner scanner){
-        this.scanner=scanner;
+    LogActivity(Scanner scanner, String url){
+        this.scanner = scanner;
+        this.url = url;
     }
 
     private int registerModel(){
-        System.out.println("please input your username");
-        String username = scanner.nextLine();
-        System.out.println("please input your password");
-        String password = scanner.nextLine();
-
         RegisterMsg registerMsg = new RegisterMsg();
-        registerMsg.username = username;
-        registerMsg.password = password;
-        registerMsg.re_password = password;
+
+        System.out.print("please input your username: ");
+        registerMsg.username = scanner.nextLine();
+        System.out.print("please input your password: ");
+        registerMsg.password = scanner.nextLine();
+        registerMsg.re_password = registerMsg.password;
 
         Gson gson = new Gson();
         String s = gson.toJson(registerMsg, RegisterMsg.class);
 
         Unirest.setTimeouts(0, 0);
         try {
-            HttpResponse<String> response = Unirest.post("http://127.0.0.1:8000/account_register")
+            HttpResponse<String> response = Unirest.post(url+"/account_register")
                     .header("User-Agent", "Apifox/1.0.0 (https://www.apifox.cn)")
                     .header("Content-Type", "application/json")
                     .body(s)
@@ -71,22 +71,20 @@ public class LogActivity {
         return 0;
     }
 
-    private int logModel(){
-        System.out.println("please input your username");
-        String username = scanner.nextLine();
-        System.out.println("please input your password");
-        String password = scanner.nextLine();
-
+    private int loginModel(){
         LogMsg logMsg = new LogMsg();
-        logMsg.username = username;
-        logMsg.password = password;
+
+        System.out.print("please input your username: ");
+        logMsg.username = scanner.nextLine();
+        System.out.print("please input your password: ");
+        logMsg.password = scanner.nextLine();
 
         Gson gson = new Gson();
         String s = gson.toJson(logMsg, LogMsg.class);
 
         Unirest.setTimeouts(0, 0);
         try {
-            HttpResponse<String> response = Unirest.post("http://127.0.0.1:8000/account_register")
+            HttpResponse<String> response = Unirest.post(url+"/account_login")
                     .header("User-Agent", "Apifox/1.0.0 (https://www.apifox.cn)")
                     .header("Content-Type", "application/json")
                     .body(s)
@@ -110,13 +108,13 @@ public class LogActivity {
     }
 
     public void run() {
-        clientActivity = new ClientActivity(scanner);
+        clientActivity = new ClientActivity(scanner,url);
 
         boolean isExit = false;
         while(!isExit){
             System.out.println("LogActivity:");
             System.out.println("1. register");
-            System.out.println("2. log");
+            System.out.println("2. login");
             System.out.println("9. exit");
 
             int selectNum = scanner.nextInt();
@@ -124,7 +122,7 @@ public class LogActivity {
             System.out.println();
             switch (selectNum){
                 case 1: registerModel(); break;
-                case 2: logModel(); break;
+                case 2: loginModel(); break;
                 case 9: isExit = true; break;
                 default: System.out.println("input error"); break;
             }
