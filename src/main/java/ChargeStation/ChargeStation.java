@@ -156,6 +156,7 @@ public class ChargeStation {
         * */
         return CarQueue;
     }
+    @Deprecated
     public void Charging() {
         throw new UnsupportedOperationException("Should NOT Call Parent's Method");
     }

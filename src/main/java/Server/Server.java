@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Server {
@@ -24,6 +25,8 @@ public class Server {
     private WaitingZone waitingZone;
     private List<FastChargeStation> FastStations;
     private List<SlowChargeStation> SlowStations;
+    private List<Timer> FastTimers;
+    private List<Timer> SlowTimers;
 
     public Server(int FastStationCount, int SlowStationCount) {
         StopServer = false;
@@ -35,6 +38,10 @@ public class Server {
         }
         for (int i = 0; i < SlowStationCount; i++) {
             SlowStations.add(new SlowChargeStation());
+        }
+        for (int i = 0; i < FastTimers.size(); i++) {
+            FastTimers.add(new Timer("FastTimer" + i));
+            SlowTimers.add(new Timer("SlowTimer" + i));
         }
     }
     public boolean CancelCharging_Server(Car car) {
@@ -80,7 +87,6 @@ public class Server {
         Gson gson = new Gson();
         while (!StopServer) {
             while (!MessageQueue.isEmpty()) {
-
                 String JsonMsg = MessageQueue.removeFirst();
                 if (JsonMsg == null) {
                     throw new NullPointerException("NULL Message");
@@ -265,7 +271,7 @@ public class Server {
                         slow.add(slowStation);
                     }
                 }
-                if (!fast.isEmpty()) {
+                if (!fast.isEmpty()) {//调度一辆快车
                     Deque<Car> fastQueue = waitingZone.getFastQueue();
                     if (!fastQueue.isEmpty()) {
                         int ShortestIndex = 0;
@@ -273,11 +279,11 @@ public class Server {
                             if (fast.get(i).getWaitingTime() < fast.get(ShortestIndex).getWaitingTime()) {
                                 ShortestIndex = i;
                             }
-                            fast.get(ShortestIndex).JoinFastStation(fastQueue.removeFirst());
                         }
+                        fast.get(ShortestIndex).JoinFastStation(fastQueue.removeFirst());
                     }
                 }
-                if (!slow.isEmpty()) {
+                if (!slow.isEmpty()) {//调度一辆慢车
                     Deque<Car> slowQueue = waitingZone.getSlowQueue();
                     if (!slowQueue.isEmpty()) {
                         int ShortestIndex = 0;
@@ -287,6 +293,24 @@ public class Server {
                             }
                         }
                         slow.get(ShortestIndex).JoinSlowStation(slowQueue.removeFirst());
+                    }
+                }
+                //这个时候遍历每个充电桩，如果桩非空，就启动对应的定时器
+                //TODO 改完slowStation之后，补充上FastStation的
+                /*for (int i = 0; i < FastStations.size(); i++) {
+                    FastChargeStation fastChargeStation = FastStations.get(i);
+                    if (fastChargeStation.Size() > 0) {
+                        Timer timer = FastTimers.get(i);
+                        Car headCar = fastChargeStation.getCarQueue().getFirst().getDeepCopy();
+                        fastChargeStation
+                    }
+                }*/
+                for (int i = 0; i < SlowStations.size(); i++) {
+                    SlowChargeStation slowChargeStation = SlowStations.get(i);
+                    if (slowChargeStation.Size() > 0) {
+                        Timer SlowTimer = SlowTimers.get(i);
+                        Car HeadCar = slowChargeStation.getCarQueue().removeFirst();
+
                     }
                 }
             }

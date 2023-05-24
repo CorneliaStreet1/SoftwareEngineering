@@ -1,12 +1,47 @@
 package ChargeStation;
 
 import Car.Car;
+import Server.Server;
+import com.google.gson.Gson;
+import Message.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SlowChargeStation extends ChargeStation{
+    private class timerTask extends TimerTask {
+        public timerTask() {
+            
+        }
+
+        public void run() {
+            if (isOnService() && (!isFaulty()) && (!getCarQueue().isEmpty())) {
+                /*
+                 * 1.向消息队列插入充电完成的消息，包含<哪辆Car完成了充电,是哪个充电桩>
+                 * 2.看看队头的车是否和firstCar对得上，对得上的话移除队头的车。更新firstCar为新的头部
+                 * 3.启动下一个定时器任务，给新的车计时.
+                 * */
+                Gson gson = new Gson();
+                msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null);
+                Server.MessageQueue.addLast(gson.toJson(msgChargeComplete, msgChargeComplete.getClass()));
+                if (getCarQueue().getFirst().equals(firstCar)) {
+                    getCarQueue().removeFirst();
+                }
+                if (!getCarQueue().isEmpty()) {
+                    firstCar = getCarQueue().getFirst().getDeepCopy();
+                    Charge_StartTime = LocalDateTime.now();
+                    double requestedChargingCapacity = firstCar.getRequestedChargingCapacity(); //单位:度
+                    double ExpectedCharging_Hour = requestedChargingCapacity / ChargingSpeed;//单位:小时
+                    double ExpectedCharging_Seconds = (requestedChargingCapacity / ChargingSpeed) * 60 * 60;//单位:秒
+                    Expected_Charge_EndTime = Charge_StartTime.plusSeconds((long) ExpectedCharging_Seconds); //预期的结束时间
+                    chargeTimer.schedule(new timerTask(), (long) ExpectedCharging_Seconds * 60);
+                }
+            }
+        }
+    }
     double HighTime_Min = 0,NormalTime_Min = 0,LowTime_Min = 0;//充电过程中处于高峰、平常、低谷的总时间。单位：分钟
     double HighTime_Min1 = 0,HighTime_Min2 = 0;//高峰两个时间段分别统计的时间
     double LowTime_Min1 = 0,LowTime_Min2 = 0;//低谷两个时间段分别统计的时间
@@ -15,8 +50,11 @@ public class SlowChargeStation extends ChargeStation{
     public static final double ChargingSpeed_PerMinute = 0.1166667; // 7.0 / 60.0
     private LocalDateTime Charge_StartTime;//当前正在充电的车，充电的开始时间
     private LocalDateTime Expected_Charge_EndTime;//当前正在充电的车，预期的充电的结束时间
+    private Timer chargeTimer;
+    private Car firstCar; //队列头部的车的副本（当前正在充电的车的副本）
     public SlowChargeStation() {
         super();
+        chargeTimer = new Timer("Slow Timer");
     }
 
     public synchronized boolean JoinSlowStation(Car car) {
@@ -25,6 +63,44 @@ public class SlowChargeStation extends ChargeStation{
         }
         return false;
     }
+    public void Run() {
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                /*
+                * 1.向消息队列插入充电完成的消息，包含<哪辆Car完成了充电,是哪个充电桩>
+                * 2.看看队头的车是否和firstCar对得上，对得上的话移除队头的车。更新firstCar为新的头部
+                * 2.启动下一个定时器任务，给新的车计时
+                * */
+                Gson gson = new Gson();
+                msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null);
+                Server.MessageQueue.addLast(gson.toJson(msgChargeComplete, msgChargeComplete.getClass()));
+                if (getCarQueue().getFirst().equals(firstCar)) {
+                    getCarQueue().removeFirst();
+                }
+                firstCar = getCarQueue().getFirst().getDeepCopy();
+                Charge_StartTime = LocalDateTime.now();
+                double requestedChargingCapacity = firstCar.getRequestedChargingCapacity(); //单位:度
+                double ExpectedCharging_Hour = requestedChargingCapacity / ChargingSpeed;//单位:小时
+                double ExpectedCharging_Seconds = (requestedChargingCapacity / ChargingSpeed) * 60 * 60;//单位:秒
+                Expected_Charge_EndTime = Charge_StartTime.plusSeconds((long) ExpectedCharging_Seconds); //预期的结束时间
+                chargeTimer = new Timer("SlowStation Timer");
+            }
+        };
+    }
+    @Override
+    public void CompleteCharge() {
+        if (this.isOnService() && (!this.isFaulty()) && (!this.getCarQueue().isEmpty())) {
+            firstCar = this.getCarQueue().getFirst().getDeepCopy();
+            Charge_StartTime = LocalDateTime.now();
+            double requestedChargingCapacity = firstCar.getRequestedChargingCapacity(); //单位:度
+            double ExpectedCharging_Hour = requestedChargingCapacity / ChargingSpeed;//单位:小时
+            double ExpectedCharging_Seconds = (requestedChargingCapacity / ChargingSpeed) * 60 * 60;//单位:秒
+            Expected_Charge_EndTime = Charge_StartTime.plusSeconds((long) ExpectedCharging_Seconds); //预期的结束时间
+            chargeTimer.schedule(new timerTask(), (long) ExpectedCharging_Seconds * 60);
+        }
+    }
+
     public synchronized double getWaitingTime() {
         double time = 0;
         for (Car car : this.getCarQueue()) {
@@ -33,6 +109,23 @@ public class SlowChargeStation extends ChargeStation{
         //TODO：目前这个方法使用每辆车的充电容量除以充电速度来估计充电时间。但是对于正在充电的车，应该用其剩余充电容量（比如要冲100度，已经充了80度了，应该用20除以30，而不是1000/30）
         return time;
     }
+
+    public LocalDateTime getCharge_StartTime() {
+        return Charge_StartTime;
+    }
+
+    public void setCharge_StartTime(LocalDateTime charge_StartTime) {
+        Charge_StartTime = charge_StartTime;
+    }
+
+    public LocalDateTime getExpected_Charge_EndTime() {
+        return Expected_Charge_EndTime;
+    }
+
+    public void setExpected_Charge_EndTime(LocalDateTime expected_Charge_EndTime) {
+        Expected_Charge_EndTime = expected_Charge_EndTime;
+    }
+
     private boolean isAtHighPoint(LocalDateTime time) {
         //高峰：(10:00~15:00,18:00 ~ 21:00)
         LocalTime Hour_Min = LocalTime.of(time.getHour(), time.getMinute());
@@ -49,7 +142,7 @@ public class SlowChargeStation extends ChargeStation{
         }
         return false;
     }
-    @Override
+    @Deprecated
     public void Charging() {
         if (this.isOnService() && (!this.isFaulty()) && (!this.getCarQueue().isEmpty())) {
             Car firstCar = this.getCarQueue().getFirst().getDeepCopy(); //getCarQueue()是线程安全的.CarQueue也是线程安全的队列

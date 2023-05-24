@@ -4,12 +4,13 @@ import Car.Car;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class msg_ChangeChargingMode extends Message{
     public Car car;
 
-    public msg_ChangeChargingMode(Car car) {
-        super("Change_Charging_Mode");
+    public msg_ChangeChargingMode(Car car, CompletableFuture<String> CompletableFuture_result_Json) {
+        super("Change_Charging_Mode", CompletableFuture_result_Json);
         this.car = car;
     }
 
