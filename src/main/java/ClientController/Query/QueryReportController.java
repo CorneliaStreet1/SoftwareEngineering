@@ -1,4 +1,4 @@
-package ClientController;
+package ClientController.Query;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,6 +9,7 @@ import java.io.IOException;
 
 @WebServlet("/query_report")
 public class QueryReportController extends HttpServlet {
+    //这个好像是管理员查看的
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
