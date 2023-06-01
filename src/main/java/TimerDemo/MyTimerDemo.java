@@ -5,6 +5,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class MyTimerDemo  {
     Timer timer;
@@ -35,5 +37,14 @@ public class MyTimerDemo  {
 
     public static void main(String[] args) {
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        ScheduledFuture<?> schedule = scheduledExecutorService.schedule(() -> {
+            System.out.println("Hello " + LocalDateTime.now());
+        }, 5, TimeUnit.SECONDS);
+        ScheduledFuture<?> schedule1 = scheduledExecutorService.schedule(() -> {
+            System.out.println(LocalDateTime.now());
+        }, 8, TimeUnit.SECONDS);
+        schedule.cancel(false);
+        System.out.println(LocalDateTime.now());
+        scheduledExecutorService.shutdown();
     }
 }

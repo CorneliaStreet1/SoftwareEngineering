@@ -11,61 +11,86 @@ import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.time.LocalTime;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class Server {
+    /*
+    电价单位都是 元/度
+    */
+    protected static final double HIGH_ELECTRICITY_PRICE = 1.0; //高峰时(10:00~15:00,18:00 ~ 21:00)电价
+    protected static final LocalTime High_Start1 = LocalTime.of(10, 0);
+    protected static final LocalTime High_Start2 = LocalTime.of(18, 0);
+    protected static final LocalTime High_End1 = LocalTime.of(15, 0);
+    protected static final LocalTime High_End2 = LocalTime.of(21, 0);
+
+    protected static final double NORMAL_ELECTRICITY_PRICE = 0.7; //平时电价(7:00~10:00.15:00~18:00,21:00~23:00)
+    protected static final LocalTime Normal_Start1 = LocalTime.of(7, 0);
+    protected static final LocalTime Normal_Start2 = LocalTime.of(15, 0);
+    protected static final LocalTime Normal_Start3 = LocalTime.of(21, 0);
+    protected static final LocalTime Normal_End1 = LocalTime.of(10, 0);
+    protected static final LocalTime Normal_End2 = LocalTime.of(18, 0);
+    protected static final LocalTime Normal_End3 = LocalTime.of(23, 0);
+    protected static final double LOW_ELECTRICITY_PRICE = 0.4; //低谷时电价(23:00~次日7:00)
+    protected static final LocalTime Low_Start1 = LocalTime.of(23, 0);
+    protected static final LocalTime Low_End1 = LocalTime.of(7, 0);
     public static ConcurrentLinkedDeque<String> MessageQueue = new ConcurrentLinkedDeque<>(); //消息队列。每个消息是一个JSON字符串
     private boolean StopServer;
     private static final Logger logger = LogManager.getLogger(Server.class);
     private WaitingZone waitingZone;
     private List<FastChargeStation> FastStations;
     private List<SlowChargeStation> SlowStations;
-    private List<Timer> FastTimers;
-    private List<Timer> SlowTimers;
 
+    private ConcurrentHashMap<Car, ScheduledFuture<?>> CarToTimer;// 正在充电的车 和 他们的定时器任务 之间的映射
+    private List<ScheduledExecutorService> FastTimers;//每个快充站的计时器构成的List
+    private List<ScheduledExecutorService> SlowTimers; //每个慢充站的计时器构成的的List
     public Server(int FastStationCount, int SlowStationCount) {
         StopServer = false;
         FastStations = new ArrayList<>(FastStationCount);
         SlowStations = new ArrayList<>(SlowStationCount);
         waitingZone = new WaitingZone();
+        FastTimers = new ArrayList<>();
+        SlowTimers = new ArrayList<>();
         for (int i = 0; i < FastStationCount; i++) {
             FastStations.add(new FastChargeStation());
+            FastTimers.add(Executors.newScheduledThreadPool(1));
         }
         for (int i = 0; i < SlowStationCount; i++) {
             SlowStations.add(new SlowChargeStation());
+            SlowTimers.add(Executors.newScheduledThreadPool(1));
         }
-        for (int i = 0; i < FastTimers.size(); i++) {
-            FastTimers.add(new Timer("FastTimer" + i));
-            SlowTimers.add(new Timer("SlowTimer" + i));
-        }
+        CarToTimer = new ConcurrentHashMap<>();
     }
-    public boolean CancelCharging_Server(Car car) {
-        if (car.isFastCharging()) {
+    //TODO 重新写下面这个方法，如果是已经在充电的车，需要把Map里的项移除。
+    public boolean CancelCharging_Server(Car car) {//car只需要主键对得上就行
+        if (car == null) {
+            return false;
+        }
             if (waitingZone.contains(car)) {
                 return waitingZone.CancelCharging_Waiting(car);
-            }else {
+            }else {//如果不在等候区，直接分别遍历快慢队列。
                 for (FastChargeStation fastStation : FastStations) {
-                    if (fastStation.contains(car)) {
-                        return fastStation.CancelCharging(car);
+                    if (fastStation.contains(car)) {//如果快充站包含
+                        if (CarToTimer.containsKey(car)) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
+                            CarToTimer.get(car).cancel(false);
+                            CarToTimer.remove(car);
+                        }
+                        return fastStation.CancelCharging(car);// 将车从队列移除
                     }
                 }
-            }
-        }else {
-            if (waitingZone.contains(car)) {
-                return waitingZone.CancelCharging_Waiting(car);
-            }else {
                 for (SlowChargeStation slowStation : SlowStations) {
                     if (slowStation.contains(car)) {
+                        if (CarToTimer.containsKey(car)) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
+                            CarToTimer.get(car).cancel(false);
+                            CarToTimer.remove(car);
+                        }
                         return slowStation.CancelCharging(car);
                     }
                 }
             }
-        }
         return false;
     }
     public boolean ChangeChargeMode_Server(Car car) {
@@ -103,17 +128,44 @@ public class Server {
                         }
                         break;
                     case "Charging_Complete":
-                        //TODO 充电完成，进行一次调度。充电那边需要生成详单，以及结算费用。以及往消息队列里插入消息
-                        //TODO 结算费用、将车从对应充电桩的队头移除。如果发现队头不存在这辆车，那么直接忽略。
+                        //TODO 结算费用、将车从对应充电桩的队头移除。如果发现队头不存在这辆车，那么直接忽略。各种结算和移除就在这里做吧
+                        msg_ChargeComplete msgChargeComplete = gson.fromJson(JsonMsg, msg_ChargeComplete.class);
+                        if (msgChargeComplete.isFast) {//将车从充电桩的车队列头移除
+                            FastChargeStation fastChargeStation = FastStations.get(msgChargeComplete.StationIndex);
+                            Car headCar_F = fastChargeStation.getCarQueue().removeFirst();
+                            //TODO 生成充电详单、结算。更新充电桩的统计数据
+                            LocalDateTime StartTime = fastChargeStation.getCharge_StartTime();
+                            LocalDateTime EndTime = fastChargeStation.getExpected_Charge_EndTime();
+                            double duration = Duration.between(StartTime, EndTime).toMinutes() * 60;
+                            double TotalElectricity = duration * FastChargeStation.ChargingSpeed_PerMinute;
+                            double chargeFee = getChargeFee(StartTime, EndTime, 0.5);
+                            double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
+                            fastChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
+                            //TODO 将充电详单写入数据库
+                        }else {
+                            SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
+                            Car headCar_S = slowChargeStation.getCarQueue().removeFirst();
+                            //TODO 生成充电详单、结算。更新充电桩的统计数据
+                            LocalDateTime StartTime = slowChargeStation.getCharge_StartTime();
+                            LocalDateTime EndTime = slowChargeStation.getExpected_Charge_EndTime();
+                            double duration = Duration.between(StartTime, EndTime).toMinutes() * 60;
+                            double TotalElectricity = duration * FastChargeStation.ChargingSpeed_PerMinute;
+                            double chargeFee = getChargeFee(StartTime, EndTime, 0.166667);
+                            double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
+                            slowChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
+                            //TODO 将充电详单写入数据库
+                        }
+                        //TODO 进行一次调度。充电那边需要生成详单，以及结算费用。
                         Schedule();
                         break;
                     case "Cancel_Charging":
                         msg_CancelCharging cancelCharging = gson.fromJson(JsonMsg, msg_CancelCharging.class);
                         boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
                         Schedule();
-                        //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。计算报表。这报表可以在下面单独写即可。
+                        //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。最终决定不计算报表。
                         break;
                     case "Check_Charging_Form":
+                        //这个部分应该是从数据库里读取
                         //TODO 计算充电详单
                         break;
                     case "User_Registration":
@@ -297,20 +349,48 @@ public class Server {
                 }
                 //这个时候遍历每个充电桩，如果桩非空，就启动对应的定时器
                 //TODO 改完slowStation之后，补充上FastStation的
-                /*for (int i = 0; i < FastStations.size(); i++) {
+                for (int i = 0; i < FastStations.size(); i++) {
                     FastChargeStation fastChargeStation = FastStations.get(i);
-                    if (fastChargeStation.Size() > 0) {
-                        Timer timer = FastTimers.get(i);
-                        Car headCar = fastChargeStation.getCarQueue().getFirst().getDeepCopy();
-                        fastChargeStation
+                    if (fastChargeStation.isOnService() && (!fastChargeStation.isFaulty())) {
+                        if (fastChargeStation.Size() > 0) {
+                            final int F_Index = i;
+                            Car F_headCar = fastChargeStation.getCarQueue().getFirst();
+                            if (!CarToTimer.containsKey(F_headCar)) {// 如果headCar还没有被定时，那么启动定时，加入映射关系
+                                double F_Time_Hour = F_headCar.getRequestedChargingCapacity() / FastChargeStation.ChargingSpeed;
+                                double F_Time_Second = F_Time_Hour * 60 * 60;// 单位:秒
+                                fastChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
+                                fastChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) F_Time_Second));// 充电结束预期时间点
+                                ScheduledExecutorService F_scheduledExecutorService = FastTimers.get(i);
+                                ScheduledFuture<?> F_schedule = F_scheduledExecutorService.schedule(() -> {
+                                    Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
+                                    msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null, F_Index, true);
+                                    MessageQueue.addLast(gson.toJson(msgChargeComplete, msgChargeComplete.getClass()));
+                                }, (long) F_Time_Second, TimeUnit.SECONDS);
+                                CarToTimer.put(F_headCar, F_schedule); //将车和其定时器映射关系加入Map
+                            }
+                        }
                     }
-                }*/
+                }
                 for (int i = 0; i < SlowStations.size(); i++) {
                     SlowChargeStation slowChargeStation = SlowStations.get(i);
-                    if (slowChargeStation.Size() > 0) {
-                        Timer SlowTimer = SlowTimers.get(i);
-                        Car HeadCar = slowChargeStation.getCarQueue().removeFirst();
-
+                    if (slowChargeStation.isOnService() && (!slowChargeStation.isFaulty())) {
+                        if (slowChargeStation.Size() > 0) {
+                            final int Index = i;
+                            Car headCar = slowChargeStation.getCarQueue().getFirst();
+                            if (!CarToTimer.containsKey(headCar)) {// 如果headCar还没有被定时，那么启动定时
+                                double Time_Hour = headCar.getRequestedChargingCapacity() / SlowChargeStation.ChargingSpeed;
+                                double Time_Second = Time_Hour * 60 * 60;// 单位:秒
+                                slowChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
+                                slowChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) Time_Second));// 充电结束预期时间点
+                                ScheduledExecutorService scheduledExecutorService = SlowTimers.get(i);
+                                ScheduledFuture<?> schedule = scheduledExecutorService.schedule(() -> {
+                                    Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
+                                    msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null, Index, false);
+                                    MessageQueue.addLast(gson.toJson(msgChargeComplete, msgChargeComplete.getClass()));
+                                }, (long) Time_Second, TimeUnit.SECONDS);
+                                CarToTimer.put(headCar, schedule); //将车和其定时器映射关系加入Map
+                            }
+                        }
                     }
                 }
             }
@@ -403,5 +483,50 @@ public class Server {
     }
     public boolean changeChargeCapacity(Car car, double NewVal) {
         return waitingZone.changeChargeCapacity_Waiting(car, NewVal);
+    }
+    public double getChargeFee(LocalDateTime Start, LocalDateTime End, double ChargeSpeed_Min) {
+        LocalTime StartTime = LocalTime.of(Start.getHour(), Start.getMinute());
+        LocalTime EndTime = LocalTime.of(End.getHour(), End.getMinute());
+        double Ret = 0;
+        /*
+        * 一天24小时分为：
+        * 0:00~7:00低谷 7:01~10:00平时 10:00~15:00高峰 15:00~18:00平时 18:00~21:00高峰 21:00 ~23:00平时 23:00~23:59低谷
+        * */
+        if (!(EndTime.isBefore(LocalTime.of(7, 0)) || StartTime.isAfter(LocalTime.of(7, 0)))) {
+            LocalTime Max = LocalTime.of(7, 0).isAfter(EndTime) ? LocalTime.of(7, 0) : EndTime;
+            LocalTime Min = LocalTime.of(0, 0).isBefore(StartTime) ? LocalTime.of(0, 0) : StartTime;
+            Ret += 0.4 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
+        }
+        if (!(EndTime.isBefore(LocalTime.of(10, 0)) || StartTime.isAfter(LocalTime.of(10, 0)))) {
+            LocalTime Max = LocalTime.of(10, 0).isAfter(EndTime) ? LocalTime.of(10, 0) : EndTime;
+            LocalTime Min = LocalTime.of(7, 1).isBefore(StartTime) ? LocalTime.of(7, 1) : StartTime;
+            Ret += 0.7 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
+        }
+        if (!(EndTime.isBefore(LocalTime.of(15, 0)) || StartTime.isAfter(LocalTime.of(15, 0)))) {
+            LocalTime Max = LocalTime.of(15, 0).isAfter(EndTime) ? LocalTime.of(15, 0) : EndTime;
+            LocalTime Min = LocalTime.of(10, 1).isBefore(StartTime) ? LocalTime.of(10, 1) : StartTime;
+            Ret += 1.0 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
+        }
+        if (!(EndTime.isBefore(LocalTime.of(18, 0)) || StartTime.isAfter(LocalTime.of(18, 0)))) {
+            LocalTime Max = LocalTime.of(18, 0).isAfter(EndTime) ? LocalTime.of(18, 0) : EndTime;
+            LocalTime Min = LocalTime.of(15, 1).isBefore(StartTime) ? LocalTime.of(15, 1) : StartTime;
+            Ret += 0.7 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
+        }
+        if (!(EndTime.isBefore(LocalTime.of(21, 0)) || StartTime.isAfter(LocalTime.of(21, 0)))) {
+            LocalTime Max = LocalTime.of(21, 0).isAfter(EndTime) ? LocalTime.of(21, 0) : EndTime;
+            LocalTime Min = LocalTime.of(18, 1).isBefore(StartTime) ? LocalTime.of(18, 1) : StartTime;
+            Ret += 1.0 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
+        }
+        if (!(EndTime.isBefore(LocalTime.of(23, 0)) || StartTime.isAfter(LocalTime.of(23, 0)))) {
+            LocalTime Max = LocalTime.of(23, 0).isAfter(EndTime) ? LocalTime.of(23, 0) : EndTime;
+            LocalTime Min = LocalTime.of(21, 1).isBefore(StartTime) ? LocalTime.of(21, 1) : StartTime;
+            Ret += 0.7 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
+        }
+        if (!(EndTime.isBefore(LocalTime.of(23, 59)) || StartTime.isAfter(LocalTime.of(23, 59)))) {
+            LocalTime Max = LocalTime.of(23, 59).isAfter(EndTime) ? LocalTime.of(23, 59) : EndTime;
+            LocalTime Min = LocalTime.of(23, 1).isBefore(StartTime) ? LocalTime.of(23, 1) : StartTime;
+            Ret += 0.4 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
+        }
+        return Ret;
     }
 }

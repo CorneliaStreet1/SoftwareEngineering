@@ -2,11 +2,31 @@ package ChargeStation;
 
 import Car.Car;
 
+import java.time.LocalDateTime;
+
 public class FastChargeStation extends ChargeStation{
-    public static final double ChargingSpeed = 30;
+    public static final double ChargingSpeed = 30.0;
     public static final double ChargingSpeed_PerMinute = 0.5; //0.5度每分钟
+    private LocalDateTime Charge_StartTime;//当前正在充电的车，充电的开始时间
+    private LocalDateTime Expected_Charge_EndTime;//当前正在充电的车，预期的充电的结束时间
     public FastChargeStation() {
         super();
+    }
+
+    public LocalDateTime getCharge_StartTime() {
+        return Charge_StartTime;
+    }
+
+    public void setCharge_StartTime(LocalDateTime charge_StartTime) {
+        Charge_StartTime = charge_StartTime;
+    }
+
+    public LocalDateTime getExpected_Charge_EndTime() {
+        return Expected_Charge_EndTime;
+    }
+
+    public void setExpected_Charge_EndTime(LocalDateTime expected_Charge_EndTime) {
+        Expected_Charge_EndTime = expected_Charge_EndTime;
     }
 
     public synchronized boolean JoinFastStation(Car car) {

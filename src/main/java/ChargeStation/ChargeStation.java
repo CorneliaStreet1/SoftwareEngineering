@@ -8,33 +8,13 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class ChargeStation {
     protected static final int MAX_SIZE = 2;
     protected static int NextStationNumber; //下一个充电桩的编号
-    protected static final double SERVICE_PRICE = 0.8; //服务费单价0.8元/度
-    /*
-    电价单位都是 元/度
-    */
-    protected static final double HIGH_ELECTRICITY_PRICE = 1.0; //高峰时(10:00~15:00,18:00 ~ 21:00)电价
-    protected static final LocalTime High_Start1 = LocalTime.of(10, 0);
-    protected static final LocalTime High_Start2 = LocalTime.of(18, 0);
-    protected static final LocalTime High_End1 = LocalTime.of(15, 0);
-    protected static final LocalTime High_End2 = LocalTime.of(21, 0);
-
-    protected static final double NORMAL_ELECTRICITY_PRICE = 0.7; //平时电价(7:00~10:00.15:00~18:00,21:00~23:00)
-    protected static final LocalTime Normal_Start1 = LocalTime.of(7, 0);
-    protected static final LocalTime Normal_Start2 = LocalTime.of(15, 0);
-    protected static final LocalTime Normal_Start3 = LocalTime.of(21, 0);
-    protected static final LocalTime Normal_End1 = LocalTime.of(10, 0);
-    protected static final LocalTime Normal_End2 = LocalTime.of(18, 0);
-    protected static final LocalTime Normal_End3 = LocalTime.of(23, 0);
-    protected static final double LOW_ELECTRICITY_PRICE = 0.4; //低谷时电价(23:00~次日7:00)
-    protected static final LocalTime Low_Start1 = LocalTime.of(23, 0);
-    protected static final LocalTime Low_End1 = LocalTime.of(7, 0);
-
+    public static final double SERVICE_PRICE = 0.8; //服务费单价0.8元/度
     private ConcurrentLinkedDeque<Car> CarQueue;
     private final int ChargeStationNumber;//充电桩的编号
     private boolean isOnService; //充电桩是否开启。默认是开启。New出一个新充电桩默认是开启状态
     private boolean isFaulty;//充电桩是否故障。默认不故障。
     private int Accumulated_Charging_Times; // 累计充电次数
-    private double Total_Charging_TimeLength; // 累计充电总时长
+    private double Total_Charging_TimeLength; // 累计充电总时长。单位：秒
     private double Total_ElectricityAmount_Charged; // 累计充电总电量
     /*
     * 累计总费用，个人认为只需要将下面两个相加就可以了，没必要单独维护一个字段
@@ -136,15 +116,15 @@ public class ChargeStation {
         if (!CarQueue.isEmpty()) {
             if (CarQueue.getFirst().equals(car)) {
                 CarQueue.removeFirst();
+                return true;
                 //TODO: 如果有第二辆车,让等待的第二辆车去充电
-                //TODO 结算各种。虽然是不收费，但是还是要生成一张详单才行
-            }else {
+                //TODO 结算各种。虽然是不收费，但是还是要生成一张详单才行（决定了：不结算了）
+            }else if (CarQueue.getLast().equals(car)){
                 CarQueue.removeLast();
+                return true;
             }
-            return true;
-        }else {
-            return false;
         }
+        return false;
     }
     public synchronized boolean hasEmptySlot() {
         return this.Size() < 2;
@@ -162,5 +142,20 @@ public class ChargeStation {
     }
     public void CompleteCharge() {
         throw new UnsupportedOperationException("Should NOT Call Parent's Method");
+    }
+    public void UpdateStationState(double ChargeTime, double TotalElectricity, double chargeFee, double ServiceFee) {
+        /*
+         * 需要更改的充电桩的数据：
+         * 累计充电次数
+         * 累计充电总时长
+         * 累计充电总电量
+         * 累计充电费用（只计算充电的费用）
+         * 累计服务费用（只计算服务的费用）
+         * */
+        this.setAccumulated_Charging_Times(this.getAccumulated_Charging_Times() + 1);// 累计充电次数
+        this.setTotal_Charging_TimeLength(this.getTotal_Charging_TimeLength() + ChargeTime); //累计充电总时长
+        this.setTotal_ElectricityAmount_Charged(this.getTotal_ElectricityAmount_Charged() + TotalElectricity); //累计充电总电量
+        this.setAccumulated_Charging_Cost(this.getAccumulated_Charging_Cost() + chargeFee); //累计电费
+        this.setAccumulated_Service_Cost(this.getAccumulated_Service_Cost() + ServiceFee); //累计服务费
     }
 }
