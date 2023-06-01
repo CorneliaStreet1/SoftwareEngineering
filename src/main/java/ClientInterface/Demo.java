@@ -91,9 +91,19 @@ public class Demo {
 //            OutputStream os = t.getResponseBody();
 //            os.write(response.getBytes());
 //            os.close();
+            // 设置允许跨域访问的域
+            t.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            // 设置允许的请求方法
+            t.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+            // 设置允许的请求头部字段
+            t.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            // 设置是否允许发送凭据（例如Cookie）
+            t.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
 
             String method = t.getRequestMethod();
+            System.out.println("one:"+method);
             if (method.equals("GET")) {
+                System.out.println("get");
                 String query = t.getRequestURI().getQuery();
 //                String response = "Hello, " + query + "!";
                 String response = "{\n" +
@@ -110,6 +120,7 @@ public class Demo {
                 os.write(response.getBytes());
                 os.close();
             } else if (method.equals("POST")) {
+                System.out.println("post");
                 InputStream is = t.getRequestBody();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
                 StringBuilder sb = new StringBuilder();
@@ -128,6 +139,16 @@ public class Demo {
                         "    },\n" +
                         "    \"message\": \"success\"\n" +
                         "}";
+                t.sendResponseHeaders(200, response.length());
+                OutputStream os = t.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
+            }
+            else if(method.equals("OPTIONS")){
+
+
+
+                String response = "hello world";
                 t.sendResponseHeaders(200, response.length());
                 OutputStream os = t.getResponseBody();
                 os.write(response.getBytes());
