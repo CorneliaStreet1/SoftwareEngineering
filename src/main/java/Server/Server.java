@@ -37,7 +37,7 @@ public class Server {
     protected static final double LOW_ELECTRICITY_PRICE = 0.4; //低谷时电价(23:00~次日7:00)
     protected static final LocalTime Low_Start1 = LocalTime.of(23, 0);
     protected static final LocalTime Low_End1 = LocalTime.of(7, 0);
-    public static ConcurrentLinkedDeque<String> MessageQueue = new ConcurrentLinkedDeque<>(); //消息队列。每个消息是一个JSON字符串
+    public static BlockingQueue<Message> MessageQueue = new LinkedBlockingQueue<>(); //消息队列。每个消息是一个JSON字符串
     private boolean StopServer;
     private static final Logger logger = LogManager.getLogger(Server.class);
     private WaitingZone waitingZone;
@@ -111,29 +111,36 @@ public class Server {
     public void MessageProcessing() {
         Gson gson = new Gson();
         while (!StopServer) {
-            while (!MessageQueue.isEmpty()) {
-                String JsonMsg = MessageQueue.removeFirst();
-                if (JsonMsg == null) {
-                    throw new NullPointerException("NULL Message");
-                }
-                Message message = gson.fromJson(JsonMsg, Message.class);
+            Message message = null;
+            try {
+                message = MessageQueue.take();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (message == null) {
+                throw new NullPointerException("NULL Message");
+            }else {
                 switch (message.Type) {
                     case "Enter_Waiting_Zone":
                         //TODO：加入进入等候区的函数，可能需要进行修改
-                        msg_EnterWaitingZone m = gson.fromJson(JsonMsg, msg_EnterWaitingZone.class);
-                        boolean success =  waitingZone.JoinWaitingZone(m.UserCar);
+                        msg_EnterWaitingZone m = (msg_EnterWaitingZone) message;
+                        boolean success = waitingZone.JoinWaitingZone(m.UserCar);
                         if (success) {//如果加入成功，尝试一次调度
                             Schedule();
+                            m.Result_Json.complete(gson.toJson(true, boolean.class));
                             //TODO 给客户端返回一个加入等候区成功的消息。这个True代表加入等候区成功，不代表其他事情。
+                        }else {
+                            m.Result_Json.complete(gson.toJson(false, boolean.class));
                         }
                         break;
                     case "Charging_Complete":
                         //TODO 结算费用、将车从对应充电桩的队头移除。如果发现队头不存在这辆车，那么直接忽略。各种结算和移除就在这里做吧
-                        msg_ChargeComplete msgChargeComplete = gson.fromJson(JsonMsg, msg_ChargeComplete.class);
+                        msg_ChargeComplete msgChargeComplete = (msg_ChargeComplete) message;
                         if (msgChargeComplete.isFast) {//将车从充电桩的车队列头移除
                             FastChargeStation fastChargeStation = FastStations.get(msgChargeComplete.StationIndex);
                             Car headCar_F = fastChargeStation.getCarQueue().removeFirst();
-                            //TODO 生成充电详单、结算。更新充电桩的统计数据
+                            //TODO 生成充电详单、结算。更新充电桩的统计数据(已做)
                             LocalDateTime StartTime = fastChargeStation.getCharge_StartTime();
                             LocalDateTime EndTime = fastChargeStation.getExpected_Charge_EndTime();
                             double duration = Duration.between(StartTime, EndTime).toMinutes() * 60;
@@ -142,7 +149,7 @@ public class Server {
                             double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
                             fastChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                             //TODO 将充电详单写入数据库
-                        }else {
+                        } else {
                             SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
                             Car headCar_S = slowChargeStation.getCarQueue().removeFirst();
                             //TODO 生成充电详单、结算。更新充电桩的统计数据
@@ -155,90 +162,100 @@ public class Server {
                             slowChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                             //TODO 将充电详单写入数据库
                         }
-                        //TODO 进行一次调度。充电那边需要生成详单，以及结算费用。
+                        //TODO 进行一次调度。充电那边需要生成详单，以及结算费用（已做）。
                         Schedule();
                         break;
                     case "Cancel_Charging":
-                        msg_CancelCharging cancelCharging = gson.fromJson(JsonMsg, msg_CancelCharging.class);
+                        msg_CancelCharging cancelCharging = (msg_CancelCharging) message;
                         boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
                         Schedule();
-                        //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。最终决定不计算报表。
+                        //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。最终决定不计算报表(已完成)。
+                        cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
                         break;
                     case "Check_Charging_Form":
                         //这个部分应该是从数据库里读取
                         //TODO 计算充电详单
                         break;
                     case "User_Registration":
-                        msg_UserRegistration msgUserRegistration = gson.fromJson(JsonMsg, msg_UserRegistration.class);
+                        msg_UserRegistration msgUserRegistration = (msg_UserRegistration) message;
                         //TODO 用户注册。并把结果返回客户端
                         boolean Result = UserManager.UserRegistration(msgUserRegistration.UserName, msgUserRegistration.UserPassword);
+                        msgUserRegistration.Result_Json.complete(gson.toJson(Result, boolean.class));
                         break;
                     case "User_Login":
                         //TODO 用户登录、并把结果返回客户端
-                        msg_UserLogin msgUserLogin = gson.fromJson(JsonMsg, msg_UserLogin.class);
+                        msg_UserLogin msgUserLogin = (msg_UserLogin) message;
                         boolean Login_Success = UserManager.UserLogIn(msgUserLogin.UserName, msgUserLogin.UserPassword);
+                        msgUserLogin.Result_Json.complete(gson.toJson(Login_Success, boolean.class));
                         break;
                     case "Change_Charging_Mode":
-                        msg_ChangeChargingMode msgChangeChargingMode = gson.fromJson(JsonMsg, msg_ChangeChargingMode.class);
+                        msg_ChangeChargingMode msgChangeChargingMode = (msg_ChangeChargingMode) message;
                         //TODO 改变充电模式。将改变的结果布尔值传递给客户端
                         boolean modeResult = ChangeChargeMode_Server(msgChangeChargingMode.car);
                         break;
                     case "Change_Charge_Capacity":
-                        msg_ChangeChargeCapacity msgChangeChargeCapacity = gson.fromJson(JsonMsg, msg_ChangeChargeCapacity.class);
+                        msg_ChangeChargeCapacity msgChangeChargeCapacity = (msg_ChangeChargeCapacity) message;
                         boolean changeCapacityServer = ChangeChargeCapacity_Server(msgChangeChargeCapacity.car, msgChangeChargeCapacity.NewValue);
-                        //TODO 改变充电电量.将结果返回给客户端
+                        //TODO 改变充电电量.将结果返回给客户端(已做)
+                        msgChangeChargeCapacity.Result_Json.complete(gson.toJson(changeCapacityServer, boolean.class));
                         break;
                     case "Check_Sequence_Num":
-                        msg_CheckSequenceNum msgCheckSequenceNum = gson.fromJson(JsonMsg, msg_CheckSequenceNum.class);
+                        msg_CheckSequenceNum msgCheckSequenceNum = (msg_CheckSequenceNum) message;
                         int queueSeq = msgCheckSequenceNum.car.getQueueSeq();
-                        //TODO 查看排队号码。将排队号码返回给客户端
+                        //TODO 查看排队号码。将排队号码返回给客户端(已做)
+                        msgCheckSequenceNum.Result_Json.complete(gson.toJson(queueSeq, int.class));
                         break;
                     case "Check_Forward_CarAmount":
-                        msg_CheckForwardCarAmount msgCheckForwardCarAmount = gson.fromJson(JsonMsg, msg_CheckForwardCarAmount.class);
+                        msg_CheckForwardCarAmount msgCheckForwardCarAmount = (msg_CheckForwardCarAmount) message;
                         int seq = waitingZone.getForwardCarAmount(msgCheckForwardCarAmount.car);
-                        //TODO 检查前面还有多少辆车在排队。将seq返回给客户端
+                        //TODO 检查前面还有多少辆车在排队。将seq返回给客户端(已做)
+                        msgCheckForwardCarAmount.Result_Json.complete(gson.toJson(seq, int.class));
                         break;
                     case "Turn_On_Station":
-                        msg_TurnOnStation msgTurnOnStation = gson.fromJson(JsonMsg, msg_TurnOnStation.class);
+                        msg_TurnOnStation msgTurnOnStation = (msg_TurnOnStation) message;
                         if (msgTurnOnStation.StationIndex > 0 && msgTurnOnStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOnStation.StationIndex).TurnOnStation();
-                        }else {
+                        } else {
                             SlowStations.get(msgTurnOnStation.StationIndex % SlowStations.size()).TurnOnStation();
                         }
-                        //TODO 打开充电桩
+                        //TODO 打开充电桩（是否需要传递什么东西给控制器？）
                         break;
                     case "Turn_Off_Station":
-                        msg_TurnOffStation msgTurnOffStation = gson.fromJson(JsonMsg, msg_TurnOffStation.class);
+                        msg_TurnOffStation msgTurnOffStation = (msg_TurnOffStation) message;
                         if (msgTurnOffStation.StationIndex > 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOffStation.StationIndex).TurnOffStation();
-                        }else {
+                        } else {
                             SlowStations.get(msgTurnOffStation.StationIndex % SlowStations.size()).TurnOffStation();
                         }
-                        //TODO 关闭充电桩
+                        //TODO 关闭充电桩（是否需要传递什么东西给控制器？）
                         break;
                     case "Check_All_Station_State":
                         List<StationState> stationStates = CheckAllStationState_Server();
-                        //TODO 检查全部充电桩的状态。将充电桩的状态返回给客户端
+                        //TODO 检查全部充电桩的状态。将充电桩的状态返回给客户端(已做)
+                        msg_CheckAllStationState msgCheckAllStationState = (msg_CheckAllStationState) message;
+                        msgCheckAllStationState.Result_Json.complete(gson.toJson(stationStates, stationStates.getClass()));
                         break;
                     case "Check_Station_Info":
-                        msg_CheckStationInfo msgCheckStationInfo = gson.fromJson(JsonMsg, msg_CheckStationInfo.class);
+                        msg_CheckStationInfo msgCheckStationInfo = (msg_CheckStationInfo) message;
                         List<StationInfo> stationInfos = CheckStationInfo_Server(msgCheckStationInfo.StationIndex);
-                        //TODO 检查某个充电桩等候服务的车辆信息。将其返回给客户端
+                        //TODO 检查某个充电桩等候服务的车辆信息。将其返回给客户端(已做)
+                        msgCheckStationInfo.Result_Json.complete(gson.toJson(stationInfos, stationInfos.getClass()));
                         break;
                     case "Show_Station_Table":
-                        msg_ShowStationTable msgShowStationTable = gson.fromJson(JsonMsg, msg_ShowStationTable.class);
+                        msg_ShowStationTable msgShowStationTable = (msg_ShowStationTable) message;
                         //TODO 报表展示。
                         StationForm stationForm = ShowStationTable(msgShowStationTable.StationIndex);
+                        msgShowStationTable.Result_Json.complete(gson.toJson(stationForm, stationForm.getClass()));
                         break;
                     case "Station_Recovery":
                         //TODO 充电桩故障恢复
                         break;
                     case "Station_Fault":
-                        msg_StationFault msgStationFault = gson.fromJson(JsonMsg, msg_StationFault.class);
+                        msg_StationFault msgStationFault = (msg_StationFault) message;
                         ChargeStation station = null;
                         if (msgStationFault.StationIndex < FastStations.size()) {
                             station = FastStations.get(msgStationFault.StationIndex);
-                        }else {
+                        } else {
                             station = SlowStations.get(msgStationFault.StationIndex % SlowStations.size());
                         }
                         HandleStationError(station, msgStationFault.SchedulingStrategy);
@@ -364,7 +381,11 @@ public class Server {
                                 ScheduledFuture<?> F_schedule = F_scheduledExecutorService.schedule(() -> {
                                     Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
                                     msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null, F_Index, true);
-                                    MessageQueue.addLast(gson.toJson(msgChargeComplete, msgChargeComplete.getClass()));
+                                    try {
+                                        MessageQueue.put(msgChargeComplete);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }, (long) F_Time_Second, TimeUnit.SECONDS);
                                 CarToTimer.put(F_headCar, F_schedule); //将车和其定时器映射关系加入Map
                             }
@@ -386,7 +407,11 @@ public class Server {
                                 ScheduledFuture<?> schedule = scheduledExecutorService.schedule(() -> {
                                     Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
                                     msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null, Index, false);
-                                    MessageQueue.addLast(gson.toJson(msgChargeComplete, msgChargeComplete.getClass()));
+                                    try {
+                                        MessageQueue.put(msgChargeComplete);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }, (long) Time_Second, TimeUnit.SECONDS);
                                 CarToTimer.put(headCar, schedule); //将车和其定时器映射关系加入Map
                             }
