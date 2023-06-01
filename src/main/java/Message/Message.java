@@ -9,4 +9,8 @@ public class Message {
         Result_Json = CompletableFuture_result_Json;
         Type = type;
     }
+
+    public void writeFuture(CompletableFuture<String> Result_Json) {
+        this.Result_Json = Result_Json;
+    }
 }
