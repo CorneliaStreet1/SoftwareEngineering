@@ -1,6 +1,8 @@
 package ClientController.Query;
 
 import com.google.gson.Gson;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -54,6 +56,17 @@ public class QueryOrder extends HttpServlet {
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
+
+        String token = req.getHeader("Authorization");
+
+        Claims claims = Jwts.parser()
+                .setSigningKey("secretKey")
+                .parseClaimsJws(token)
+                .getBody();
+
+        //todo: 这里加密的数据是username还是userId有待商榷
+        String username = claims.getSubject();
+        int userId = getUserId();
 
         int code = 0;
         String order_id = "20230501000001";

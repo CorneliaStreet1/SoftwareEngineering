@@ -43,6 +43,7 @@ public class EndRequest extends HttpServlet {
                 .parseClaimsJws(token)
                 .getBody();
 
+        //todo: 这里加密的数据是username还是userId有待商榷
         String username = claims.getSubject();
         int userId = getUserId();
 
