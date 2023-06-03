@@ -117,7 +117,6 @@ public class ChargeStation {
             if (CarQueue.getFirst().equals(car)) {
                 CarQueue.removeFirst();
                 return true;
-                //TODO: 如果有第二辆车,让等待的第二辆车去充电
                 //TODO 结算各种。虽然是不收费，但是还是要生成一张详单才行（决定了：不结算了）
             }else if (CarQueue.getLast().equals(car)){
                 CarQueue.removeLast();

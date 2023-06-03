@@ -68,13 +68,13 @@ public class WaitingZone {
     public boolean changeChargeMode_Waiting(Car car) {
         if (car.isFastCharging()) {
             car.setChargingMode(false);
-            car.setQueueSeq(TotalCarCount);
+            //car.setQueueSeq(TotalCarCount);
             TotalCarCount ++;
             FastQueue.remove(car);
             return AddToSlowQueue(car);
         }else {
             car.setChargingMode(true);
-            car.setQueueSeq(TotalCarCount);
+            //car.setQueueSeq(TotalCarCount);
             TotalCarCount ++;
             SlowQueue.remove(car);
             return AddToFastQueue(car);
@@ -131,30 +131,5 @@ public class WaitingZone {
             }
         }
         return false;
-    }
-    public int getForwardCarAmount(Car car) {
-        if (car != null) {
-            if (!this.contains(car)) {
-                return -1;
-            }
-            if (car.isFastCharging()) {
-                int F_index = 0;
-                for (Car car1 : FastQueue) {
-                    if (car1.equals(car)) {
-                        return F_index;
-                    }
-                    F_index++;
-                }
-            } else {
-                int S_index = 0;
-                for (Car car1 : SlowQueue) {
-                    if (car1.equals(car)) {
-                        return S_index;
-                    }
-                    S_index++;
-                }
-            }
-        }
-        return -1;
     }
 }

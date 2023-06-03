@@ -2,7 +2,6 @@
   <artifact type="exploded-war" name="SoftwareEngineering:war exploded">
     <output-path>$PROJECT_DIR$/out/artifacts/SoftwareEngineering_war_exploded</output-path>
     <root id="root">
-      <element id="javaee-facet-resources" facet="SoftwareEngineering/web/Web" />
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="SoftwareEngineering" />
@@ -11,6 +10,7 @@
           <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.10.1" />
         </element>
       </element>
+      <element id="javaee-facet-resources" facet="SoftwareEngineering/web/Web" />
     </root>
   </artifact>
 </component>

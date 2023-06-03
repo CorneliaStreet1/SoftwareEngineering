@@ -13,6 +13,64 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Deprecateds {
+
+    /*class WaitingZone{
+        public int getForwardCarAmount(Car car) {
+        if (car != null) {
+            if (!this.contains(car)) {
+                return -1;
+            }
+            if (car.isFastCharging()) {
+                int F_index = 0;
+                for (Car car1 : FastQueue) {
+                    if (car1.equals(car)) {
+                        return F_index;
+                    }
+                    F_index++;
+                }
+            } else {
+                int S_index = 0;
+                for (Car car1 : SlowQueue) {
+                    if (car1.equals(car)) {
+                        return S_index;
+                    }
+                    S_index++;
+                }
+            }
+        }
+        return -1;
+    }
+    }*/
+
+/*    class Server{
+                    case "Check_Sequence_Num":
+                        msg_CheckSequenceNum msgCheckSequenceNum = (msg_CheckSequenceNum) message;
+                        int queueSeq = CheckSequenceNum_Server(msgCheckSequenceNum.car);
+                        //TODO 查看排队号码。将排队号码返回给客户端(已做)
+                        msgCheckSequenceNum.Result_Json.complete(gson.toJson(queueSeq, int.class));
+                        break;
+                    case "Check_Forward_CarAmount":
+                        msg_CheckForwardCarAmount msgCheckForwardCarAmount = (msg_CheckForwardCarAmount) message;
+                        int seq = waitingZone.getForwardCarAmount(msgCheckForwardCarAmount.car);
+                        msgCheckForwardCarAmount.Result_Json.complete(gson.toJson(seq, int.class));
+                        break;
+        protected static final double HIGH_ELECTRICITY_PRICE = 1.0; //高峰时(10:00~15:00,18:00 ~ 21:00)电价
+        protected static final LocalTime High_Start1 = LocalTime.of(10, 0);
+        protected static final LocalTime High_Start2 = LocalTime.of(18, 0);
+        protected static final LocalTime High_End1 = LocalTime.of(15, 0);
+        protected static final LocalTime High_End2 = LocalTime.of(21, 0);
+
+        protected static final double NORMAL_ELECTRICITY_PRICE = 0.7; //平时电价(7:00~10:00.15:00~18:00,21:00~23:00)
+        protected static final LocalTime Normal_Start1 = LocalTime.of(7, 0);
+        protected static final LocalTime Normal_Start2 = LocalTime.of(15, 0);
+        protected static final LocalTime Normal_Start3 = LocalTime.of(21, 0);
+        protected static final LocalTime Normal_End1 = LocalTime.of(10, 0);
+        protected static final LocalTime Normal_End2 = LocalTime.of(18, 0);
+        protected static final LocalTime Normal_End3 = LocalTime.of(23, 0);
+        protected static final double LOW_ELECTRICITY_PRICE = 0.4; //低谷时电价(23:00~次日7:00)
+        protected static final LocalTime Low_Start1 = LocalTime.of(23, 0);
+        protected static final LocalTime Low_End1 = LocalTime.of(7, 0);
+    }*/
 /*    class SlowStation {
         private class timerTask extends TimerTask {
             public timerTask() {
