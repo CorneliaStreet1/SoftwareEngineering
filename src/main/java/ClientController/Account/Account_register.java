@@ -1,5 +1,8 @@
 package ClientController.Account;
 
+import Message.msg_UserRegistration;
+import Server.Server;
+
 import com.google.gson.Gson;
 
 import javax.servlet.ServletException;
@@ -9,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @WebServlet("/account_register")
 public class Account_register extends HttpServlet {
@@ -29,13 +34,13 @@ public class Account_register extends HttpServlet {
         }
     }
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        resp.getWriter().println("{\n" +
-                "    \"code\": 0,\n" +
-                "    \"message\": \"success\"\n" +
-                "}");
-    }
+//    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        resp.setContentType("application/json");
+//        resp.getWriter().println("{\n" +
+//                "    \"code\": 0,\n" +
+//                "    \"message\": \"success\"\n" +
+//                "}");
+//    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -53,9 +58,34 @@ public class Account_register extends HttpServlet {
 
         ReqBody reqBody = gson.fromJson(requestBody, ReqBody.class);
 
-        ResponseMsg responseMsg = new ResponseMsg(0,"success");
-        String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+        String username = reqBody.username;
+        String password = reqBody.password;
+        String rePassword = reqBody.rePassword;
 
-        resp.getWriter().println(respJsonMsg);
+        CompletableFuture<String> future = new CompletableFuture<>();
+
+        msg_UserRegistration msgUserRegistration = new msg_UserRegistration(username, password, future);
+
+        try {
+            Server.MessageQueue.put(msgUserRegistration);
+            String result = future.get();
+
+            int code = 0;
+            String message = "success";
+
+            if ( result.equals("false") ) {
+                code = -1;
+                message = "fail";
+            }
+
+            ResponseMsg responseMsg = new ResponseMsg(code,message);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+
+            resp.getWriter().println(respJsonMsg);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

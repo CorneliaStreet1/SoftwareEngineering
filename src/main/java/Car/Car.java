@@ -19,6 +19,10 @@ public class Car implements Comparable<Car>{
         RequestedChargingCapacity = requestedChargingCapacity;
         CarBatteryCapacity = carBatteryCapacity;
     }
+
+    public Car(int PrimaryKey) {
+        this.PrimaryKey = PrimaryKey;
+    }
     public double getCarBatteryCapacity() {
         return CarBatteryCapacity;
     }

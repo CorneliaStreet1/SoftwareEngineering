@@ -1,6 +1,13 @@
 package ClientController.Account;
 
+import Message.msg_UserLogin;
+import Server.Server;
+
 import com.google.gson.Gson;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @WebServlet("/account_login")
 public class Account_login extends HttpServlet {
@@ -68,26 +77,48 @@ public class Account_login extends HttpServlet {
 
         ReqBody reqBody = gson.fromJson(requestBody,ReqBody.class);
 
-        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImppbnVvIiwiaWF0IjoxNTE2MjM5MDIyfQ.WhOxJUL0ZfPW6zrLNdkbQvoE8JObEB_5kr9DkgEVDeE";
+        String username = reqBody.username;
+        String password = reqBody.password;
 
-        ResponseMsg responseMsg = new ResponseMsg(0,new RData(token,false),"success");
-        String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+        CompletableFuture<String> future = new CompletableFuture<>();
 
-//        resp.getWriter().println(req.getHeader("Accept")+"\n"
-//                +req.getHeader("justAJoke")+"\n"
-//                +requestBody+"\n"
-//                +"response:\n"
-//                +"{\n" +
-//                "    \"code\": 0,\n" +
-//                "    \"data\": {\n" +
-//                "        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImppbnVvIiwiaWF0IjoxNTE2MjM5MDIyfQ.WhOxJUL0ZfPW6zrLNdkbQvoE8JObEB_5kr9DkgEVDeE\",\n" +
-//                "        \"is_admin\": false\n" +
-//                "    },\n" +
-//                "    \"message\": \"success\"\n" +
-//                "}");
-        resp.getWriter().println(req.getHeader("Accept")+"\n"
-                +req.getHeader("justAJoke")+"\n"
-                +requestBody+"\n"
-                +respJsonMsg);
+        msg_UserLogin msgUserLogin = new msg_UserLogin(username, password, future);
+
+        try {
+            Server.MessageQueue.put(msgUserLogin);
+            String result = future.get();
+
+            int code = 0;
+            String message = "success";
+            RData data = null;
+
+            if ( result.equals("true")) {
+                int userId = result.getUserId();
+                boolean is_admin = result.IsAdmin();
+
+                String secretKey = "secretKey";
+                String token = Jwts.builder()
+                        .setSubject(userId)
+                        .signWith(SignatureAlgorithm.HS256, secretKey)
+                        .compact();
+
+                data = new RData(token, is_admin);
+            }
+            else {
+                code = -1;
+                message = "user name or password error";
+            }
+
+//            String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImppbnVvIiwiaWF0IjoxNTE2MjM5MDIyfQ.WhOxJUL0ZfPW6zrLNdkbQvoE8JObEB_5kr9DkgEVDeE";
+
+            ResponseMsg responseMsg = new ResponseMsg(code, data, message);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+
+            resp.getWriter().println(respJsonMsg);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
