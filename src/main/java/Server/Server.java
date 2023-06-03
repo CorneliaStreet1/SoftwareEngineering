@@ -105,6 +105,40 @@ public class Server {
         }
         return false;
     }
+    public int CheckSequenceNum_Server(Car car) {
+        if (car == null) {
+            throw new IllegalArgumentException("NULL Car at CheckSequenceNum_Server");
+        }
+        if (waitingZone.contains(car)) {
+            int i = waitingZone.size();
+            for (Car car1 : waitingZone.getFastQueue()) {
+                if (car1.equals(car)) {
+                    return i;
+                }
+                i ++;
+            }
+        }else {
+            int F_index = 0;
+            for (FastChargeStation fastStation : FastStations) {
+                for (Car car1 : fastStation.getCarQueue()) {
+                    if (car1.equals(car)) {
+                        return F_index;
+                    }
+                    F_index ++;
+                }
+            }
+            int S_Index = F_index;
+            for (SlowChargeStation slowStation : SlowStations) {
+                for (Car car1 : slowStation.getCarQueue()) {
+                    if (car1.equals(car)) {
+                        return S_Index;
+                    }
+                    S_Index ++;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Car does NOT EXIST at CheckSequenceNum_Server");
+    }
     public void run() {
         this.MessageProcessing();
     }
@@ -201,7 +235,7 @@ public class Server {
                         break;
                     case "Check_Sequence_Num":
                         msg_CheckSequenceNum msgCheckSequenceNum = (msg_CheckSequenceNum) message;
-                        int queueSeq = msgCheckSequenceNum.car.getQueueSeq();
+                        int queueSeq = CheckSequenceNum_Server(msgCheckSequenceNum.car);
                         //TODO 查看排队号码。将排队号码返回给客户端(已做)
                         msgCheckSequenceNum.Result_Json.complete(gson.toJson(queueSeq, int.class));
                         break;
@@ -463,7 +497,7 @@ public class Server {
             waitingZone.StopService();
             //慢充站
             if (ErrorStation.getClass() == SlowChargeStation.class) {
-                ArrayList<Car> stationError_Cars = new ArrayList<Car>();
+                ArrayList<Car> stationError_Cars = new ArrayList<>();
                 for (SlowChargeStation slowStation : SlowStations) {
                     Deque<Car> SlowCars = slowStation.getCarQueue();
                     while (SlowCars.size() > 1) {
@@ -481,7 +515,7 @@ public class Server {
                     }
                 }//快充站
             }else if (ErrorStation.getClass() == FastChargeStation.class) {
-                ArrayList<Car> stationError_Cars = new ArrayList<Car>();
+                ArrayList<Car> stationError_Cars = new ArrayList<>();
                 for (FastChargeStation fastStation : FastStations) {
                     Deque<Car> FastCars = fastStation.getCarQueue();
                     while (FastCars.size() > 1) {
