@@ -1,6 +1,7 @@
 package ManagerController;
 
-import ClientController.Query.QueryOrder;
+import Message.msg_ShowStationTable;
+
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 @WebServlet("/query_report")
 public class QueryReport extends HttpServlet {
@@ -67,9 +69,13 @@ public class QueryReport extends HttpServlet {
                 .parseClaimsJws(token)
                 .getBody();
 
-        //todo: 这里加密的数据是username还是userId有待商榷
-        String username = claims.getSubject();
-        int userId = getUserId();
+        String userIdStr = claims.getSubject();
+        int userId = Integer.parseInt(userIdStr);
+
+        Gson gson = new Gson();
+
+        CompletableFuture<String> future = new CompletableFuture<>();
+        msg_ShowStationTable msgShowStationTable = new msg_ShowStationTable();
 
         int code = 0;
         String message = "success";
@@ -79,7 +85,6 @@ public class QueryReport extends HttpServlet {
         data[0] = new RData();
         ResponseMsg responseMsg = new ResponseMsg(code,message,data);
 
-        Gson gson = new Gson();
         String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
 
         resp.getWriter().println(respJsonMsg);
