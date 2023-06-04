@@ -597,6 +597,9 @@ public class Server {
         waitingZone.StopService();
         if (StationID < FastStations.size()) {
             FastChargeStation fastChargeStation = FastStations.get(StationID);
+            if (fastChargeStation != null && fastChargeStation.isOnService() ) {
+                return;
+            }
             if (fastChargeStation != null) {
                 fastChargeStation.FixStation();
                 fastChargeStation.getCarQueue().clear();
@@ -621,6 +624,9 @@ public class Server {
             }
         }else {
             SlowChargeStation slowChargeStation = SlowStations.get(StationID - FastStations.size());
+            if (slowChargeStation != null && slowChargeStation.isOnService()) {
+                return;
+            }
             if (slowChargeStation != null) {
                 slowChargeStation.FixStation();
                 slowChargeStation.getCarQueue().clear();
