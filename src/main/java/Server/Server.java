@@ -263,7 +263,7 @@ public class Server {
                     case "Show_Station_Table":
                         msg_ShowStationTable msgShowStationTable = (msg_ShowStationTable) message;
                         //TODO 某个充电桩的报表展示。（做完了）
-                        StationForm stationForm = ShowStationTable(msgShowStationTable.StationIndex);
+                        List<StationForm> stationForm = ShowStationTable();
                         msgShowStationTable.Result_Json.complete(gson.toJson(stationForm, stationForm.getClass()));
                         break;
                     case "Station_Recovery":
@@ -330,18 +330,21 @@ public class Server {
         }
         return new QueueSituation(-1, -1, "NOTCHARGING", null);
     }
-    public StationForm ShowStationTable(int index) {
-        if (index < FastStations.size()) {
+    public List<StationForm> ShowStationTable() {
+        List<StationForm> re = new ArrayList<>();
+        for (int index = 0; index < FastStations.size(); index ++) {
             FastChargeStation station = FastStations.get(index);
-            return new StationForm(LocalDateTime.now(), index,station.getAccumulated_Charging_Times(),
+            re.add(new StationForm(LocalDateTime.now(), index,station.getAccumulated_Charging_Times(),
                     station.getTotal_Charging_TimeLength(), station.getTotal_ElectricityAmount_Charged(),
-                    station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost());
-        }else {
-            SlowChargeStation station = SlowStations.get(index - FastStations.size());
-            return new StationForm(LocalDateTime.now(), index,station.getAccumulated_Charging_Times(),
-                    station.getTotal_Charging_TimeLength(), station.getTotal_ElectricityAmount_Charged(),
-                    station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost());
+                    station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost()));
         }
+        for (int index = 0; index < SlowStations.size(); index ++){
+            SlowChargeStation station = SlowStations.get(index);
+            re.add(new StationForm(LocalDateTime.now(), index + FastStations.size(),station.getAccumulated_Charging_Times(),
+                    station.getTotal_Charging_TimeLength(), station.getTotal_ElectricityAmount_Charged(),
+                    station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost()));
+        }
+        return re;
     }
     public List<StationInfo> CheckStationInfo_Server() {
         ArrayList<StationInfo> re = new ArrayList<>();
