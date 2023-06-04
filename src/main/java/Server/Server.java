@@ -6,6 +6,7 @@ import ChargeStation.FastChargeStation;
 import ChargeStation.SlowChargeStation;
 import Message.*;
 import UserManagement.LoginResult;
+import UserManagement.User;
 import UserManagement.UserManager;
 import WaitingZone.WaitingZone;
 import com.google.gson.Gson;
@@ -139,6 +140,13 @@ public class Server {
                 throw new NullPointerException("NULL Message");
             }else {
                 switch (message.Type) {
+                    case "Authentication":
+                        msg_Authentication msgAuthentication = (msg_Authentication) message;
+                        User user = UserManager.FindUserInfoByUsrUID(msgAuthentication.UserID);
+                        if (user != null) {
+                            LoginResult loginResult = new LoginResult(true, user.isAdmin(), user.getUID());
+                            msgAuthentication.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
+                        }
                     case "Enter_Waiting_Zone":
                         msg_EnterWaitingZone m = (msg_EnterWaitingZone) message;
                         boolean success = waitingZone.JoinWaitingZone(m.UserCar);

@@ -39,7 +39,10 @@ public class UserManager {
         }
         return loginResult;
     }
-    private static User FindUserInfoByUsrName(String usrName) {
+    public static User FindUserInfoByUsrName(String usrName) {
+        return null;
+    }
+    public static User FindUserInfoByUsrUID(int UID) {
         return null;
     }
 }
