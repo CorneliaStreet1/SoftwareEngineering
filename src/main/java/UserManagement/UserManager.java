@@ -2,9 +2,14 @@ package UserManagement;
 
 public class UserManager {
     public static boolean  UserRegistration(String usrName, String psw, boolean isAdmin) {
-        User user = new User(usrName, psw, isAdmin);
-        //TODO：将用户信息写入数据库（完成StoreUser()方法）
-        return true;
+        //TODO 需要先检查用户名是否重复，重复的话直接返回false
+        if (FindUserInfoByUsrName(usrName) != null) {
+            return false;
+        }else {
+            User user = new User(usrName, psw, isAdmin);
+            //TODO：将用户信息写入数据库（完成StoreUser()方法）
+            return true;
+        }
     }
     private static void StoreUser(User user) {
         //TODO:将用户信息写入持久化层
