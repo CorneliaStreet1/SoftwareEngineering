@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+
+//完成了吧
 @WebServlet("/account_register")
 public class Account_register extends HttpServlet {
 
@@ -64,7 +66,7 @@ public class Account_register extends HttpServlet {
 
         CompletableFuture<String> future = new CompletableFuture<>();
 
-        msg_UserRegistration msgUserRegistration = new msg_UserRegistration(username, password, future);
+        msg_UserRegistration msgUserRegistration = new msg_UserRegistration(username, password, future, false);
 
         try {
             Server.MessageQueue.put(msgUserRegistration);

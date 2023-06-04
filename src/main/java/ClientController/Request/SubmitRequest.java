@@ -7,6 +7,8 @@ import Message.msg_EnterWaitingZone;
 import Server.Server;
 
 import com.google.gson.Gson;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+//完成？
 @WebServlet("/submit_request")
 public class SubmitRequest extends HttpServlet {
 
@@ -42,7 +45,18 @@ public class SubmitRequest extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
         resp.setContentType("application/json");
-        String authorization = req.getHeader("Authorization");
+
+        String token = req.getHeader("Authorization");
+
+        Claims claims = Jwts.parser()
+                .setSigningKey("secretKey")
+                .parseClaimsJws(token)
+                .getBody();
+
+        String userIdStr = claims.getSubject();
+        int userId = Integer.parseInt(userIdStr);
+
+        Gson gson = new Gson();
 
 
         StringBuilder sb = new StringBuilder();
@@ -53,26 +67,24 @@ public class SubmitRequest extends HttpServlet {
         }
         String requestBody = sb.toString();
 
-        Gson gson = new Gson();
-
         ReqBody reqBody = gson.fromJson(requestBody,ReqBody.class);
 
         boolean isFastCharge = reqBody.charge_mode.equals("F");
         double requestedChargingCapacity = Double.parseDouble(reqBody.require_amount);
         double carBatteryCapacity = Double.parseDouble(reqBody.battery_size);
 
-        Car car = new Car(isFastCharge, requestedChargingCapacity, carBatteryCapacity);
+        Car car = new Car(isFastCharge, requestedChargingCapacity, carBatteryCapacity, userId);
         CompletableFuture<String> future = new CompletableFuture<>();
         msg_EnterWaitingZone msg2q = new msg_EnterWaitingZone(car,future);
 
         try {
             Server.MessageQueue.put(msg2q);
-            String s = future.get();
+            String result = future.get();
 
             int code = 0;
             String message = "success";
 
-            if (s.equals("false")){
+            if (result.equals("false")){
                 code = -1;
                 message = "fail";
             }

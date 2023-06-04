@@ -1,5 +1,9 @@
 package ManagerController;
 
+import com.google.gson.Gson;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,9 +19,16 @@ public class QueryQueue extends HttpServlet {
         String pile_id;
         String username;
         String battery_size;
+        String require_amount;
+        int waiting_time;
 
-        RData(){
-
+        RData(String pile_id, String username, String battery_size,
+              String require_amount, int waiting_time){
+            this.pile_id = pile_id;
+            this.username = username;
+            this.battery_size = battery_size;
+            this.require_amount = require_amount;
+            this.waiting_time = waiting_time;
         }
     }
 
@@ -35,6 +46,30 @@ public class QueryQueue extends HttpServlet {
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
+        String token = req.getHeader("Authorization");
+
+        Claims claims = Jwts.parser()
+                .setSigningKey("secretKey")
+                .parseClaimsJws(token)
+                .getBody();
+
+        //todo: 这里加密的数据是username还是userId有待商榷
+        String username = claims.getSubject();
+        int userId = getUserId();
+
+        int code = 0;
+        String message = "success";
+
+
+        RData[] data = new RData[1];
+        data[0] = new RData();
+        ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+
+        Gson gson = new Gson();
+        String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+
+        resp.getWriter().println(respJsonMsg);
+
 
 
         resp.getWriter().println("{\n" +
