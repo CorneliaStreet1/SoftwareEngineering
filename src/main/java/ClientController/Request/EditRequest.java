@@ -6,6 +6,8 @@ import Server.Server;
 
 import Car.Car;
 import com.google.gson.Gson;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+//完成？
 @WebServlet("/edit_request")
 public class EditRequest extends HttpServlet {
 
@@ -41,8 +44,18 @@ public class EditRequest extends HttpServlet {
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
-        String authorization = req.getHeader("Authorization");
 
+        String token = req.getHeader("Authorization");
+
+        Claims claims = Jwts.parser()
+                .setSigningKey("secretKey")
+                .parseClaimsJws(token)
+                .getBody();
+
+        String userIdStr = claims.getSubject();
+        int userId = Integer.parseInt(userIdStr);
+
+        Gson gson = new Gson();
 
         StringBuilder sb = new StringBuilder();
         BufferedReader br = new BufferedReader(req.getReader());
@@ -52,15 +65,13 @@ public class EditRequest extends HttpServlet {
         }
         String requestBody = sb.toString();
 
-        Gson gson = new Gson();
-
         ReqBody reqBody = gson.fromJson(requestBody, ReqBody.class);
 
         boolean isFastCharge = reqBody.charge_mode.equals("F");
         double requestedChargingCapacity = Double.parseDouble(reqBody.require_amount);
         double carBatteryCapacity = Double.parseDouble(reqBody.battery_size);
 
-        Car car = new Car(isFastCharge, requestedChargingCapacity, carBatteryCapacity);
+        Car car = new Car(isFastCharge, requestedChargingCapacity, carBatteryCapacity, userId);
 
         CompletableFuture<String> modeFuture = new CompletableFuture<>();
         CompletableFuture<String> capacityFuture = new CompletableFuture<>();

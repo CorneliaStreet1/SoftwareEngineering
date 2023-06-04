@@ -36,36 +36,29 @@ public class EndRequest extends HttpServlet {
 
         String token = req.getHeader("Authorization");
 
-        Gson gson = new Gson();
-
         Claims claims = Jwts.parser()
                 .setSigningKey("secretKey")
                 .parseClaimsJws(token)
                 .getBody();
 
-        //todo: 这里加密的数据是username还是userId有待商榷
-        String username = claims.getSubject();
-        int userId = getUserId();
+        String userIdStr = claims.getSubject();
+        int userId = Integer.parseInt(userIdStr);
+
+        Gson gson = new Gson();
 
         int code = 0;
         String message = "success";
 
         try {
-            if(userId < 0){
-                code = -1;
-                message = "token error";
-            }
-            else{
-                Car car = new Car(userId);
-                CompletableFuture<String> future = new CompletableFuture<>();
-                msg_CancelCharging msgCancelCharging = new msg_CancelCharging(car, future);
-                Server.MessageQueue.put(msgCancelCharging);
-                String s = future.get();
+            Car car = new Car(userId);
+            CompletableFuture<String> future = new CompletableFuture<>();
+            msg_CancelCharging msgCancelCharging = new msg_CancelCharging(car, future);
+            Server.MessageQueue.put(msgCancelCharging);
+            String result = future.get();
 
-                if (s.equals("false")) {
-                    code = -1;
-                    message = "cancel fail";
-                }
+            if (result.equals("false")) {
+                code = -1;
+                message = "cancel fail";
             }
 
             SubmitRequest.ResponseMsg responseMsg = new SubmitRequest.ResponseMsg(code,message);

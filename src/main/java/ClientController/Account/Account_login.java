@@ -3,6 +3,7 @@ package ClientController.Account;
 import Message.msg_UserLogin;
 import Server.Server;
 
+import UserManagement.LoginResult;
 import com.google.gson.Gson;
 
 import io.jsonwebtoken.Claims;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+//完成了吧
 @WebServlet("/account_login")
 public class Account_login extends HttpServlet {
 
@@ -87,18 +89,19 @@ public class Account_login extends HttpServlet {
         try {
             Server.MessageQueue.put(msgUserLogin);
             String result = future.get();
+            LoginResult loginResult = gson.fromJson(result, LoginResult.class);
 
             int code = 0;
             String message = "success";
             RData data = null;
 
-            if ( result.equals("true")) {
-                int userId = result.getUserId();
-                boolean is_admin = result.IsAdmin();
+            if (loginResult.Login_Success) {
+                int userId = loginResult.User_ID;
+                boolean is_admin = loginResult.isAdmin;
 
                 String secretKey = "secretKey";
                 String token = Jwts.builder()
-                        .setSubject(userId)
+                        .setSubject(String.valueOf(userId))
                         .signWith(SignatureAlgorithm.HS256, secretKey)
                         .compact();
 
