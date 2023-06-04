@@ -5,6 +5,7 @@ import ChargeStation.*;
 import ChargeStation.FastChargeStation;
 import ChargeStation.SlowChargeStation;
 import Message.*;
+import UserManagement.LoginResult;
 import UserManagement.UserManager;
 import WaitingZone.WaitingZone;
 import com.google.gson.Gson;
@@ -150,11 +151,12 @@ public class Server {
                         }
                         break;
                     case "Charging_Complete":
-                        //TODO 结算费用、将车从对应充电桩的队头移除。如果发现队头不存在这辆车，那么直接忽略。各种结算和移除就在这里做吧（除了持久化，都做完了）
+                        //TODO 结算费用、将车从对应充电桩的队头移除。从Map移除对应的映射。各种结算和移除就在这里做吧（除了持久化，都做完了）
                         msg_ChargeComplete msgChargeComplete = (msg_ChargeComplete) message;
                         if (msgChargeComplete.isFast) {//将车从充电桩的车队列头移除
                             FastChargeStation fastChargeStation = FastStations.get(msgChargeComplete.StationIndex);
                             Car headCar_F = fastChargeStation.getCarQueue().removeFirst();
+                            CarToTimer.remove(headCar_F);
                             LocalDateTime StartTime = fastChargeStation.getCharge_StartTime();
                             LocalDateTime EndTime = fastChargeStation.getExpected_Charge_EndTime();
                             double duration = Duration.between(StartTime, EndTime).toMinutes() * 60;
@@ -167,10 +169,10 @@ public class Server {
                             //生成的订单如下，还没写入数据库
                             ChargingOrderForm form = new ChargingOrderForm(now.toString() + " Car" + headCar_F.getPrimaryKey(), now,
                                     msgChargeComplete.StationIndex, TotalElectricity, StartTime, EndTime, chargeFee, ServiceFee);
-
                         } else {
                             SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
                             Car headCar_S = slowChargeStation.getCarQueue().removeFirst();
+                            CarToTimer.remove(headCar_S);
                             //TODO 生成充电详单、结算。更新充电桩的统计数据
                             LocalDateTime StartTime = slowChargeStation.getCharge_StartTime();
                             LocalDateTime EndTime = slowChargeStation.getExpected_Charge_EndTime();
@@ -200,14 +202,14 @@ public class Server {
                     case "User_Registration":
                         msg_UserRegistration msgUserRegistration = (msg_UserRegistration) message;
                         //TODO 用户注册。并把结果返回客户端
-                        boolean Result = UserManager.UserRegistration(msgUserRegistration.UserName, msgUserRegistration.UserPassword);
+                        boolean Result = UserManager.UserRegistration(msgUserRegistration.UserName, msgUserRegistration.UserPassword, msgUserRegistration.isAdmin);
                         msgUserRegistration.Result_Json.complete(gson.toJson(Result, boolean.class));
                         break;
                     case "User_Login":
                         //TODO 用户登录、并把结果返回客户端
                         msg_UserLogin msgUserLogin = (msg_UserLogin) message;
-                        boolean Login_Success = UserManager.UserLogIn(msgUserLogin.UserName, msgUserLogin.UserPassword);
-                        msgUserLogin.Result_Json.complete(gson.toJson(Login_Success, boolean.class));
+                        LoginResult loginResult = UserManager.UserLogIn(msgUserLogin.UserName, msgUserLogin.UserPassword);
+                        msgUserLogin.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
                         break;
                     case "Change_Charging_Mode":
                         msg_ChangeChargingMode msgChangeChargingMode = (msg_ChangeChargingMode) message;
@@ -225,7 +227,7 @@ public class Server {
                         if (msgTurnOnStation.StationIndex > 0 && msgTurnOnStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOnStation.StationIndex).TurnOnStation();
                         } else {
-                            SlowStations.get(msgTurnOnStation.StationIndex % SlowStations.size()).TurnOnStation();
+                            SlowStations.get(msgTurnOnStation.StationIndex - FastStations.size()).TurnOnStation();
                         }
                         //TODO 打开充电桩（是否需要传递什么东西给控制器？）
                         break;
@@ -234,7 +236,7 @@ public class Server {
                         if (msgTurnOffStation.StationIndex > 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOffStation.StationIndex).TurnOffStation();
                         } else {
-                            SlowStations.get(msgTurnOffStation.StationIndex % SlowStations.size()).TurnOffStation();
+                            SlowStations.get(msgTurnOffStation.StationIndex - FastStations.size()).TurnOffStation();
                         }
                         //TODO 关闭充电桩（是否需要传递什么东西给控制器？）
                         break;
@@ -327,7 +329,7 @@ public class Server {
                     station.getTotal_Charging_TimeLength(), station.getTotal_ElectricityAmount_Charged(),
                     station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost());
         }else {
-            SlowChargeStation station = SlowStations.get(index % SlowStations.size());
+            SlowChargeStation station = SlowStations.get(index - FastStations.size());
             return new StationForm(LocalDateTime.now(), index,station.getAccumulated_Charging_Times(),
                     station.getTotal_Charging_TimeLength(), station.getTotal_ElectricityAmount_Charged(),
                     station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost());
@@ -369,14 +371,12 @@ public class Server {
         }
         return states;
     }
-    public void CheckStationInfo_Server() {
-
-    }
     public void StopServer() {
         StopServer = true;
     }
     public void Schedule() {
         if (!StopServer) {
+            //从等候区向各个充电桩的调度
             if (waitingZone.isOnService() && !waitingZone.isEmpty()) {
                 /*
                   每次只调度最多一辆慢充车和一辆快充车。
@@ -389,12 +389,12 @@ public class Server {
                 List<FastChargeStation> fast = new ArrayList<>();
                 List<SlowChargeStation> slow = new ArrayList<>();
                 for (FastChargeStation fastStation : FastStations) {
-                    if (fastStation.hasEmptySlot()) {
+                    if (fastStation.hasEmptySlot() && fastStation.isOnService() && (!fastStation.isFaulty())) {
                         fast.add(fastStation);
                     }
                 }
                 for (SlowChargeStation slowStation : SlowStations) {
-                    if (slowStation.hasEmptySlot()) {
+                    if (slowStation.hasEmptySlot() && slowStation.isOnService() && (!slowStation.isFaulty())) {
                         slow.add(slowStation);
                     }
                 }
@@ -422,8 +422,11 @@ public class Server {
                         slow.get(ShortestIndex).JoinSlowStation(slowQueue.removeFirst());
                     }
                 }
-                //这个时候遍历每个充电桩，如果桩非空，就启动对应的定时器
-                for (int i = 0; i < FastStations.size(); i++) {
+            }
+            //从等候区到各个充电桩的调度完成
+                //接下来遍历每个充电桩，如果桩非空且在运行，就启动对应的定时器
+            //快充桩
+            for (int i = 0; i < FastStations.size(); i++) {
                     FastChargeStation fastChargeStation = FastStations.get(i);
                     if (fastChargeStation.isOnService() && (!fastChargeStation.isFaulty())) {
                         if (fastChargeStation.Size() > 0) {
@@ -448,7 +451,8 @@ public class Server {
                             }
                         }
                     }
-                }
+            }
+            //慢充桩
                 for (int i = 0; i < SlowStations.size(); i++) {
                     SlowChargeStation slowChargeStation = SlowStations.get(i);
                     if (slowChargeStation.isOnService() && (!slowChargeStation.isFaulty())) {
@@ -475,7 +479,6 @@ public class Server {
                         }
                     }
                 }
-            }
         }
     }
     public int getFastStationCount() {
@@ -492,8 +495,9 @@ public class Server {
         if (StationID < FastStations.size()) {
             ErrorStation = FastStations.get(StationID);
         }else {
-            ErrorStation = SlowStations.get(StationID % SlowStations.size());
+            ErrorStation = SlowStations.get(StationID - FastStations.size());
         }
+        ErrorStation.DestroyStation();
         //只考虑单一充电桩故障，并且恰好该充电桩有车排队的情况
         if (SchedulingStrategy == WaitingZone.Priority_Scheduling) {
             waitingZone.StopService();
@@ -501,17 +505,22 @@ public class Server {
             //如果是慢充
             if (ErrorStation.getClass() == SlowChargeStation.class) {
                 while (!stationError_Cars.isEmpty()) {
+                    Schedule();
                     for (int i = 0; i < SlowStations.size(); i++) {
-                        if (SlowStations.get(i).hasEmptySlot()) {
+                        SlowChargeStation s = SlowStations.get(i);
+                        if (s.hasEmptySlot() && s.isOnService() && (!s.isFaulty())) {
                             SlowChargeStation slowChargeStation = SlowStations.get(i);
                             slowChargeStation.JoinSlowStation(stationError_Cars.removeFirst());
                         }
                     }
-                }//快充站
+                }
+                //快充站
             }else if (ErrorStation.getClass() == FastChargeStation.class){
                 while (!stationError_Cars.isEmpty()) {
+                    Schedule();
                     for (int i = 0; i < FastStations.size(); i++) {
-                        if (FastStations.get(i).hasEmptySlot()) {
+                        FastChargeStation c = FastStations.get(i);
+                        if (c.hasEmptySlot() && c.isOnService() && (!c.isFaulty())) {
                             FastChargeStation fastChargeStation = FastStations.get(i);
                             fastChargeStation.JoinFastStation(stationError_Cars.removeFirst());
                         }
@@ -527,35 +536,46 @@ public class Server {
             //慢充站
             if (ErrorStation.getClass() == SlowChargeStation.class) {
                 ArrayList<Car> stationError_Cars = new ArrayList<>();
-                for (SlowChargeStation slowStation : SlowStations) {
-                    Deque<Car> SlowCars = slowStation.getCarQueue();
-                    while (SlowCars.size() > 1) {
-                        stationError_Cars.add(SlowCars.removeLast());
+                for (int i = 0; i < SlowStations.size(); i ++) {
+                    if (i != StationID - FastStations.size()) {
+                        SlowChargeStation slowStation = SlowStations.get(i);
+                        Deque<Car> SlowCars = slowStation.getCarQueue();
+                        while (SlowCars.size() > 1) {
+                            stationError_Cars.add(SlowCars.removeLast());
+                        }
                     }
                 }
                 stationError_Cars.addAll(ErrorStation.getCarQueue());
                 stationError_Cars.sort(Car::compareTo);
                 while (!stationError_Cars.isEmpty()) {
+                    Schedule();
                     for (int i = 0; i < SlowStations.size(); i++) {
-                        if (SlowStations.get(i).hasEmptySlot()) {
+                        SlowChargeStation s = SlowStations.get(i);
+                        if (s.hasEmptySlot() && s.isOnService() && (!s.isFaulty())) {
                             SlowChargeStation slowChargeStation = SlowStations.get(i);
                             slowChargeStation.JoinSlowStation(stationError_Cars.remove(0));
                         }
                     }
-                }//快充站
+                }
+                //快充站
             }else if (ErrorStation.getClass() == FastChargeStation.class) {
                 ArrayList<Car> stationError_Cars = new ArrayList<>();
-                for (FastChargeStation fastStation : FastStations) {
-                    Deque<Car> FastCars = fastStation.getCarQueue();
-                    while (FastCars.size() > 1) {
-                        stationError_Cars.add(FastCars.removeLast());
+                for (int j = 0; j < FastStations.size(); j ++) {
+                    if (j != StationID) {
+                        FastChargeStation fastStation = FastStations.get(j);
+                        Deque<Car> FastCars = fastStation.getCarQueue();
+                        while (FastCars.size() > 1) {
+                            stationError_Cars.add(FastCars.removeLast());
+                        }
                     }
                 }
                 stationError_Cars.addAll(ErrorStation.getCarQueue());
                 stationError_Cars.sort(Car::compareTo);
                 while (!stationError_Cars.isEmpty()) {
+                    Schedule();
                     for (int i = 0; i < FastStations.size(); i++) {
-                        if (FastStations.get(i).hasEmptySlot()) {
+                        FastChargeStation c = FastStations.get(i);
+                        if (c.hasEmptySlot() && c.isOnService() && (!c.isFaulty())) {
                             FastChargeStation fastChargeStation = FastStations.get(i);
                             fastChargeStation.JoinFastStation(stationError_Cars.remove(0));
                         }
@@ -567,10 +587,63 @@ public class Server {
             }
             waitingZone.StartService();
         }
-        return false;
+        waitingZone.StartService();
+        return true;
     }
     public boolean changeChargeCapacity(Car car, double NewVal) {
         return waitingZone.changeChargeCapacity_Waiting(car, NewVal);
+    }
+    public void HandleStationRecovery(int StationID) {
+        waitingZone.StopService();
+        if (StationID < FastStations.size()) {
+            FastChargeStation fastChargeStation = FastStations.get(StationID);
+            if (fastChargeStation != null) {
+                fastChargeStation.FixStation();
+                fastChargeStation.getCarQueue().clear();
+                Deque<Car> f_car = new ArrayDeque<>();
+                for (int i = 0; i < FastStations.size(); i++) {
+                    if (i != StationID) {
+                        ConcurrentLinkedDeque<Car> carQueue = FastStations.get(i).getCarQueue();
+                        while (carQueue.size() > 1) {
+                            f_car.addLast(carQueue.removeLast());
+                        }
+                    }
+                }
+                while (!f_car.isEmpty()) {
+                    Schedule();
+                    for (FastChargeStation fastStation : FastStations) {
+                        if (fastStation.hasEmptySlot() && fastStation.isOnService() && (!fastStation.isFaulty())) {
+                            fastStation.JoinFastStation(f_car.removeFirst());
+                        }
+                    }
+                }
+                waitingZone.StartService();
+            }
+        }else {
+            SlowChargeStation slowChargeStation = SlowStations.get(StationID - FastStations.size());
+            if (slowChargeStation != null) {
+                slowChargeStation.FixStation();
+                slowChargeStation.getCarQueue().clear();
+                Deque<Car> s_car = new ArrayDeque<Car>();
+                for (int i = 0; i < SlowStations.size(); i++) {
+                    if (1 != StationID - FastStations.size()) {
+                        ConcurrentLinkedDeque<Car> carQueue = SlowStations.get(i).getCarQueue();
+                        while (carQueue.size() > 1) {
+                            s_car.addLast(carQueue.removeLast());
+                        }
+                    }
+                }
+                while (!s_car.isEmpty()) {
+                    Schedule();
+                    for (SlowChargeStation slowStation : SlowStations) {
+                        if (slowStation.hasEmptySlot() && slowStation.isOnService() && (!slowStation.isFaulty())) {
+                            slowStation.JoinSlowStation(s_car.removeFirst());
+                        }
+                    }
+                }
+                waitingZone.StartService();
+            }
+        }
     }
     public double getChargeFee(LocalDateTime Start, LocalDateTime End, double ChargeSpeed_Min) {
         LocalTime StartTime = LocalTime.of(Start.getHour(), Start.getMinute());

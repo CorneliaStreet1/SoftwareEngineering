@@ -1,8 +1,8 @@
 package UserManagement;
 
 public class UserManager {
-    public static boolean  UserRegistration(String usrName, String psw) {
-        User user = new User(usrName, psw);
+    public static boolean  UserRegistration(String usrName, String psw, boolean isAdmin) {
+        User user = new User(usrName, psw, isAdmin);
         //TODO：将用户信息写入数据库（完成StoreUser()方法）
         return true;
     }
@@ -10,14 +10,31 @@ public class UserManager {
         //TODO:将用户信息写入持久化层
         return;
     }
-    public static boolean UserLogIn(String usrName, String psw) {
+    public static LoginResult UserLogIn(String usrName, String psw) {
         if (psw == null) {
-            return false;
+            return new LoginResult(false, false, -1);
         }
-        String Expected_PSW = FindPasswordByUsrName(usrName);
-        return psw.equals(Expected_PSW);
+        User Expected_Usr = FindUserInfoByUsrName(usrName);
+        LoginResult loginResult = new LoginResult();
+        if (Expected_Usr != null) {
+            if (psw.equals(Expected_Usr.getPassword())) {
+                loginResult.Login_Success = true;
+                loginResult.isAdmin = Expected_Usr.isAdmin();
+                loginResult.User_ID = Expected_Usr.getUID();
+            }
+            else {
+                loginResult.Login_Success = false;
+                loginResult.User_ID = -1;
+                loginResult.isAdmin = false;
+            }
+        }else {
+            loginResult.Login_Success = false;
+            loginResult.User_ID = -1;
+            loginResult.isAdmin = false;
+        }
+        return loginResult;
     }
-    private static String FindPasswordByUsrName(String usrName) {
+    private static User FindUserInfoByUsrName(String usrName) {
         return null;
     }
 }

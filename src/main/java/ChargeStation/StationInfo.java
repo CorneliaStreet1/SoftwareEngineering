@@ -19,6 +19,4 @@ public class StationInfo {
         RequestedChargingCapacity = requestedChargingCapacity;
         WaitingTime = (RequestedChargingCapacity / speed_Min) * 60;
     }
-//TODO 排队时长还不知道怎么整，先丢这吧。
-
 }
