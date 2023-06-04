@@ -256,7 +256,7 @@ public class Server {
                         break;
                     case "Check_Station_Info":
                         msg_CheckStationInfo msgCheckStationInfo = (msg_CheckStationInfo) message;
-                        List<StationInfo> stationInfos = CheckStationInfo_Server(msgCheckStationInfo.StationIndex);
+                        List<StationInfo> stationInfos = CheckStationInfo_Server();
                         //TODO 检查某个充电桩等候服务的车辆信息。将其返回给客户端(已做)
                         msgCheckStationInfo.Result_Json.complete(gson.toJson(stationInfos, stationInfos.getClass()));
                         break;
@@ -343,7 +343,7 @@ public class Server {
                     station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost());
         }
     }
-    public List<StationInfo> CheckStationInfo_Server(int StationIndex) {
+    public List<StationInfo> CheckStationInfo_Server() {
         ArrayList<StationInfo> re = new ArrayList<>();
         int id = 0;
         for (FastChargeStation station : FastStations) {
