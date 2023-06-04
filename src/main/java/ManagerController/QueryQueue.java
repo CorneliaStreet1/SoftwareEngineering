@@ -1,4 +1,4 @@
-package ClientController.Query;
+package ManagerController;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,6 +11,27 @@ import java.io.IOException;
 public class QueryQueue extends HttpServlet {
 //这个好像是管理员查看的
 
+    static class RData {
+        String pile_id;
+        String username;
+        String battery_size;
+
+        RData(){
+
+        }
+    }
+
+    static class ResponseMsg {
+        int code;
+        String message;
+        RData[] data;
+
+        ResponseMsg(int code, String message, RData[] data) {
+            this.code = code;
+            this.message = message;
+            this.data = data;
+        }
+    }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
