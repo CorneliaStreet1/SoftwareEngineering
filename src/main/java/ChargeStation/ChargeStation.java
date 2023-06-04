@@ -84,7 +84,7 @@ public class ChargeStation {
     }
 /***************************************分割线结束***********************************************************/
     public synchronized boolean isOnService() {
-        return isOnService;
+        return isOnService && !isFaulty;
     }
     public synchronized void TurnOnStation() {
         isOnService = true;
@@ -96,9 +96,11 @@ public class ChargeStation {
         return isFaulty;
     }
     public void FixStation() {
+        isOnService = true;
         isFaulty = false;
     }
     public void DestroyStation() {
+        isOnService = false;
         isFaulty = true;
     }
     public synchronized boolean JoinStation(Car car) {
