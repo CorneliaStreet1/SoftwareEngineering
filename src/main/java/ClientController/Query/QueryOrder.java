@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 
-@WebServlet("/query_order")
+//@WebServlet("/query_order")
 public class QueryOrder extends HttpServlet {
 
     static class RData {

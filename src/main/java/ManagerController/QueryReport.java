@@ -75,14 +75,14 @@ public class QueryReport extends HttpServlet {
         Gson gson = new Gson();
 
         CompletableFuture<String> future = new CompletableFuture<>();
-        msg_ShowStationTable msgShowStationTable = new msg_ShowStationTable();
+//        msg_ShowStationTable msgShowStationTable = new msg_ShowStationTable();
 
         int code = 0;
         String message = "success";
 
 
         RData[] data = new RData[1];
-        data[0] = new RData();
+//        data[0] = new RData();
         ResponseMsg responseMsg = new ResponseMsg(code,message,data);
 
         String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
