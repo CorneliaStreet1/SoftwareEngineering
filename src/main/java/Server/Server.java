@@ -151,10 +151,12 @@ public class Server {
                         msg_EnterWaitingZone m = (msg_EnterWaitingZone) message;
                         boolean success = waitingZone.JoinWaitingZone(m.UserCar);
                         if (success) {//如果加入成功，尝试一次调度
+                            logger.info("Enter_Waiting_Zone Success Car:" + m.UserCar.getPrimaryKey());
                             Schedule();
                             m.Result_Json.complete(gson.toJson(true, boolean.class));
                             //TODO 给客户端返回一个加入等候区成功的消息。这个True代表加入等候区成功，不代表其他事情。
                         }else {
+                            logger.info("Enter_Waiting_Zone Fail Car:" + m.UserCar.getPrimaryKey());
                             m.Result_Json.complete(gson.toJson(false, boolean.class));
                         }
                         break;
@@ -165,6 +167,7 @@ public class Server {
                             FastChargeStation fastChargeStation = FastStations.get(msgChargeComplete.StationIndex);
                             Car headCar_F = fastChargeStation.getCarQueue().removeFirst();
                             CarToTimer.remove(headCar_F);
+                            logger.info("Fast Charge Complete Car:" + headCar_F.getPrimaryKey());
                             LocalDateTime StartTime = fastChargeStation.getCharge_StartTime();
                             LocalDateTime EndTime = fastChargeStation.getExpected_Charge_EndTime();
                             double duration = Duration.between(StartTime, EndTime).toMinutes() * 60;
@@ -181,6 +184,7 @@ public class Server {
                             SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
                             Car headCar_S = slowChargeStation.getCarQueue().removeFirst();
                             CarToTimer.remove(headCar_S);
+                            logger.info("Fast Charge Complete Car:" + headCar_S.getPrimaryKey());
                             //TODO 生成充电详单、结算。更新充电桩的统计数据
                             LocalDateTime StartTime = slowChargeStation.getCharge_StartTime();
                             LocalDateTime EndTime = slowChargeStation.getExpected_Charge_EndTime();
@@ -389,6 +393,7 @@ public class Server {
         if (!StopServer) {
             //从等候区向各个充电桩的调度
             if (waitingZone.isOnService() && !waitingZone.isEmpty()) {
+                logger.info("Schedule()----------------");
                 /*
                   每次只调度最多一辆慢充车和一辆快充车。
                   我个人觉得这是合理的，因为每调度一辆车，充电桩们的状态就发生了变化，需要重新调度
@@ -401,11 +406,13 @@ public class Server {
                 List<SlowChargeStation> slow = new ArrayList<>();
                 for (FastChargeStation fastStation : FastStations) {
                     if (fastStation.hasEmptySlot() && fastStation.isOnService() && (!fastStation.isFaulty())) {
+                        logger.info("Add Empty Fast Station" );
                         fast.add(fastStation);
                     }
                 }
                 for (SlowChargeStation slowStation : SlowStations) {
                     if (slowStation.hasEmptySlot() && slowStation.isOnService() && (!slowStation.isFaulty())) {
+                        logger.info("Add Empty Slow Station" );
                         slow.add(slowStation);
                     }
                 }
@@ -418,6 +425,7 @@ public class Server {
                                 ShortestIndex = i;
                             }
                         }
+                        logger.info("Schedule a Fast Car to " + ShortestIndex);
                         fast.get(ShortestIndex).JoinFastStation(fastQueue.removeFirst());
                     }
                 }
@@ -430,6 +438,7 @@ public class Server {
                                 ShortestIndex = i;
                             }
                         }
+                        logger.info("Schedule a Slow Car to " + ShortestIndex);
                         slow.get(ShortestIndex).JoinSlowStation(slowQueue.removeFirst());
                     }
                 }
@@ -438,6 +447,7 @@ public class Server {
                 //接下来遍历每个充电桩，如果桩非空且在运行，就启动对应的定时器
             //快充桩
             for (int i = 0; i < FastStations.size(); i++) {
+                logger.info("From Waiting Zone to Fast Station");
                     FastChargeStation fastChargeStation = FastStations.get(i);
                     if (fastChargeStation.isOnService() && (!fastChargeStation.isFaulty())) {
                         if (fastChargeStation.Size() > 0) {
@@ -459,6 +469,7 @@ public class Server {
                                     }
                                 }, (long) F_Time_Second, TimeUnit.SECONDS);
                                 CarToTimer.put(F_headCar, F_schedule); //将车和其定时器映射关系加入Map
+                                logger.info("Charging At Fast Station:"+ F_Index + " Car " + F_headCar.getPrimaryKey());
                             }
                         }
                     }
@@ -486,6 +497,7 @@ public class Server {
                                     }
                                 }, (long) Time_Second, TimeUnit.SECONDS);
                                 CarToTimer.put(headCar, schedule); //将车和其定时器映射关系加入Map
+                                logger.info("Charging At Slow Station:"+ Index + " Car " + headCar.getPrimaryKey());
                             }
                         }
                     }
