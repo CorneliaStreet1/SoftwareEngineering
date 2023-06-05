@@ -1,11 +1,15 @@
 package ChargeStation;
 
 import Car.Car;
+import Server.Server;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.time.LocalDateTime;
 
 
 public class SlowChargeStation extends ChargeStation{
-
+    private static final Logger logger = LogManager.getLogger(SlowChargeStation.class);
     public static final double ChargingSpeed = 7.0;
     public static final double ChargingSpeed_PerMinute = 0.1166667; // 7.0 / 60.0
     private LocalDateTime Charge_StartTime;//当前正在充电的车，充电的开始时间
@@ -13,7 +17,9 @@ public class SlowChargeStation extends ChargeStation{
     public SlowChargeStation() {
         super();
     }
-
+    public SlowChargeStation(int num) {
+        super(num);
+    }
     public synchronized boolean JoinSlowStation(Car car) {
         if (!car.isFastCharging()) {
             return super.JoinStation(car);
@@ -23,6 +29,7 @@ public class SlowChargeStation extends ChargeStation{
 
 
     public synchronized double getWaitingTime() {
+        //logger.info("Slow Station Size == " + this.Size());
         double time = 0;
         for (Car car : this.getCarQueue()) {
             time += car.getRequestedChargingCapacity() / ChargingSpeed;

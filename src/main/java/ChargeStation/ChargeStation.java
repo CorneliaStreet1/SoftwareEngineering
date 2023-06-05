@@ -1,11 +1,14 @@
 package ChargeStation;
 
 import Car.Car;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.LocalTime;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class ChargeStation {
+    private static Logger logger = LogManager.getLogger(ChargeStation.class);
     protected static final int MAX_SIZE = 2;
     protected static int NextStationNumber; //下一个充电桩的编号
     public static final double SERVICE_PRICE = 0.8; //服务费单价0.8元/度
@@ -29,6 +32,17 @@ public class ChargeStation {
         isFaulty = false;
         ChargeStationNumber = NextStationNumber;
         NextStationNumber ++;
+        Accumulated_Charging_Cost = 0;
+        Accumulated_Charging_Times = 0;
+        Accumulated_Service_Cost = 0;
+        Total_Charging_TimeLength = 0;
+        Total_ElectricityAmount_Charged = 0;
+    }
+    public ChargeStation(int chargeStationNumber) {
+        CarQueue = new ConcurrentLinkedDeque<>();
+        isOnService = true;
+        isFaulty = false;
+        ChargeStationNumber = chargeStationNumber;
         Accumulated_Charging_Cost = 0;
         Accumulated_Charging_Times = 0;
         Accumulated_Service_Cost = 0;
@@ -115,13 +129,18 @@ public class ChargeStation {
         return CarQueue.size();
     }
     public synchronized boolean CancelCharging(Car car) {
+        if (car == null) {
+            return false;
+        }
         if (!CarQueue.isEmpty()) {
             if (CarQueue.getFirst().equals(car)) {
                 CarQueue.removeFirst();
+                logger.info("FAST.CancelCharging(): Remove Charging Car");
                 return true;
                 //TODO 结算各种。虽然是不收费，但是还是要生成一张详单才行（决定了：不结算了）
             }else if (CarQueue.getLast().equals(car)){
                 CarQueue.removeLast();
+                logger.info("FAST.CancelCharging(): Remove Waiting Car");
                 return true;
             }
         }

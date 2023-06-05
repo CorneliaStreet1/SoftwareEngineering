@@ -1,10 +1,13 @@
 package WaitingZone;
 
 import Car.Car;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class WaitingZone {
+    private static Logger logger = LogManager.getLogger(WaitingZone.class);
     private static final int MAX_SIZE = 6;
     public static final int Priority_Scheduling = 0;
     public static final int Time_Sequence_Scheduling = 1;
@@ -13,11 +16,11 @@ public class WaitingZone {
     private ConcurrentLinkedDeque<Car> SlowQueue;
     private static int TotalCarCount = 0;//充电的总车次数(是车次数，不是车辆数，如果一辆车充一百次，那么车次要加一百)
 
-    private int size;//当前等候区的车辆数，不超过6
+    //private int size;//当前等候区的车辆数，不超过6
     public WaitingZone() {
         FastQueue = new ConcurrentLinkedDeque<>();
         SlowQueue = new ConcurrentLinkedDeque<>();
-        size = 0;
+        //size = 0;
         isOnService = true;
     }
     public synchronized void StartService() {
@@ -34,9 +37,9 @@ public class WaitingZone {
     }
     public boolean AddToFastQueue(Car car) {
         if (car.isFastCharging()) {
-            if (size < MAX_SIZE) {
+            if (size() < MAX_SIZE) {
                 FastQueue.addLast(car);
-                size ++;
+                //size ++;
                 TotalCarCount ++;
                 return true;
             } else {
@@ -50,9 +53,9 @@ public class WaitingZone {
         if (car.isFastCharging()) {
             return false;
         }else {
-            if (size < MAX_SIZE) {
+            if (size() < MAX_SIZE) {
                 SlowQueue.addLast(car);
-                size ++;
+                //size ++;
                 TotalCarCount ++;
                 return true;
             }
@@ -66,7 +69,7 @@ public class WaitingZone {
         return AddToSlowQueue(car);
     }
     public boolean changeChargeMode_Waiting(Car car) {
-        if (car.isFastCharging()) {
+        if (FastQueue.contains(car)) {
             car.setChargingMode(false);
             //car.setQueueSeq(TotalCarCount);
             TotalCarCount ++;
@@ -81,29 +84,28 @@ public class WaitingZone {
         }
     }
     public boolean changeChargeCapacity_Waiting(Car car, double NewValue) {
-        if (car.isFastCharging()) {
-            if (FastQueue.contains(car)) {
+        if (FastQueue.contains(car)) {
                 car.setRequestedChargingCapacity(NewValue);
                 return true;
-            }
-        }else {
-            if (SlowQueue.contains(car)) {
-                car.setRequestedChargingCapacity(NewValue);
-                return true;
-            }
+        }
+        else if (SlowQueue.contains(car)){
+            car.setRequestedChargingCapacity(NewValue);
+            return true;
         }
         return false;
     }
     public boolean CancelCharging_Waiting(Car car) {
-        if (car.isFastCharging()) {
+        if (FastQueue.contains(car)) {
+            logger.info("Cancel Charging Success at waitingZone FastQueue" + "Car "+ car.getPrimaryKey());
             FastQueue.remove(car);
         }else {
+            logger.info("Cancel Charging Success at waitingZone SlowQueue" + "Car "+ car.getPrimaryKey());
             SlowQueue.remove(car);
         }
         return true;
     }
     public synchronized boolean isEmpty() {
-        return size == 0;
+        return size() == 0;
     }
     public synchronized int size() {
         return FastQueue.size() + SlowQueue.size();

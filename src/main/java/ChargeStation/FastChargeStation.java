@@ -1,10 +1,13 @@
 package ChargeStation;
 
 import Car.Car;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
 
 public class FastChargeStation extends ChargeStation{
+    private static final Logger logger = LogManager.getLogger(FastChargeStation.class);
     public static final double ChargingSpeed = 30.0;
     public static final double ChargingSpeed_PerMinute = 0.5; //0.5度每分钟
     private LocalDateTime Charge_StartTime;//当前正在充电的车，充电的开始时间
@@ -12,7 +15,9 @@ public class FastChargeStation extends ChargeStation{
     public FastChargeStation() {
         super();
     }
-
+    public FastChargeStation(int num) {
+        super(num);
+    }
     public LocalDateTime getCharge_StartTime() {
         return Charge_StartTime;
     }
@@ -37,6 +42,7 @@ public class FastChargeStation extends ChargeStation{
     }
     public synchronized double getWaitingTime() {//得到当前充电桩的等待时间
         double time = 0;
+        //logger.info("Fast Station Size == " + this.Size());
         for (Car car : this.getCarQueue()) {
             time += car.getRequestedChargingCapacity() / ChargingSpeed;
         }
