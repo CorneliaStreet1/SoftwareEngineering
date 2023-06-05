@@ -61,14 +61,14 @@ public class QueryQueue extends HttpServlet {
 
         Gson gson = new Gson();
 
-        msg_CheckStationInfo msgCheckStationInfo = new msg_CheckStationInfo();
+//        msg_CheckStationInfo msgCheckStationInfo = new msg_CheckStationInfo();
 
         int code = 0;
         String message = "success";
 
 
         RData[] data = new RData[1];
-        data[0] = new RData();
+//        data[0] = new RData();
         ResponseMsg responseMsg = new ResponseMsg(code,message,data);
 
         String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class UpdatePile extends HttpServlet {
 
@@ -35,7 +36,7 @@ public class UpdatePile extends HttpServlet {
         int code;
         String message;
 
-        ResponseMsg(int code, String message, QueryPile.RData[] data) {
+        ResponseMsg(int code, String message) {
             this.code = code;
             this.message = message;
         }
@@ -68,25 +69,43 @@ public class UpdatePile extends HttpServlet {
 
         ReqBody reqBody = gson.fromJson(requestBody,ReqBody.class);
 
+        int pileId = Integer.parseInt(reqBody.pile_id);
+
 //        CompletableFuture<String> checkIdFuture = new CompletableFuture<>();
         CompletableFuture<String> updatePileFuture = new CompletableFuture<>();
 
         try {
             Message msg;
             if(reqBody.status == Status.RUNNING){
-                msg = new msg_StationRecovery();
+                msg = new msg_StationRecovery(pileId, updatePileFuture);
             }
             else if(reqBody.status == Status.SHUTDOWN){
-                msg = new msg_TurnOffStation();
+                msg = new msg_TurnOffStation(pileId, updatePileFuture);
             }
             else{
-                msg = new msg_StationFault();
+                msg = new msg_StationFault(pileId, 0, updatePileFuture);
             }
 
             Server.MessageQueue.put(msg);
             String result = updatePileFuture.get();
+
+            int code = 0;
+            String message = "success";
+
+            if(result.equals("false")){
+                code = -1;
+                message = "false";
+            }
+
+            ResponseMsg responseMsg = new ResponseMsg(code, message);
+
+            String respJsonMsg = gson.toJson(responseMsg, ResponseMsg.class);
+
+            resp.getWriter().println(respJsonMsg);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-
-
     }
 }
