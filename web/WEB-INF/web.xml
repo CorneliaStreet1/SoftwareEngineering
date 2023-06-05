@@ -8,4 +8,8 @@
         <listener-class>Server.ServerThread</listener-class>
     </listener>
 
+<!--    <welcome-file-list>-->
+<!--        <welcome-file>test.html</welcome-file>-->
+<!--    </welcome-file-list>-->
+
 </web-app>
