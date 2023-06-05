@@ -1,6 +1,8 @@
 package ManagerController;
 
 import Message.msg_ShowStationTable;
+import Server.ServerThread;
+
 
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
@@ -63,54 +65,61 @@ public class QueryReport extends HttpServlet {
         resp.setContentType("application/json");
 
         try {
-            String token = req.getHeader("Authorization");
+            try {
+                String token = req.getHeader("Authorization");
 
-            Claims claims = Jwts.parser()
-                    .setSigningKey("secretKey")
-                    .parseClaimsJws(token)
-                    .getBody();
+                Claims claims = Jwts.parser()
+                        .setSigningKey(ServerThread.secretKey)
+                        .parseClaimsJws(token)
+                        .getBody();
 
-            String userIdStr = claims.getSubject();
-            int userId = Integer.parseInt(userIdStr);
+                String userIdStr = claims.getSubject();
+                int userId = Integer.parseInt(userIdStr);
 
-            Gson gson = new Gson();
+                Gson gson = new Gson();
 
-            CompletableFuture<String> future = new CompletableFuture<>();
+                CompletableFuture<String> future = new CompletableFuture<>();
 //        msg_ShowStationTable msgShowStationTable = new msg_ShowStationTable();
 
-            int code = 0;
-            String message = "success";
+                int code = 0;
+                String message = "success";
 
 
-            RData[] data = new RData[1];
+                RData[] data = new RData[1];
 //        data[0] = new RData();
-            ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+                ResponseMsg responseMsg = new ResponseMsg(code,message,data);
 
-            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+                String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
 
-            resp.getWriter().println(respJsonMsg);
+                resp.getWriter().println(respJsonMsg);
 
-            resp.getWriter().println("{\n" +
-                    "    \"code\": 0,\n" +
-                    "    \"message\": \"success\",\n" +
-                    "    \"data\": [\n" +
-                    "        {\n" +
-                    "            \"day\": 65,\n" +
-                    "            \"week\": 9,\n" +
-                    "            \"month\": 2,\n" +
-                    "            \"pile_id\": \"P1\",\n" +
-                    "            \"total_usage_times\": 173,\n" +
-                    "            \"total_charging_time\": 1200000,\n" +
-                    "            \"total_charging_amount\": \"1873.25\",\n" +
-                    "            \"total_charging_earning\": \"2312.12\",\n" +
-                    "            \"total_service_earning\": \"121.08\",\n" +
-                    "            \"total_earning\": \"2433.20\"\n" +
-                    "        }\n" +
-                    "    ]\n" +
-                    "}");
+//                resp.getWriter().println("{\n" +
+//                        "    \"code\": 0,\n" +
+//                        "    \"message\": \"success\",\n" +
+//                        "    \"data\": [\n" +
+//                        "        {\n" +
+//                        "            \"day\": 65,\n" +
+//                        "            \"week\": 9,\n" +
+//                        "            \"month\": 2,\n" +
+//                        "            \"pile_id\": \"P1\",\n" +
+//                        "            \"total_usage_times\": 173,\n" +
+//                        "            \"total_charging_time\": 1200000,\n" +
+//                        "            \"total_charging_amount\": \"1873.25\",\n" +
+//                        "            \"total_charging_earning\": \"2312.12\",\n" +
+//                        "            \"total_service_earning\": \"121.08\",\n" +
+//                        "            \"total_earning\": \"2433.20\"\n" +
+//                        "        }\n" +
+//                        "    ]\n" +
+//                        "}");
+            }
+            catch (Exception e) {
+                return;
+            }
         }
         catch (Exception e) {
-            return;
+            System.out.println(e);
         }
+
+
     }
 }

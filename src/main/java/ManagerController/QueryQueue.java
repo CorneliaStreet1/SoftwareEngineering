@@ -1,6 +1,8 @@
 package ManagerController;
 
 import Message.msg_CheckStationInfo;
+import Server.ServerThread;
+
 
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
@@ -49,46 +51,51 @@ public class QueryQueue extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
 
-        String token = req.getHeader("Authorization");
+        try {
+            String token = req.getHeader("Authorization");
 
-        Claims claims = Jwts.parser()
-                .setSigningKey("secretKey")
-                .parseClaimsJws(token)
-                .getBody();
+            Claims claims = Jwts.parser()
+                    .setSigningKey(ServerThread.secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        String userIdStr = claims.getSubject();
-        int userId = Integer.parseInt(userIdStr);
+            String userIdStr = claims.getSubject();
+            int userId = Integer.parseInt(userIdStr);
 
-        Gson gson = new Gson();
+            Gson gson = new Gson();
 
 //        msg_CheckStationInfo msgCheckStationInfo = new msg_CheckStationInfo();
 
-        int code = 0;
-        String message = "success";
+            int code = 0;
+            String message = "success";
 
 
-        RData[] data = new RData[1];
+            RData[] data = new RData[1];
 //        data[0] = new RData();
-        ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+            ResponseMsg responseMsg = new ResponseMsg(code,message,data);
 
-        String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
 
-        resp.getWriter().println(respJsonMsg);
+            resp.getWriter().println(respJsonMsg);
+
+//            resp.getWriter().println("{\n" +
+//                    "    \"code\": 0,\n" +
+//                    "    \"message\": \"success\",\n" +
+//                    "    \"data\": [\n" +
+//                    "        {\n" +
+//                    "            \"pile_id\": \"P1\",\n" +
+//                    "            \"username\": \"12345678\",\n" +
+//                    "            \"battery_size\": \"60.00\",\n" +
+//                    "            \"require_amount\": \"12.34\",\n" +
+//                    "            \"waiting_time\": 600\n" +
+//                    "        }\n" +
+//                    "    ]\n" +
+//                    "}");
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
 
 
-
-        resp.getWriter().println("{\n" +
-                "    \"code\": 0,\n" +
-                "    \"message\": \"success\",\n" +
-                "    \"data\": [\n" +
-                "        {\n" +
-                "            \"pile_id\": \"P1\",\n" +
-                "            \"username\": \"12345678\",\n" +
-                "            \"battery_size\": \"60.00\",\n" +
-                "            \"require_amount\": \"12.34\",\n" +
-                "            \"waiting_time\": 600\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}");
     }
 }
