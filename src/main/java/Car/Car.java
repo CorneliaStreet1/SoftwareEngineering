@@ -85,4 +85,9 @@ public class Car implements Comparable<Car>{
                 ", CarBatteryCapacity=" + CarBatteryCapacity +
                 '}';
     }
+
+    @Override
+    public int hashCode() {
+        return this.PrimaryKey;
+    }
 }
