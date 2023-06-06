@@ -257,14 +257,14 @@ public class Server {
                         LoginResult loginResult = UserManager.UserLogIn(msgUserLogin.UserName, msgUserLogin.UserPassword);
                         msgUserLogin.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
                         break;
-                    case "Change_Charging_Mode":
+                    case "Change_Charging_Mode"://已测
                         msg_ChangeChargingMode msgChangeChargingMode = (msg_ChangeChargingMode) message;
                         //TODO 改变充电模式。将改变的结果布尔值传递给客户端
                         logger.info("=============At msg Change_Charging_Mode");
                         boolean modeResult = ChangeChargeMode_Server(msgChangeChargingMode.car);
                         msgChangeChargingMode.Result_Json.complete(gson.toJson(modeResult, boolean.class));
                         break;
-                    case "Change_Charge_Capacity":
+                    case "Change_Charge_Capacity"://已测
                         logger.info("==============At msg Change_Charge_Capacity");
                         msg_ChangeChargeCapacity msgChangeChargeCapacity = (msg_ChangeChargeCapacity) message;
                         boolean changeCapacityServer = ChangeChargeCapacity_Server(msgChangeChargeCapacity.car, msgChangeChargeCapacity.NewValue);
@@ -282,6 +282,7 @@ public class Server {
                         msgTurnOnStation.Result_Json.complete(gson.toJson(true, boolean.class));
                         break;
                     case "Turn_Off_Station":
+                        //TODO 开关充电桩需要和华子讨论一下。当充电桩还有车充电的时候，关闭充电桩会发生什么？还是仅允许充电桩空时关闭？
                         msg_TurnOffStation msgTurnOffStation = (msg_TurnOffStation) message;
                         if (msgTurnOffStation.StationIndex > 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOffStation.StationIndex).TurnOffStation();

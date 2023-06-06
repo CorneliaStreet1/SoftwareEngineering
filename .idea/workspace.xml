@@ -9,9 +9,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac6fd2c2-1369-4f5a-99ba-c680201ea096" name="变更" comment="变更">
-      <change afterPath="$PROJECT_DIR$/src/main/java/Server/TimeSystem.java" afterDir="false" />
+    <list default="true" id="857e9f4a-965b-46cf-ad39-ba5081c0e47b" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Car/Car.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Car/Car.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,27 +71,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "jdk.selected.JAVA_MODULE": "1.8",
-    "last_opened_file_path": "F:/file/code_file/idea_java_file/2023/5/SoftwareEngineering",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "工件",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.21839081",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;1.8&quot;,
+    &quot;last_opened_file_path&quot;: &quot;F:/file/code_file/idea_java_file/2023/5/SoftwareEngineering&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;工件&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.21839081&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web\WEB-INF\lib" />
@@ -99,39 +102,43 @@
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web" />
     </key>
   </component>
-  <component name="RunManager" selected="应用程序.TimeSystem">
+  <component name="RunManager" selected="JUnit.Server_UnitTest.Test_ChangeChargingCapacity">
+    <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
+      <option name="appName" />
+      <option name="appServicePlanName" />
+      <option name="appServicePlanResourceGroup" />
+      <option name="appSettingsKey" value="0861a0a2-c361-474b-89fa-a06f8dd4c6be" />
+      <option name="artifact" />
+      <option name="debugOptions" />
+      <option name="deployment" />
+      <option name="deploymentStagingDirectoryPath" />
+      <option name="funcPath" />
+      <option name="functionHostArguments" />
+      <option name="hostJsonPath" />
+      <option name="insightsName" />
+      <option name="instrumentationKey" />
+      <option name="javaVersion" />
+      <option name="localSettingsJsonPath" />
+      <option name="moduleName" />
+      <option name="os" />
+      <option name="pricingTier" />
+      <option name="providerMap">
+        <map />
+      </option>
+      <option name="region" />
+      <option name="resourceGroup" />
+      <option name="stagingFolder" />
+      <option name="subscription" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ClientController.Demo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="ClientController.Demo" />
       <module name="SoftwareEngineering" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="ClientController.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Demo (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Message.Demo" />
-      <module name="SoftwareEngineering" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Message.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Log4jDemo.Demo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Log4jDemo.Demo" />
-      <module name="SoftwareEngineering" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Log4jDemo.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -154,6 +161,26 @@
     </configuration>
     <configuration name="rest-api_1 | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/rest-api_1.http" requestIdentifier="#1" runType="运行单个请求">
       <method v="2" />
+    </configuration>
+    <configuration name="Server_UnitTest.Test_ChangeChargingCapacity" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
+      <option name="METHOD_NAME" value="Test_ChangeChargingCapacity" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server_UnitTest.Test_ChangeCharging_Mode" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
+      <option name="METHOD_NAME" value="Test_ChangeCharging_Mode" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
     <configuration name="Tomcat 9.0.75" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 9.0.75" ALTERNATIVE_JRE_ENABLED="false" nameIsGenerated="true">
       <option name="OPEN_IN_BROWSER" value="false" />
@@ -246,19 +273,19 @@
     </configuration>
     <list>
       <item itemvalue="HTTP 请求.rest-api_1 | #1" />
+      <item itemvalue="JUnit.Server_UnitTest.Test_ChangeChargingCapacity" />
+      <item itemvalue="JUnit.Server_UnitTest.Test_ChangeCharging_Mode" />
       <item itemvalue="Tomcat 服务器.Tomcat 9.0.75" />
       <item itemvalue="应用程序.TimeSystem" />
       <item itemvalue="应用程序.ClientController.Demo" />
-      <item itemvalue="应用程序.Log4jDemo.Demo" />
-      <item itemvalue="应用程序.Demo (1)" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.Server_UnitTest.Test_ChangeChargingCapacity" />
+        <item itemvalue="JUnit.Server_UnitTest.Test_ChangeCharging_Mode" />
         <item itemvalue="应用程序.TimeSystem" />
         <item itemvalue="HTTP 请求.rest-api_1 | #1" />
         <item itemvalue="应用程序.ClientController.Demo" />
-        <item itemvalue="应用程序.Log4jDemo.Demo" />
-        <item itemvalue="应用程序.Demo (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -286,5 +313,13 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="Server.Server" memberName="waitingZone" />
+        <PinnedItemInfo parentTag="Server.Server" memberName="StopServer" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
 </project>

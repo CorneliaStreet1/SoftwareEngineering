@@ -71,6 +71,12 @@ public class WaitingZone {
     public boolean changeChargeMode_Waiting(Car car) {
         if (FastQueue.contains(car)) {
             logger.info("Car at WaitingZone - FastQueue ");
+            for (Car car1 : FastQueue) {
+                if (car1.equals(car)) {
+                    car = car1;
+                    break;
+                }
+            }
             FastQueue.remove(car);
             car.setChargingMode(false);
             //car.setQueueSeq(TotalCarCount);
@@ -80,6 +86,12 @@ public class WaitingZone {
             return AddToSlowQueue(car);
         }else {
             logger.info("Car at WaitingZone - SlowQueue ");
+            for (Car car1 : SlowQueue) {
+                if (car1.equals(car)) {
+                    car = car1;
+                    break;
+                }
+            }
             SlowQueue.remove(car);
             car.setChargingMode(true);
             //car.setQueueSeq(TotalCarCount);
@@ -103,6 +115,8 @@ public class WaitingZone {
                 return true;
         }
         else if (SlowQueue.contains(car)){
+            logger.info("Car at SLOW Waiting Queue");
+
             for (Car car1 : SlowQueue) {
                 if (car1.equals(car)) {
                     logger.info("Change Value: " + car1.getRequestedChargingCapacity() + " ==> " + NewValue);
