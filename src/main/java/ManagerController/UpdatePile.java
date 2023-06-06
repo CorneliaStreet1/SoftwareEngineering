@@ -6,6 +6,7 @@ import Message.msg_StationRecovery;
 import Message.msg_TurnOffStation;
 
 import Server.Server;
+import Server.ServerThread;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -47,65 +48,71 @@ public class UpdatePile extends HttpServlet {
 
         resp.setContentType("application/json");
 
-        Gson gson = new Gson();
+        try {
+            Gson gson = new Gson();
 
-        String token = req.getHeader("Authorization");
+            String token = req.getHeader("Authorization");
 
-        Claims claims = Jwts.parser()
-                .setSigningKey("secretKey")
-                .parseClaimsJws(token)
-                .getBody();
+            Claims claims = Jwts.parser()
+                    .setSigningKey(ServerThread.secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        String userIdStr = claims.getSubject();
-        int userId = Integer.parseInt(userIdStr);
+            String userIdStr = claims.getSubject();
+            int userId = Integer.parseInt(userIdStr);
 
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = new BufferedReader(req.getReader());
-        String line;
-        while( ( line = br.readLine()) != null){
-            sb.append(line);
-        }
-        String requestBody = sb.toString();
+            StringBuilder sb = new StringBuilder();
+            BufferedReader br = new BufferedReader(req.getReader());
+            String line;
+            while( ( line = br.readLine()) != null){
+                sb.append(line);
+            }
+            String requestBody = sb.toString();
 
-        ReqBody reqBody = gson.fromJson(requestBody,ReqBody.class);
+            ReqBody reqBody = gson.fromJson(requestBody,ReqBody.class);
 
-        int pileId = Integer.parseInt(reqBody.pile_id);
+            int pileId = Integer.parseInt(reqBody.pile_id);
 
 //        CompletableFuture<String> checkIdFuture = new CompletableFuture<>();
-        CompletableFuture<String> updatePileFuture = new CompletableFuture<>();
+            CompletableFuture<String> updatePileFuture = new CompletableFuture<>();
 
-        try {
-            Message msg;
-            if(reqBody.status == Status.RUNNING){
-                msg = new msg_StationRecovery(pileId, updatePileFuture);
+            try {
+                Message msg;
+                if(reqBody.status == Status.RUNNING){
+                    msg = new msg_StationRecovery(pileId, updatePileFuture);
+                }
+                else if(reqBody.status == Status.SHUTDOWN){
+                    msg = new msg_TurnOffStation(pileId, updatePileFuture);
+                }
+                else{
+                    msg = new msg_StationFault(pileId, 0, updatePileFuture);
+                }
+
+                Server.MessageQueue.put(msg);
+                String result = updatePileFuture.get();
+
+                int code = 0;
+                String message = "success";
+
+                if(result.equals("false")){
+                    code = -1;
+                    message = "false";
+                }
+
+                ResponseMsg responseMsg = new ResponseMsg(code, message);
+
+                String respJsonMsg = gson.toJson(responseMsg, ResponseMsg.class);
+
+                resp.getWriter().println(respJsonMsg);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            else if(reqBody.status == Status.SHUTDOWN){
-                msg = new msg_TurnOffStation(pileId, updatePileFuture);
-            }
-            else{
-                msg = new msg_StationFault(pileId, 0, updatePileFuture);
-            }
-
-            Server.MessageQueue.put(msg);
-            String result = updatePileFuture.get();
-
-            int code = 0;
-            String message = "success";
-
-            if(result.equals("false")){
-                code = -1;
-                message = "false";
-            }
-
-            ResponseMsg responseMsg = new ResponseMsg(code, message);
-
-            String respJsonMsg = gson.toJson(responseMsg, ResponseMsg.class);
-
-            resp.getWriter().println(respJsonMsg);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+
     }
 }

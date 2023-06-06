@@ -2,6 +2,7 @@ package ClientController.Query;
 
 import Car.Car;
 import Server.Server;
+import Server.ServerThread;
 import Message.msg_CheckChargingForm;
 
 import com.google.gson.Gson;
@@ -18,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 
-//@WebServlet("/query_order")
+@WebServlet("/query_order")
 public class QueryOrder extends HttpServlet {
 
     static class RData {
@@ -63,54 +64,57 @@ public class QueryOrder extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
 
-        String token = req.getHeader("Authorization");
-
-        Claims claims = Jwts.parser()
-                .setSigningKey("secretKey")
-                .parseClaimsJws(token)
-                .getBody();
-
-        String userIdStr = claims.getSubject();
-        int userId = Integer.parseInt(userIdStr);
-
-        Gson gson = new Gson();
-        Car car = new Car(userId);
-        CompletableFuture<String> future = new CompletableFuture<>();
-        msg_CheckChargingForm msgCheckChargingForm = new msg_CheckChargingForm(car, future);
-
         try {
-            Server.MessageQueue.put(msgCheckChargingForm);
-            String result = future.get();
-            //todo: 详单还没处理
+            String token = req.getHeader("Authorization");
 
-            int code = 0;
-            String order_id = "20230501000001";
-            String create_time = "2023-05-01T12:11:11.000Z";
-            String charged_amount = "12.34";
-            int charged_time = 600;
-            String begin_time = "2023-05-01T11:11:11.000Z";
-            String end_time = "2023-05-01T12:11:11.000Z";
-            String charging_cost = "8.92";
-            String service_cost = "1.23";
-            String total_cost = "10.15";
-            String pile_id = "C01";
-            String message = "success";
+            Claims claims = Jwts.parser()
+                    .setSigningKey(ServerThread.secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
 
-            RData[] data = new RData[1];
-            data[0] = new RData(order_id,create_time,charged_amount,
-                    charged_time, begin_time, end_time, charging_cost, service_cost,
-                    total_cost, pile_id);
-            ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+            String userIdStr = claims.getSubject();
+            int userId = Integer.parseInt(userIdStr);
 
-            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            Gson gson = new Gson();
+            Car car = new Car(userId);
+            CompletableFuture<String> future = new CompletableFuture<>();
+            msg_CheckChargingForm msgCheckChargingForm = new msg_CheckChargingForm(car, future);
 
-            resp.getWriter().println(respJsonMsg);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            try {
+                Server.MessageQueue.put(msgCheckChargingForm);
+                String result = future.get();
+                //todo: 详单还没处理
+
+                int code = 0;
+                String order_id = "20230501000001";
+                String create_time = "2023-05-01T12:11:11.000Z";
+                String charged_amount = "12.34";
+                int charged_time = 600;
+                String begin_time = "2023-05-01T11:11:11.000Z";
+                String end_time = "2023-05-01T12:11:11.000Z";
+                String charging_cost = "8.92";
+                String service_cost = "1.23";
+                String total_cost = "10.15";
+                String pile_id = "C01";
+                String message = "success";
+
+                RData[] data = new RData[1];
+                data[0] = new RData(order_id,create_time,charged_amount,
+                        charged_time, begin_time, end_time, charging_cost, service_cost,
+                        total_cost, pile_id);
+                ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+
+                String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+
+                resp.getWriter().println(respJsonMsg);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-
+        catch (Exception e){
+            System.out.println(e);
+        }
     }
 }

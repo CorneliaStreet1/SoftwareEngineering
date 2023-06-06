@@ -2,6 +2,7 @@ package ClientController.Account;
 
 import Message.msg_UserRegistration;
 import Server.Server;
+import Server.ServerThread;
 
 import com.google.gson.Gson;
 
@@ -48,46 +49,53 @@ public class Account_register extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
 
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = new BufferedReader(req.getReader());
-        String line;
-        while( ( line = br.readLine()) != null){
-            sb.append(line);
-        }
-        String requestBody = sb.toString();
-
-        Gson gson = new Gson();
-
-        ReqBody reqBody = gson.fromJson(requestBody, ReqBody.class);
-
-        String username = reqBody.username;
-        String password = reqBody.password;
-        String rePassword = reqBody.rePassword;
-
-        CompletableFuture<String> future = new CompletableFuture<>();
-
-        msg_UserRegistration msgUserRegistration = new msg_UserRegistration(username, password, future, false);
-
         try {
-            Server.MessageQueue.put(msgUserRegistration);
-            String result = future.get();
-
-            int code = 0;
-            String message = "success";
-
-            if ( result.equals("false") ) {
-                code = -1;
-                message = "fail";
+            StringBuilder sb = new StringBuilder();
+            BufferedReader br = new BufferedReader(req.getReader());
+            String line;
+            while( ( line = br.readLine()) != null){
+                sb.append(line);
             }
+            String requestBody = sb.toString();
 
-            ResponseMsg responseMsg = new ResponseMsg(code,message);
-            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            Gson gson = new Gson();
 
-            resp.getWriter().println(respJsonMsg);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            ReqBody reqBody = gson.fromJson(requestBody, ReqBody.class);
+
+            String username = reqBody.username;
+            String password = reqBody.password;
+            String rePassword = reqBody.rePassword;
+
+            CompletableFuture<String> future = new CompletableFuture<>();
+
+            msg_UserRegistration msgUserRegistration = new msg_UserRegistration(username, password, future, false);
+
+            try {
+                Server.MessageQueue.put(msgUserRegistration);
+                String result = future.get();
+
+                int code = 0;
+                String message = "success";
+
+                if ( result.equals("false") ) {
+                    code = -1;
+                    message = "fail";
+                }
+
+                ResponseMsg responseMsg = new ResponseMsg(code,message);
+                String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+
+                resp.getWriter().println(respJsonMsg);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+
+
     }
 }
