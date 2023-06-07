@@ -6,15 +6,21 @@ import java.util.Scanner;
 public class TimeSystem {
     private LocalDateTime currentTime;
     private Integer timeFactor;
+    private Integer baseTime;
+    private Integer virtualTime;
     private boolean isRun;
     private Thread thread;
-    private Object lock;
 
     TimeSystem() {
         timeFactor = 1;
         currentTime = LocalDateTime.now();
         isRun = false;
         thread = null;
+        baseTime = 1000;
+        virtualTime = baseTime / timeFactor;
+        if (virtualTime == 0) {
+            virtualTime++;
+        }
     }
 
     public void start() {
@@ -27,18 +33,14 @@ public class TimeSystem {
             public void run() {
 //                int outTime = 0;
                 while(isRun) {
-                    synchronized (timeFactor) {
-                        for(int i = 0; i < timeFactor; i++){
-                            plusSecond();
-                        }
-                    }
+                    plusSecond();
 //                    outTime++;
-//                    if(outTime % 5 == 0) {
+//                    if(outTime % 100 == 0) {
 //                        System.out.println(currentTime);
 //                        outTime = 0;
 //                    }
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(virtualTime);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -63,6 +65,10 @@ public class TimeSystem {
     public void writeTimeFactor(int newTimeFactor) {
         synchronized (timeFactor) {
             timeFactor = newTimeFactor;
+            virtualTime = baseTime / timeFactor;
+            if(virtualTime == 0) {
+                virtualTime++;
+            }
         }
     }
 
@@ -99,6 +105,7 @@ public class TimeSystem {
         }
 //        timeSystem.end();
 //        System.out.println("finish");
+
     }
 
 
