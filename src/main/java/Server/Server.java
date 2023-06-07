@@ -5,8 +5,8 @@ import ChargeStation.*;
 import ChargeStation.FastChargeStation;
 import ChargeStation.SlowChargeStation;
 import Message.*;
+import pojo.User;
 import UserManagement.LoginResult;
-import UserManagement.User;
 import UserManagement.UserManager;
 import WaitingZone.WaitingZone;
 import com.google.gson.Gson;
@@ -173,7 +173,7 @@ public class Server {
                         msg_Authentication msgAuthentication = (msg_Authentication) message;
                         User user = UserManager.FindUserInfoByUsrUID(msgAuthentication.UserID);
                         if (user != null) {
-                            LoginResult loginResult = new LoginResult(true, user.isAdmin(), user.getUID());
+                            LoginResult loginResult = new LoginResult(true, user.getIsAdmin(), user.getUID());
                             msgAuthentication.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
                         }
                     case "Enter_Waiting_Zone"://已测
