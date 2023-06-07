@@ -168,14 +168,22 @@ public class Server {
                 throw new NullPointerException("NULL Message");
             }else {
                 switch (message.Type) {
-                    case "Authentication":
+                    case "Authentication"://已测
+                        logger.info("==========At msg Authentication");
                         msg_Authentication msgAuthentication = (msg_Authentication) message;
+                        logger.info("UID: " + msgAuthentication.UserID);
                         User user = UserManager.FindUserInfoByUsrUID(msgAuthentication.UserID);
                         if (user != null) {
+                            logger.info("Found user Successfully in DB");
                             LoginResult loginResult = new LoginResult(true, user.getIsAdmin(), user.getUID());
                             msgAuthentication.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
+                        }else {
+                            logger.info("User NOT FOUND in DB: UID" + msgAuthentication.UserID);
+                            msgAuthentication.Result_Json.complete(gson.toJson(null));
                         }
+                        break;
                     case "Enter_Waiting_Zone"://已测
+                        logger.info("==========At msg Enter_Waiting_Zone");
                         msg_EnterWaitingZone m = (msg_EnterWaitingZone) message;
                         boolean success = waitingZone.JoinWaitingZone(m.UserCar);
                         if (success) {//如果加入成功，尝试一次调度
@@ -235,6 +243,7 @@ public class Server {
                         Schedule();
                         break;
                     case "Cancel_Charging"://已测
+                        logger.info("==========At msg Cancel_Charging");
                         msg_CancelCharging cancelCharging = (msg_CancelCharging) message;
                         boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
                         cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
@@ -253,7 +262,7 @@ public class Server {
                             msgCheckChargingForm.Result_Json.complete(gson.toJson(null));
                         }
                         break;
-                    case "User_Registration":
+                    case "User_Registration"://已测
                         logger.info("==========At msg User_Registration");
                         msg_UserRegistration msgUserRegistration = (msg_UserRegistration) message;
                         //TODO 用户注册。并把结果返回客户端(已做)
@@ -261,8 +270,9 @@ public class Server {
                         boolean Result = UserManager.UserRegistration(msgUserRegistration.UserName, msgUserRegistration.UserPassword, msgUserRegistration.isAdmin);
                         msgUserRegistration.Result_Json.complete(gson.toJson(Result, boolean.class));
                         break;
-                    case "User_Login":
+                    case "User_Login"://已测
                         //TODO 用户登录、并把结果返回客户端(已做)
+                        logger.info("==========At msg User_Login");
                         msg_UserLogin msgUserLogin = (msg_UserLogin) message;
                         LoginResult loginResult = UserManager.UserLogIn(msgUserLogin.UserName, msgUserLogin.UserPassword);
                         msgUserLogin.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
@@ -311,7 +321,7 @@ public class Server {
                     case "Check_Station_Info":
                         msg_CheckStationInfo msgCheckStationInfo = (msg_CheckStationInfo) message;
                         List<StationInfo> stationInfos = CheckStationInfo_Server();
-                        //TODO 检查某个充电桩等候服务的车辆信息。将其返回给客户端(已做)
+                        //TODO 检查全部充电桩等候服务的车辆信息。将其返回给客户端(已做)
                         msgCheckStationInfo.Result_Json.complete(gson.toJson(stationInfos, stationInfos.getClass()));
                         break;
                     case "Show_Station_Table":

@@ -238,13 +238,21 @@ public class Server_UnitTest {
             throw new RuntimeException(e);
         }
     }
+    /*
+    * 测试用户注册
+    * */
     @Test
     public void Test_UserRegister() {
         Server server = new Server(0, 0);
+        /*
+        * 注册两个用户
+        * 一个普通用户，一个管理员
+        * */
         Thread thread = new Thread(() -> {
             try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
                 Thread.sleep(1000);
-                System.out.println(Thread.currentThread().getName() + "Wake up");
+                logger.info(Thread.currentThread().getName() + " Wake up");
                 CompletableFuture<String> re = new CompletableFuture<>();
                 CompletableFuture<String> re2 = new CompletableFuture<>();
                 Server.MessageQueue.put(new msg_UserRegistration("Admin", "adminpsw", re, true));
@@ -255,13 +263,91 @@ public class Server_UnitTest {
                 throw new RuntimeException(e);
             }
         }, "Register Thread");
+        /*
+        * 注册两个重复的用户。测试是否会发现重复，并拒绝注册
+        * */
+        Thread thread1 = new Thread(() -> {
+            try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(2000);
+                logger.info(Thread.currentThread().getName() + " Wake up");
+                CompletableFuture<String> re = new CompletableFuture<>();
+                CompletableFuture<String> re2 = new CompletableFuture<>();
+                Server.MessageQueue.put(new msg_UserRegistration("Admin", "adminpsw", re, true));
+                Server.MessageQueue.put(new msg_UserRegistration("Usr", "usrpsw", re2, false));
+                logger.info("TEST=======UserRegister Admin :" + re.get());
+                logger.info("TEST=======UserRegister Normal User :" + re2.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Duplicate Thread");
+        thread.start();
+        thread1.start();
+        server.run();
+    }
+    /*
+     * 使用上一个测试注册的用户来测试登录
+     * 一个密码正确的管理员
+     * 一个密码错误的普通用户
+     * 一个不存在的用户
+     * */
+    @Test
+    public void Test_Login() {
+        Server server = new Server(0, 0);
+        Thread thread = new Thread(() -> {
+            try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(2000);
+                logger.info(Thread.currentThread().getName() + " Wake up");
+                CompletableFuture<String> re = new CompletableFuture<>();
+                CompletableFuture<String> re2 = new CompletableFuture<>();
+                CompletableFuture<String> re3 = new CompletableFuture<>();
+                Server.MessageQueue.put(new msg_UserLogin("Admin", "adminpsw", re));
+                Server.MessageQueue.put(new msg_UserLogin("Usr", "adminpsw", re2));
+                Server.MessageQueue.put(new msg_UserLogin("FakeUser", "adminpsw", re3));
+                logger.info("TEST=======Login ADMIN Success:" + re.get());
+                logger.info("TEST=======Login NORMAL User :" + re2.get());
+                logger.info("TEST=======Login FAKE User :" + re3.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Login Success Thread");
         thread.start();
         server.run();
     }
-    public void Test_Login() {
 
-    }
     /*
+     * 测试用户认证消息
+     * 给定用户UID，从数据库找到对应的用户的全部信息
+     * 测试如下几种情况：
+     * 认证一个管理员
+     * 认证一个普通用户
+     * 认证一个不存在的用户
+     * */
+    @Test
+    public void Test_Authentication() {
+        Server server = new Server(0, 0);
+        Thread thread = new Thread(() -> {
+            try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(2000);
+                logger.info(Thread.currentThread().getName() + " Wake up");
+                CompletableFuture<String> re = new CompletableFuture<>();
+                CompletableFuture<String> re2 = new CompletableFuture<>();
+                CompletableFuture<String> re3 = new CompletableFuture<>();
+                Server.MessageQueue.put(new msg_Authentication(re, 6));
+                Server.MessageQueue.put(new msg_Authentication(re2, 7));
+                Server.MessageQueue.put(new msg_Authentication(re3, 8));
+                logger.info("TEST=======Authentication ADMIN Success:" + re.get());
+                logger.info("TEST=======Authentication NORMAL User :" + re2.get());
+                logger.info("TEST=======Authentication FAKE User :" + re3.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Authentication Thread");
+        thread.start();
+        server.run();
+    }
 
-     */
+
 }
