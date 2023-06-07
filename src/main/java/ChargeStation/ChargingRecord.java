@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 /*
 * 用户客户端所查看的充电详单
 * 至少包括以下信息：
@@ -20,7 +19,7 @@ import java.util.List;
 * 服务费用
 * 总费用
 * */
-public class ChargingOrderForm {
+public class ChargingRecord {
     private String OrderID; //详单编号。目前准备做成生成时间 + 车辆ID的形式
     private LocalDateTime Order_Generation_Time; //详单生成的时间
     private int ChargeStation_ID;//充电桩编号
@@ -32,9 +31,9 @@ public class ChargingOrderForm {
     private double TotalCost;//总花费
     private double ChargeTimeDuration;//单位：秒
 
-    public ChargingOrderForm(String orderID, LocalDateTime order_Generation_Time, int chargeStationID,
-                             double total_Electricity_Amount_Charged, LocalDateTime startTime, LocalDateTime endTime,
-                             double electricityCost, double serviceFee) {
+    public ChargingRecord(String orderID, LocalDateTime order_Generation_Time, int chargeStationID,
+                          double total_Electricity_Amount_Charged, LocalDateTime startTime, LocalDateTime endTime,
+                          double electricityCost, double serviceFee) {
         OrderID = orderID;
         Order_Generation_Time = order_Generation_Time;
         ChargeStation_ID = chargeStationID;
@@ -104,7 +103,7 @@ public class ChargingOrderForm {
      * @param userName 用户名
      * @return UserName指定的用户，其全部订单
      */
-    public static List<ChargingOrderForm> FindAllOrderByUserName(String userName) {
+    public static List<ChargingRecord> FindAllOrderByUserName(String userName) {
         //TODO :注意，我记得最开始我让你以字符串的形式来存储日期。但是我这里的日期是LocalDateTime形式的。
         // 所以这需要你来实现:从字符串形式的日期到LocalDateTime，以及从LocalDateTime到字符串形式的日期的转换。
         // 所以在你动手写之前。先看一下src/Test/java的LocalDateTimeDemo.java的Main方法。
@@ -120,10 +119,9 @@ public class ChargingOrderForm {
             return null;
         }else {
             //TODO 条件成立的情况下，返回给我一个由订单构成的非空List。
-            return new ArrayList<ChargingOrderForm>();
+            return new ArrayList<ChargingRecord>();
         }
     }
-
     /***
      * 给定一个用户ID(类似用户的QQ号，算了，不类似了，就是用户的账号)
      * 从数据库中，找到与这个UID对应的
@@ -132,7 +130,7 @@ public class ChargingOrderForm {
      * @param UID 用户账号
      * @return UID指定的用户，其全部订单
      */
-    public static List<ChargingOrderForm> FindAllOrderByUID(int UID) {
+    public static List<ChargingRecord> FindAllOrderByUID(int UID) {
 
         //TODO 完成这个方法。虽然不一定会用到。记得看上面的注释。
         // 如果UID不存在，那么返回一个null给我(第二个if()做了，可以检查一下有没有问题)
@@ -144,11 +142,8 @@ public class ChargingOrderForm {
             return null;
         }else {
             //TODO 条件成立的情况下，返回给我一个由订单构成的非空List。
-            return new ArrayList<ChargingOrderForm>();
+            return new ArrayList<ChargingRecord>();
         }
     }
-
-    public static void main(String[] args) {
-
-    }
+    //TODO 在完成了这三个方法之后，请顺手测试一下这三个方法。我已经直接在我的代码中调用这三个方法了
 }

@@ -1,15 +1,17 @@
 import Car.Car;
-import Message.msg_CancelCharging;
-import Message.msg_ChangeChargeCapacity;
-import Message.msg_ChangeChargingMode;
-import Message.msg_EnterWaitingZone;
+import Message.*;
 import Server.Server;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
+import pojo.User;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class Server_UnitTest {
+
+    static Logger logger = LogManager.getLogger(Server_UnitTest.class);
     @Test
     public void Test_EnterWaitingZone_Schedule_ChargingComplete() {
         Server server = new Server(3, 3);
@@ -236,4 +238,30 @@ public class Server_UnitTest {
             throw new RuntimeException(e);
         }
     }
+    @Test
+    public void Test_UserRegister() {
+        Server server = new Server(0, 0);
+        Thread thread = new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                System.out.println(Thread.currentThread().getName() + "Wake up");
+                CompletableFuture<String> re = new CompletableFuture<>();
+                CompletableFuture<String> re2 = new CompletableFuture<>();
+                Server.MessageQueue.put(new msg_UserRegistration("Admin", "adminpsw", re, true));
+                Server.MessageQueue.put(new msg_UserRegistration("Usr", "usrpsw", re2, false));
+                logger.info("TEST=======UserRegister Admin :" + re.get());
+                logger.info("TEST=======UserRegister Normal User :" + re2.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Register Thread");
+        thread.start();
+        server.run();
+    }
+    public void Test_Login() {
+
+    }
+    /*
+
+     */
 }
