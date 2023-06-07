@@ -1,10 +1,14 @@
-package UserManagement;
+package pojo;
 
 public class User {
+    private int UID;
     private String UserName;
     private String Password;
     private boolean isAdmin;
-    private int UID;
+
+    public User() {
+    }
+
     public User(String userName, String password, boolean isAdmin) {
         UserName = userName;
         Password = password;
@@ -16,6 +20,7 @@ public class User {
         this.isAdmin = isAdmin;
         UID = uid;
     }
+
     public int getUID() {
         return UID;
     }
@@ -23,6 +28,7 @@ public class User {
     public void setUID(int UID) {
         this.UID = UID;
     }
+
     public String getUserName() {
         return UserName;
     }
@@ -31,14 +37,29 @@ public class User {
         UserName = userName;
     }
 
-    public String getPassword() {
+    public String getPassWord() {
         return Password;
     }
 
-    public void setPassword(String password) {
+    public void setPassWord(String password) {
         Password = password;
     }
-    public boolean isAdmin() {
-        return this.isAdmin;
+
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "UID=" + UID +
+                ", UserName='" + UserName + '\'' +
+                ", Password='" + Password + '\'' +
+                ", isAdmin=" + isAdmin +
+                '}';
     }
 }
