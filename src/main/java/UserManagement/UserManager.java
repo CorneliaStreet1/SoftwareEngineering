@@ -30,7 +30,7 @@ public class UserManager {
         return;
     }
     public static LoginResult UserLogIn(String usrName, String psw) {
-        if (psw == null) {
+        if (psw == null || usrName == null) {
             return new LoginResult(false, false, -1);
         }
         User Expected_Usr = FindUserInfoByUsrName(usrName);
