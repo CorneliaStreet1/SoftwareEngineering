@@ -21,11 +21,24 @@ public class ChargingPriceCount {
 
     ChargingPriceCount() {
         timeBlocks = new ArrayList<>();
-        timeBlocks.add(new TimeBlockPrice(0,7,1));
-        timeBlocks.add(new TimeBlockPrice(7,12.5, 2));
-        timeBlocks.add(new TimeBlockPrice(12.5, 19.8, 3));
+        timeBlocks.add(new TimeBlockPrice(0,7,12));
+        timeBlocks.add(new TimeBlockPrice(7,10, 21));
+        timeBlocks.add(new TimeBlockPrice(10, 15, 30));
+        timeBlocks.add(new TimeBlockPrice(15, 18, 21));
+        timeBlocks.add(new TimeBlockPrice(18, 21, 30));
+        timeBlocks.add(new TimeBlockPrice(21, 23, 21));
+        timeBlocks.add(new TimeBlockPrice(23, 23.99, 12));
     }
-
+    ChargingPriceCount(boolean isFast) {
+        timeBlocks = new ArrayList<>();
+        timeBlocks.add(new TimeBlockPrice(0,7,2.8));
+        timeBlocks.add(new TimeBlockPrice(7,10, 4.9));
+        timeBlocks.add(new TimeBlockPrice(10, 15, 7));
+        timeBlocks.add(new TimeBlockPrice(15, 18, 4.9));
+        timeBlocks.add(new TimeBlockPrice(18, 21, 7));
+        timeBlocks.add(new TimeBlockPrice(21, 23, 4.9));
+        timeBlocks.add(new TimeBlockPrice(23, 23.99, 2.8));
+    }
     ChargingPriceCount(List<TimeBlockPrice> timeBlocks) {
         this.timeBlocks = timeBlocks;
     }

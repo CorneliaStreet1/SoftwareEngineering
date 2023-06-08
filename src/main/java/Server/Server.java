@@ -214,7 +214,8 @@ public class Server {
                             double duration = Duration.between(StartTime, EndTime).toMillis() / 1000.0;
                             logger.info("duration in Seconds: " + duration);
                             double TotalElectricity = (duration/ 60.0) * FastChargeStation.ChargingSpeed_PerMinute;
-                            double chargeFee = getChargeFee(StartTime, EndTime, 0.5);
+                            double chargeFee = getChargeFee(StartTime, EndTime, true);
+                            logger.info("chargeFee: " + chargeFee);
                             double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
                             fastChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                             //TODO 将充电详单写入数据库(已做未测，等待LYF测试)
@@ -233,13 +234,14 @@ public class Server {
                             LocalDateTime EndTime = slowChargeStation.getExpected_Charge_EndTime();
                             double duration = Duration.between(StartTime, EndTime).toMillis() / 1000.0;
                             logger.info("duration in Seconds: " + duration);
-                            double TotalElectricity = (duration/ 60.0) * FastChargeStation.ChargingSpeed_PerMinute;
-                            double chargeFee = getChargeFee(StartTime, EndTime, 0.166667);
+                            double TotalElectricity = (duration/ 60.0) * SlowChargeStation.ChargingSpeed_PerMinute;
+                            double chargeFee = getChargeFee(StartTime, EndTime, false);
+                            logger.info("chargeFee: " + chargeFee);
                             double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
                             slowChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                             //TODO 将充电详单写入数据库
                             LocalDateTime now = LocalDateTime.now();
-                            ChargingRecord form = new ChargingRecord(now.toString() + " Car" + headCar_S.getPrimaryKey(), now,
+                            ChargingRecord form = new ChargingRecord( now.toString() + WaitingZone.getTotalCarCount() + headCar_S.getPrimaryKey(), now,
                                     msgChargeComplete.StationIndex, TotalElectricity, StartTime, EndTime, chargeFee, ServiceFee);
                             //form.StoreNewOrder();
                         }
@@ -252,7 +254,6 @@ public class Server {
                         msg_CancelCharging cancelCharging = (msg_CancelCharging) message;
                         boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
                         cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
-
                         Schedule();
                         //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。最终决定不计算报表(已完成)。
                         break;
@@ -323,15 +324,15 @@ public class Server {
                         msg_CheckAllStationState msgCheckAllStationState = (msg_CheckAllStationState) message;
                         msgCheckAllStationState.Result_Json.complete(gson.toJson(stationStates, stationStates.getClass()));
                         break;
-                    case "Check_Station_Info":
+                    case "Check_Station_Info"://已测。
                         msg_CheckStationInfo msgCheckStationInfo = (msg_CheckStationInfo) message;
                         List<StationInfo> stationInfos = CheckStationInfo_Server();
                         //TODO 检查全部充电桩等候服务的车辆信息。将其返回给客户端(已做)
                         msgCheckStationInfo.Result_Json.complete(gson.toJson(stationInfos, stationInfos.getClass()));
                         break;
-                    case "Show_Station_Table":
+                    case "Show_Station_Table"://已测。应该没问题了
                         msg_ShowStationTable msgShowStationTable = (msg_ShowStationTable) message;
-                        //TODO 某个充电桩的报表展示。（做完了）
+                        //TODO 全部充电桩的报表展示。（做完了）
                         List<StationForm> stationForm = ShowStationTable();
                         msgShowStationTable.Result_Json.complete(gson.toJson(stationForm, stationForm.getClass()));
                         break;
@@ -772,48 +773,18 @@ public class Server {
             }
         }
     }
-    public double getChargeFee(LocalDateTime Start, LocalDateTime End, double ChargeSpeed_Min) {
-        LocalTime StartTime = LocalTime.of(Start.getHour(), Start.getMinute());
-        LocalTime EndTime = LocalTime.of(End.getHour(), End.getMinute());
+    public double getChargeFee(LocalDateTime Start, LocalDateTime End, boolean isFast) {
         double Ret = 0;
+        double start = Start.getHour() + Start.getMinute() / 60.0 + Start.getSecond() / 3600.0;
+        double end = End.getHour() + End.getMinute() / 60.0 + End.getSecond() / 3600.0;
         /*
         * 一天24小时分为：
         * 0:00~7:00低谷 7:01~10:00平时 10:00~15:00高峰 15:00~18:00平时 18:00~21:00高峰 21:00 ~23:00平时 23:00~23:59低谷
         * */
-        if (!(EndTime.isBefore(LocalTime.of(7, 0)) || StartTime.isAfter(LocalTime.of(7, 0)))) {
-            LocalTime Max = LocalTime.of(7, 0).isAfter(EndTime) ? LocalTime.of(7, 0) : EndTime;
-            LocalTime Min = LocalTime.of(0, 0).isBefore(StartTime) ? LocalTime.of(0, 0) : StartTime;
-            Ret += 0.4 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
-        }
-        if (!(EndTime.isBefore(LocalTime.of(10, 0)) || StartTime.isAfter(LocalTime.of(10, 0)))) {
-            LocalTime Max = LocalTime.of(10, 0).isAfter(EndTime) ? LocalTime.of(10, 0) : EndTime;
-            LocalTime Min = LocalTime.of(7, 1).isBefore(StartTime) ? LocalTime.of(7, 1) : StartTime;
-            Ret += 0.7 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
-        }
-        if (!(EndTime.isBefore(LocalTime.of(15, 0)) || StartTime.isAfter(LocalTime.of(15, 0)))) {
-            LocalTime Max = LocalTime.of(15, 0).isAfter(EndTime) ? LocalTime.of(15, 0) : EndTime;
-            LocalTime Min = LocalTime.of(10, 1).isBefore(StartTime) ? LocalTime.of(10, 1) : StartTime;
-            Ret += 1.0 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
-        }
-        if (!(EndTime.isBefore(LocalTime.of(18, 0)) || StartTime.isAfter(LocalTime.of(18, 0)))) {
-            LocalTime Max = LocalTime.of(18, 0).isAfter(EndTime) ? LocalTime.of(18, 0) : EndTime;
-            LocalTime Min = LocalTime.of(15, 1).isBefore(StartTime) ? LocalTime.of(15, 1) : StartTime;
-            Ret += 0.7 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
-        }
-        if (!(EndTime.isBefore(LocalTime.of(21, 0)) || StartTime.isAfter(LocalTime.of(21, 0)))) {
-            LocalTime Max = LocalTime.of(21, 0).isAfter(EndTime) ? LocalTime.of(21, 0) : EndTime;
-            LocalTime Min = LocalTime.of(18, 1).isBefore(StartTime) ? LocalTime.of(18, 1) : StartTime;
-            Ret += 1.0 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
-        }
-        if (!(EndTime.isBefore(LocalTime.of(23, 0)) || StartTime.isAfter(LocalTime.of(23, 0)))) {
-            LocalTime Max = LocalTime.of(23, 0).isAfter(EndTime) ? LocalTime.of(23, 0) : EndTime;
-            LocalTime Min = LocalTime.of(21, 1).isBefore(StartTime) ? LocalTime.of(21, 1) : StartTime;
-            Ret += 0.7 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
-        }
-        if (!(EndTime.isBefore(LocalTime.of(23, 59)) || StartTime.isAfter(LocalTime.of(23, 59)))) {
-            LocalTime Max = LocalTime.of(23, 59).isAfter(EndTime) ? LocalTime.of(23, 59) : EndTime;
-            LocalTime Min = LocalTime.of(23, 1).isBefore(StartTime) ? LocalTime.of(23, 1) : StartTime;
-            Ret += 0.4 * ChargeSpeed_Min * (Math.abs(Duration.between(Max, Min).toMinutes()));
+        if (isFast) {
+            Ret = (new ChargingPriceCount().count(start, end));
+        }else {
+            Ret = (new ChargingPriceCount(false).count(start, end));
         }
         return Ret;
     }

@@ -508,9 +508,90 @@ public class Server_UnitTest {
     }
     /*
     * 测试检查全部充电桩等候服务的车辆信息
+    * 应该没什么问题，注意一下当全部充电桩没车的时候会返回一张空的List
+    * 详见2023-06-08-21-52-35.log
     * */
     @Test
     public void Test_CheckStationInfo() {
+        Server server = new Server(1, 1);
+        Thread thread = new Thread(() -> {
+            try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(1000);
+                logger.info(Thread.currentThread().getName() + " Wakeup");
+                for (int i = 0; i < 5; i++) {
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, i), new CompletableFuture<>()));
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.0116667, 0.05, i + 5), new CompletableFuture<>()));
+                }
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                for (int i = 0; i < 40; i++) {
+                    Thread.sleep(1000);
+                    CompletableFuture<String> re = new CompletableFuture<>();
+                    Server.MessageQueue.put(new msg_CheckStationInfo(re));
+                    logger.info(String.format("At %d Seconds Checking Result: %s", i, re.get()));
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Checking Thread");
+        thread.start();
+        server.run();
+    }
 
+    /*
+    * 查询全部充电桩的状态报表
+    * 详见2023-06-08-22-51-15.log
+    * */
+    @Test
+    public void Test_ShowStationTable() {
+        Server server = new Server(2, 3);
+        Thread thread1 = new Thread(()-> {
+            try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(2000);
+                logger.info(Thread.currentThread().getName() + " Wake up");
+                for (int i = 0; i < 8; i++) {
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, i), new CompletableFuture<>()));
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.0116667, 0.05, i + 8), new CompletableFuture<>()));
+                }
+                logger.info(Thread.currentThread().getName() + " Adding msg complete. Starting StationTable Checking");
+                for (int i = 0; i < 40; i++) {
+                    Thread.sleep(1000);
+                    CompletableFuture<String> re = new CompletableFuture<>();
+                    Server.MessageQueue.put(new msg_ShowStationTable(re));
+                    logger.info("Checking State After " + i + " Seconds:");
+                    logger.info("********Current State： " + re.get());
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Table Checking Thread");
+        thread1.start();
+        server.run();
+    }
+
+    @Test
+    public void Debug_Test_ShowStationTable() {
+        Server server = new Server(2, 3);
+            try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(2000);
+                logger.info(Thread.currentThread().getName() + " Wake up");
+                for (int i = 0; i < 8; i++) {
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, i), new CompletableFuture<>()));
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.0116667, 0.05, i + 8), new CompletableFuture<>()));
+                }
+                logger.info(Thread.currentThread().getName() + " Adding msg complete. Starting StationTable Checking");
+                for (int i = 0; i < 25; i++) {
+                    //Thread.sleep(1000);
+                    CompletableFuture<String> re = new CompletableFuture<>();
+                    Server.MessageQueue.put(new msg_ShowStationTable(re));
+                    logger.info("Checking State After " + i + " Seconds:");
+                    //logger.info("********Current State： " + re.get());
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        server.run();
     }
 }
