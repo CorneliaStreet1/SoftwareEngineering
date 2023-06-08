@@ -594,4 +594,9 @@ public class Server_UnitTest {
             }
         server.run();
     }
+
+    @Test
+    public void Test_Station_Fault() {
+
+    }
 }

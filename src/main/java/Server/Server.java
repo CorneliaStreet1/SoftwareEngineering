@@ -24,6 +24,7 @@ public class Server {
     电价单位都是 元/度
     */
     public static BlockingQueue<Message> MessageQueue = new LinkedBlockingQueue<>(); //消息队列。
+    private HashSet<Integer> CarSet;
     private boolean StopServer;
     private static final Logger logger = LogManager.getLogger(Server.class);
     private WaitingZone waitingZone;
@@ -48,6 +49,7 @@ public class Server {
             SlowTimers.add(Executors.newScheduledThreadPool(1));
         }
         CarToTimer = new ConcurrentHashMap<>();
+        CarSet = new HashSet<>();
     }
     public boolean CancelCharging_Server(Car car) {//car只需要主键对得上就行
         logger.info("START========CancelCharging_Server");
@@ -186,16 +188,22 @@ public class Server {
                     case "Enter_Waiting_Zone"://已测
                         logger.info("==========At msg Enter_Waiting_Zone");
                         msg_EnterWaitingZone m = (msg_EnterWaitingZone) message;
-                        boolean success = waitingZone.JoinWaitingZone(m.UserCar);
-                        if (success) {//如果加入成功，尝试一次调度
-                            logger.info("Enter_Waiting_Zone Success Car:" + m.UserCar.getPrimaryKey());
-                            logger.info("Start Schedule At Message Enter_Waiting_Zone Success");
-                            Schedule();
-                            m.Result_Json.complete(gson.toJson(true, boolean.class));
-                            //TODO 给客户端返回一个加入等候区成功的消息。这个True代表加入等候区成功，不代表其他事情。
-                        }else {
-                            logger.info("Enter_Waiting_Zone Fail Car:" + m.UserCar.getPrimaryKey());
+                        if (CarSet.contains(m.UserCar.getPrimaryKey())) {
                             m.Result_Json.complete(gson.toJson(false, boolean.class));
+                        }
+                        else {
+                            CarSet.add(m.UserCar.getPrimaryKey());
+                            boolean success = waitingZone.JoinWaitingZone(m.UserCar);
+                            if (success) {//如果加入成功，尝试一次调度
+                                logger.info("Enter_Waiting_Zone Success Car:" + m.UserCar.getPrimaryKey());
+                                logger.info("Start Schedule At Message Enter_Waiting_Zone Success");
+                                Schedule();
+                                m.Result_Json.complete(gson.toJson(true, boolean.class));
+                                //TODO 给客户端返回一个加入等候区成功的消息。这个True代表加入等候区成功，不代表其他事情。
+                            } else {
+                                logger.info("Enter_Waiting_Zone Fail Car:" + m.UserCar.getPrimaryKey());
+                                m.Result_Json.complete(gson.toJson(false, boolean.class));
+                            }
                         }
                         break;
                     case "Charging_Complete"://已测
@@ -206,6 +214,7 @@ public class Server {
                             FastChargeStation fastChargeStation = FastStations.get(msgChargeComplete.StationIndex);
                             Car headCar_F = fastChargeStation.getCarQueue().removeFirst();
                             CarToTimer.remove(headCar_F);
+                            CarSet.remove(headCar_F.getPrimaryKey());
                             logger.info("AT Charging_Complete >>>>>>>Fast Charge Complete Car:" + headCar_F.getPrimaryKey());
                             LocalDateTime StartTime = fastChargeStation.getCharge_StartTime();
                             LocalDateTime EndTime = fastChargeStation.getExpected_Charge_EndTime();
@@ -228,6 +237,7 @@ public class Server {
                             SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
                             Car headCar_S = slowChargeStation.getCarQueue().removeFirst();
                             CarToTimer.remove(headCar_S);
+                            CarSet.remove(headCar_S.getPrimaryKey());
                             logger.info("AT Charging_Complete >>>>>>> Slow Charge Complete Car:" + headCar_S.getPrimaryKey());
                             //TODO 生成充电详单、结算。更新充电桩的统计数据
                             LocalDateTime StartTime = slowChargeStation.getCharge_StartTime();
@@ -252,6 +262,7 @@ public class Server {
                     case "Cancel_Charging"://已测
                         logger.info("==========At msg Cancel_Charging");
                         msg_CancelCharging cancelCharging = (msg_CancelCharging) message;
+                        CarSet.remove(cancelCharging.UserCar.getPrimaryKey());
                         boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
                         cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
                         Schedule();
@@ -308,12 +319,13 @@ public class Server {
                         msgTurnOnStation.Result_Json.complete(gson.toJson(true, boolean.class));
                         break;
                     case "Turn_Off_Station":
-                        //TODO 开关充电桩需要和华子讨论一下。当充电桩还有车充电的时候，关闭充电桩会发生什么？还是仅允许充电桩空时关闭？
                         msg_TurnOffStation msgTurnOffStation = (msg_TurnOffStation) message;
                         if (msgTurnOffStation.StationIndex > 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOffStation.StationIndex).TurnOffStation();
+                            HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
                         } else {
                             SlowStations.get(msgTurnOffStation.StationIndex - FastStations.size()).TurnOffStation();
+                            HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
                         }
                         //TODO 关闭充电桩（是否需要传递什么东西给控制器？）
                         msgTurnOffStation.Result_Json.complete(gson.toJson(true, boolean.class));
@@ -343,7 +355,6 @@ public class Server {
                         break;
                     case "Station_Fault":
                         msg_StationFault msgStationFault = (msg_StationFault) message;
-                        ChargeStation station = null;
                         HandleStationError(msgStationFault.StationIndex, msgStationFault.SchedulingStrategy);
                         msgStationFault.Result_Json.complete(gson.toJson(true, boolean.class));
                         //TODO 充电桩故障
@@ -617,7 +628,7 @@ public class Server {
     }
     public boolean HandleStationError(int StationID, int SchedulingStrategy) {
         ChargeStation ErrorStation = null;
-        if (StationID < FastStations.size()) {
+        if ( StationID > 0 && StationID < FastStations.size()) {
             ErrorStation = FastStations.get(StationID);
         }else {
             ErrorStation = SlowStations.get(StationID - FastStations.size());

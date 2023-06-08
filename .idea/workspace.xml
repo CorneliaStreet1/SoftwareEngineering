@@ -12,7 +12,6 @@
   <component name="ChangeListManager">
     <list default="true" id="cb0bfc8d-1361-4e17-a1ae-feaba056f73d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Server/ChargingPriceCount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/ChargingPriceCount.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/Server.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" afterDir="false" />
     </list>
@@ -68,6 +67,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "jdk.selected.JAVA_MODULE": "1.8",
     "last_opened_file_path": "F:/file/code_file/idea_java_file/2023/5/SoftwareEngineering",
@@ -306,6 +306,7 @@
       <workItem from="1686155483399" duration="643000" />
       <workItem from="1686158347727" duration="41000" />
       <workItem from="1686203488977" duration="15888000" />
+      <workItem from="1686242855998" duration="1499000" />
     </task>
     <servers />
   </component>
