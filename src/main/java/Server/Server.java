@@ -375,14 +375,23 @@ public class Server {
         }
     }
     public QueueSituation PreviewQueueSituation_Server(Car car) {
+        logger.info("START=======================PreviewQueueSituation_Server");
+        logger.info("Car " + car.getPrimaryKey());
         if (car == null) {
             logger.info("!!!!!!Null Car At PreviewQueueSituation_Server");
+            logger.info("END=======================PreviewQueueSituation_Server");
             return null;
         }
         int charge_id = CheckSequenceNum_Server(car);
+        logger.info("charge_id " + charge_id);
+        if (charge_id < 0) {
+            logger.info("END=======================PreviewQueueSituation_Server");
+            return new QueueSituation(-1, -1, "NOTCHARGING", null);
+        }
         int queue_len = 0;
         for (Car car1 : waitingZone.getFastQueue()) {
             if (car1.equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, queue_len, "WAITINGSTAGE1", "WAITINGPLACE");
             }
             queue_len++;
@@ -390,6 +399,7 @@ public class Server {
         queue_len = 0;
         for (Car car1 : waitingZone.getSlowQueue()) {
             if (car1.equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, queue_len, "WAITINGSTAGE1", "WAITINGPLACE");
             }
             queue_len ++;
@@ -398,11 +408,14 @@ public class Server {
         for (int F_index = 0; F_index < FastStations.size(); F_index ++) {
             FastChargeStation fastStation = FastStations.get(F_index);
             if (fastStation.isFaulty()) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 0, "FAULTREQUEUE ", "Fast" + F_index);
             }
             if (fastStation.getCarQueue().getFirst().equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 0, "CHARGING", "Fast" + F_index);
             }else if (fastStation.getCarQueue().getLast().equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 1, "WAITINGSTAGE2", "Fast" + F_index);
             }
         }
@@ -410,14 +423,18 @@ public class Server {
         for (int S_index = 0;S_index < SlowStations.size(); S_index ++) {
             SlowChargeStation slowStation = SlowStations.get(S_index);
             if (slowStation.isFaulty()) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 0, "FAULTREQUEUE ", "Slow" + S_index);
             }
             if (slowStation.getCarQueue().getFirst().equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 0, "CHARGING", "Slow" + S_index);
             }else if (slowStation.getCarQueue().getLast().equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 1, "WAITINGSTAGE2", "Slow" + S_index);
             }
         }
+        logger.info("END=======================PreviewQueueSituation_Server");
         return new QueueSituation(-1, -1, "NOTCHARGING", null);
     }
     public List<StationForm> ShowStationTable() {
@@ -638,6 +655,10 @@ public class Server {
             ErrorStation = SlowStations.get(StationID - FastStations.size());
         }
         ErrorStation.DestroyStation();
+        if (CarToTimer.containsKey(ErrorStation.getCarQueue().getFirst())) {
+            CarToTimer.get(ErrorStation.getCarQueue().getFirst()).cancel(false);
+            CarToTimer.remove(ErrorStation.getCarQueue().getFirst());
+        }
         //只考虑单一充电桩故障，并且恰好该充电桩有车排队的情况
         if (SchedulingStrategy == WaitingZone.Priority_Scheduling) {
             waitingZone.StopService();

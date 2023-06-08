@@ -10,7 +10,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cb0bfc8d-1361-4e17-a1ae-feaba056f73d" name="Default Changelist" comment="" />
+    <list default="true" id="cb0bfc8d-1361-4e17-a1ae-feaba056f73d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -60,25 +64,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "jdk.selected.JAVA_MODULE": "1.8",
-    "last_opened_file_path": "F:/file/code_file/idea_java_file/2023/5/SoftwareEngineering",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Facet",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.21839081",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;1.8&quot;,
+    &quot;last_opened_file_path&quot;: &quot;F:/file/code_file/idea_java_file/2023/5/SoftwareEngineering&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Facet&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.21839081&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web\WEB-INF\lib" />
@@ -89,7 +93,7 @@
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.Server_UnitTest.Test_ShowStationTable">
+  <component name="RunManager" selected="JUnit.Server_UnitTest.Test_BugFix">
     <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
       <option name="appName" />
       <option name="appServicePlanName" />
@@ -120,21 +124,21 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Server_UnitTest.Debug_Test_PreviewQueueSituation" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="SoftwareEngineering" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
-      <option name="METHOD_NAME" value="Debug_Test_PreviewQueueSituation" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Server_UnitTest.Debug_Test_ShowStationTable" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SoftwareEngineering" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
       <option name="METHOD_NAME" value="Debug_Test_ShowStationTable" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server_UnitTest.Test_BugFix" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
+      <option name="METHOD_NAME" value="Test_BugFix" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -260,20 +264,20 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.Server_UnitTest.Test_BugFix" />
       <item itemvalue="JUnit.Server_UnitTest.Debug_Test_ShowStationTable" />
       <item itemvalue="JUnit.Server_UnitTest.Test_CheckStationInfo" />
       <item itemvalue="JUnit.Server_UnitTest.Test_ShowStationTable" />
-      <item itemvalue="JUnit.Server_UnitTest.Debug_Test_PreviewQueueSituation" />
       <item itemvalue="JUnit.Server_UnitTest.Test_PreviewQueueSituation" />
       <item itemvalue="Tomcat 服务器.Tomcat 9.0.75" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.Server_UnitTest.Test_BugFix" />
         <item itemvalue="JUnit.Server_UnitTest.Test_ShowStationTable" />
         <item itemvalue="JUnit.Server_UnitTest.Debug_Test_ShowStationTable" />
         <item itemvalue="JUnit.Server_UnitTest.Test_CheckStationInfo" />
         <item itemvalue="JUnit.Server_UnitTest.Test_PreviewQueueSituation" />
-        <item itemvalue="JUnit.Server_UnitTest.Debug_Test_PreviewQueueSituation" />
       </list>
     </recent_temporary>
   </component>
@@ -302,7 +306,8 @@
       <workItem from="1686155483399" duration="643000" />
       <workItem from="1686158347727" duration="41000" />
       <workItem from="1686203488977" duration="15888000" />
-      <workItem from="1686242855998" duration="1866000" />
+      <workItem from="1686242855998" duration="2545000" />
+      <workItem from="1686245814946" duration="1638000" />
     </task>
     <servers />
   </component>
