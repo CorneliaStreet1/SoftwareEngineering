@@ -69,5 +69,19 @@
             <artifactId>tomcat-servlet-api</artifactId>
             <version>9.0.75</version>
         </dependency>
+
+<!--        mybatis相关-->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.5</version>
+        </dependency>
+
+<!--        mysql相关-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.46</version>
+        </dependency>
     </dependencies>
 </project>

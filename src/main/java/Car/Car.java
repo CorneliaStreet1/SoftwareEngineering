@@ -19,6 +19,10 @@ public class Car implements Comparable<Car>{
         RequestedChargingCapacity = requestedChargingCapacity;
         CarBatteryCapacity = carBatteryCapacity;
     }
+    public Car(boolean isFastCharge, int primaryKey) {
+        this.isFastCharge = isFastCharge;
+        this.PrimaryKey = primaryKey;
+    }
 
     public Car(int PrimaryKey) {
         this.PrimaryKey = PrimaryKey;
@@ -84,5 +88,10 @@ public class Car implements Comparable<Car>{
                 ", RequestedChargingCapacity=" + RequestedChargingCapacity +
                 ", CarBatteryCapacity=" + CarBatteryCapacity +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return this.PrimaryKey;
     }
 }

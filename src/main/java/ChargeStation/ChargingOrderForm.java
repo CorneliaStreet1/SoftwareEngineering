@@ -1,7 +1,11 @@
 package ChargeStation;
 
+import UserManagement.UserManager;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 * 用户客户端所查看的充电详单
@@ -78,5 +82,73 @@ public class ChargingOrderForm {
 
     public double getServiceFee() {
         return ServiceFee;
+    }
+
+    public boolean StoreNewOrder() {
+        //TODO：当this调用StoreNewOrder的时候，将this这个订单写入持久化层。
+        // 存储成功返回True(虽然我目前还没想到怎么会存储失败)
+        /*
+         * 举例：
+         * ChargingOrderForm chargingOrderForm = new ChargingOrderForm();
+         * chargingOrderForm.StoreNewOrder()
+         * 将会把chargingOrderForm这份订单存入持久化层
+         */
+        return false;
+    }
+
+    /***
+     * 给定一个用户名
+     * 从数据库中，找到与这个用户名对应的
+     * 全部！！是全部！订单
+     * 然后以List的形式返回给我
+     * @param userName 用户名
+     * @return UserName指定的用户，其全部订单
+     */
+    public static List<ChargingOrderForm> FindAllOrderByUserName(String userName) {
+        //TODO :注意，我记得最开始我让你以字符串的形式来存储日期。但是我这里的日期是LocalDateTime形式的。
+        // 所以这需要你来实现:从字符串形式的日期到LocalDateTime，以及从LocalDateTime到字符串形式的日期的转换。
+        // 所以在你动手写之前。先看一下src/Test/java的LocalDateTimeDemo.java的Main方法。
+        // 之所以不直接在下面写是担心没办法运行起来，但是在LocalDateTimeDemo.java可以借助Junit框架直接运行
+
+        //TODO 完成这个方法。虽然不一定会用到。记得看上面的注释。
+        // 如果用户名不存在，那么返回一个null给我(第二个if()做了，可以检查一下有没有问题)
+        // 如果userName传进来一个null，也返回一个null给我(已经做了)
+        if (userName == null) {
+            return null;
+        }
+        else if (UserManager.FindUserInfoByUsrName(userName) == null) {
+            return null;
+        }else {
+            //TODO 条件成立的情况下，返回给我一个由订单构成的非空List。
+            return new ArrayList<ChargingOrderForm>();
+        }
+    }
+
+    /***
+     * 给定一个用户ID(类似用户的QQ号，算了，不类似了，就是用户的账号)
+     * 从数据库中，找到与这个UID对应的
+     * 全部！！是全部！订单
+     * 然后以List的形式返回给我
+     * @param UID 用户账号
+     * @return UID指定的用户，其全部订单
+     */
+    public static List<ChargingOrderForm> FindAllOrderByUID(int UID) {
+
+        //TODO 完成这个方法。虽然不一定会用到。记得看上面的注释。
+        // 如果UID不存在，那么返回一个null给我(第二个if()做了，可以检查一下有没有问题)
+        // 如果UID <= 0(我记得跟你说过UID从1开始递增?)，也返回一个null给我(已经做了)
+        if (UID <= 0) {
+            return null;
+        }
+        else if (UserManager.FindUserInfoByUsrUID(UID) == null) {
+            return null;
+        }else {
+            //TODO 条件成立的情况下，返回给我一个由订单构成的非空List。
+            return new ArrayList<ChargingOrderForm>();
+        }
+    }
+
+    public static void main(String[] args) {
+
     }
 }

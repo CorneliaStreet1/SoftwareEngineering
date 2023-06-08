@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="exploded-war" name="SoftwareEngineering:Web exploded">
-    <output-path>$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded</output-path>
+    <output-path>$PROJECT_DIR$/../../../../../../work_soft/code_soft/apache-tomcat-9.0.75/webapps/softWork</output-path>
     <root id="root">
       <element id="javaee-facet-resources" facet="SoftwareEngineering/web/Web" />
       <element id="directory" name="WEB-INF">
@@ -29,8 +29,13 @@
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.10" />
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.10" />
           <element id="library" level="project" name="Maven: org.apache.tomcat:tomcat-servlet-api:9.0.75" />
+          <element id="library" level="project" name="Maven: org.mybatis:mybatis:3.5.5" />
+          <element id="library" level="project" name="Maven: mysql:mysql-connector-java:5.1.46" />
         </element>
+        <element id="file-copy" path="$PROJECT_DIR$/web/WEB-INF/web.xml" />
       </element>
+      <element id="file-copy" path="$PROJECT_DIR$/web/index.jsp" />
+      <element id="file-copy" path="$PROJECT_DIR$/web/test.html" />
     </root>
   </artifact>
 </component>

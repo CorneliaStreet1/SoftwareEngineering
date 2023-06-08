@@ -128,6 +128,19 @@ public class ChargeStation {
     public synchronized int Size() {
         return CarQueue.size();
     }
+    public Car getCar(Car car) {
+        if (car == null) {
+            return null;
+        }
+        if (!CarQueue.isEmpty()) {
+            if (CarQueue.getFirst().equals(car)) {
+                return CarQueue.getFirst();
+            }else if (CarQueue.getLast().equals(car)) {
+                return CarQueue.getLast();
+            }
+        }
+        return null;
+    }
     public synchronized boolean CancelCharging(Car car) {
         if (car == null) {
             return false;
@@ -135,12 +148,12 @@ public class ChargeStation {
         if (!CarQueue.isEmpty()) {
             if (CarQueue.getFirst().equals(car)) {
                 CarQueue.removeFirst();
-                logger.info("FAST.CancelCharging(): Remove Charging Car");
+                logger.info("CancelCharging(): Remove Charging Car");
                 return true;
                 //TODO 结算各种。虽然是不收费，但是还是要生成一张详单才行（决定了：不结算了）
             }else if (CarQueue.getLast().equals(car)){
                 CarQueue.removeLast();
-                logger.info("FAST.CancelCharging(): Remove Waiting Car");
+                logger.info("CancelCharging(): Remove Waiting Car At Station");
                 return true;
             }
         }

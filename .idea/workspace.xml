@@ -9,9 +9,40 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ac6fd2c2-1369-4f5a-99ba-c680201ea096" name="变更" comment="变更">
+    <list default="true" id="cb0bfc8d-1361-4e17-a1ae-feaba056f73d" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/UserManagement/SqlSessionFactoryUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mapper/UserMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pojo/ChargingRecord.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/mapper/UserMapper.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/LocalDateTimeDemo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/MybatisTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/mapper/UserMapper.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/target/classes/mybatis-config.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/SoftwareEngineering_Web_exploded.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/SoftwareEngineering_Web_exploded.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/httpRequests/http-requests-log.http" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/httpRequests/http-requests-log.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Server/TimeSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/TimeSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/META-INF/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/WEB-INF/classes/log4j2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Car/Car.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Car/Car.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargeStation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargeStation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingOrderForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingOrderForm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ClientController/Account/Account_register.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ClientController/Account/Account_register.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Message/msg_PreviewQueueSituation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Message/msg_PreviewQueueSituation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/UserManagement/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pojo/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/UserManagement/UserManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/UserManagement/UserManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/WEB-INF/web.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/index.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/test.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/web/WEB-INF/web.xml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,8 +55,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="Class" />
+        <option value="HTML File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -50,13 +82,6 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="MavenImportPreferences">
-    <option name="generalSettings">
-      <MavenGeneralSettings>
-        <option name="useMavenConfig" value="true" />
-      </MavenGeneralSettings>
-    </option>
-  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -71,83 +96,57 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "jdk.selected.JAVA_MODULE": "1.8",
-    "last_opened_file_path": "F:/file/code_file/idea_java_file/2023/5/SoftwareEngineering",
+    "last_opened_file_path": "F:/file/code_file/idea_java_file/untitled1",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "工件",
+    "project.structure.last.edited": "Facet",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.21839081",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web\WEB-INF\lib" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering" />
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\src\main" />
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web\WEB-INF\lib" />
+    </key>
   </component>
-  <component name="RunManager" selected="应用程序.TimeSystem">
-    <configuration name="ClientController.Demo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="ClientController.Demo" />
-      <module name="SoftwareEngineering" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="ClientController.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Demo (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Message.Demo" />
-      <module name="SoftwareEngineering" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Message.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Log4jDemo.Demo" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Log4jDemo.Demo" />
-      <module name="SoftwareEngineering" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Log4jDemo.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="TimeSystem" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Server.TimeSystem" />
-      <module name="SoftwareEngineering" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Server.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
+  <component name="RunManager" selected="Tomcat 服务器.Tomcat 9.0.75">
+    <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
+      <option name="appName" />
+      <option name="appServicePlanName" />
+      <option name="appServicePlanResourceGroup" />
+      <option name="appSettingsKey" value="0861a0a2-c361-474b-89fa-a06f8dd4c6be" />
+      <option name="artifact" />
+      <option name="debugOptions" />
+      <option name="deployment" />
+      <option name="deploymentStagingDirectoryPath" />
+      <option name="funcPath" />
+      <option name="functionHostArguments" />
+      <option name="hostJsonPath" />
+      <option name="insightsName" />
+      <option name="instrumentationKey" />
+      <option name="javaVersion" />
+      <option name="localSettingsJsonPath" />
+      <option name="moduleName" />
+      <option name="os" />
+      <option name="pricingTier" />
+      <option name="providerMap">
+        <map />
+      </option>
+      <option name="region" />
+      <option name="resourceGroup" />
+      <option name="stagingFolder" />
+      <option name="subscription" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -155,19 +154,58 @@
     <configuration name="rest-api_1 | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/rest-api_1.http" requestIdentifier="#1" runType="运行单个请求">
       <method v="2" />
     </configuration>
+    <configuration name="LocalDateTimeDemo.LocalDateTimeToString" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="LocalDateTimeDemo" />
+      <option name="METHOD_NAME" value="LocalDateTimeToString" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LocalDateTimeDemo.StringToLocalDateTime" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="LocalDateTimeDemo" />
+      <option name="METHOD_NAME" value="StringToLocalDateTime" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MybatisTest.testAdd" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="MybatisTest" />
+      <option name="METHOD_NAME" value="testAdd" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MybatisTest.testSelectByUserId" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="MybatisTest" />
+      <option name="METHOD_NAME" value="testSelectByUserId" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Tomcat 9.0.75" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 9.0.75" ALTERNATIVE_JRE_ENABLED="false" nameIsGenerated="true">
-      <option name="OPEN_IN_BROWSER" value="false" />
       <option name="BROWSER_ID" value="37cae5b9-e8b2-4949-9172-aafa37fbc09c" />
       <option name="UPDATING_POLICY" value="restart-server" />
       <deployment>
         <artifact name="SoftwareEngineering:Web exploded">
           <settings>
-            <option name="CONTEXT_PATH" value="/kkk" />
+            <option name="CONTEXT_PATH" value="/softWork" />
           </settings>
         </artifact>
       </deployment>
       <server-settings>
-        <option name="BASE_DIRECTORY_NAME" value="bb0a19f1-8934-4c90-942b-5ce8b9f0cc9b" />
+        <option name="BASE_DIRECTORY_NAME" value="90a170ef-0c85-4dee-a5e7-329b93ac5cd8" />
       </server-settings>
       <predefined_log_file enabled="true" id="Tomcat" />
       <predefined_log_file enabled="true" id="Tomcat Catalina" />
@@ -175,7 +213,7 @@
       <predefined_log_file id="Tomcat Host Manager" />
       <predefined_log_file id="Tomcat Localhost Access" />
       <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="54371" />
+        <option name="DEBUG_PORT" value="65016" />
       </RunnerSettings>
       <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Cover">
         <option name="USE_ENV_VARIABLES" value="true" />
@@ -241,31 +279,34 @@
         <option name="Make" enabled="true" />
         <option name="BuildArtifacts" enabled="true">
           <artifact name="SoftwareEngineering:Web exploded" />
+          <artifact name="SoftwareEngineering:Web exploded" />
         </option>
       </method>
     </configuration>
     <list>
       <item itemvalue="HTTP 请求.rest-api_1 | #1" />
+      <item itemvalue="JUnit.LocalDateTimeDemo.LocalDateTimeToString" />
+      <item itemvalue="JUnit.LocalDateTimeDemo.StringToLocalDateTime" />
+      <item itemvalue="JUnit.MybatisTest.testSelectByUserId" />
+      <item itemvalue="JUnit.MybatisTest.testAdd" />
       <item itemvalue="Tomcat 服务器.Tomcat 9.0.75" />
-      <item itemvalue="应用程序.TimeSystem" />
-      <item itemvalue="应用程序.ClientController.Demo" />
-      <item itemvalue="应用程序.Log4jDemo.Demo" />
-      <item itemvalue="应用程序.Demo (1)" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="应用程序.TimeSystem" />
         <item itemvalue="HTTP 请求.rest-api_1 | #1" />
-        <item itemvalue="应用程序.ClientController.Demo" />
-        <item itemvalue="应用程序.Log4jDemo.Demo" />
-        <item itemvalue="应用程序.Demo (1)" />
+        <item itemvalue="JUnit.LocalDateTimeDemo.StringToLocalDateTime" />
+        <item itemvalue="JUnit.LocalDateTimeDemo.LocalDateTimeToString" />
+        <item itemvalue="JUnit.MybatisTest.testAdd" />
+        <item itemvalue="JUnit.MybatisTest.testSelectByUserId" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="默认任务">
-      <changelist id="ac6fd2c2-1369-4f5a-99ba-c680201ea096" name="变更" comment="" />
       <created>1684372435983</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -280,11 +321,68 @@
       <workItem from="1685956575968" duration="3299000" />
       <workItem from="1685967575131" duration="60000" />
       <workItem from="1685967648886" duration="2478000" />
-      <workItem from="1685970146936" duration="12912000" />
+      <workItem from="1685970146936" duration="10160000" />
+      <workItem from="1686079602007" duration="95000" />
+      <workItem from="1686146124207" duration="3443000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="1">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+            </State>
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="Server.Server" memberName="waitingZone" />
+        <PinnedItemInfo />
+        <PinnedItemInfo parentTag="Server.Server" memberName="StopServer" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
 </project>

@@ -70,38 +70,74 @@ public class WaitingZone {
     }
     public boolean changeChargeMode_Waiting(Car car) {
         if (FastQueue.contains(car)) {
+            logger.info("Car at WaitingZone - FastQueue ");
+            for (Car car1 : FastQueue) {
+                if (car1.equals(car)) {
+                    car = car1;
+                    break;
+                }
+            }
+            FastQueue.remove(car);
             car.setChargingMode(false);
             //car.setQueueSeq(TotalCarCount);
             TotalCarCount ++;
-            FastQueue.remove(car);
+            logger.info("Car charge Mode: FAST ==> SLOW");
+            logger.info("END=============ChangeChargeMode_Server");
             return AddToSlowQueue(car);
         }else {
+            logger.info("Car at WaitingZone - SlowQueue ");
+            for (Car car1 : SlowQueue) {
+                if (car1.equals(car)) {
+                    car = car1;
+                    break;
+                }
+            }
+            SlowQueue.remove(car);
             car.setChargingMode(true);
             //car.setQueueSeq(TotalCarCount);
             TotalCarCount ++;
-            SlowQueue.remove(car);
+            logger.info("Car charge Mode: SLOW ==> FAST");
+            logger.info("END=============ChangeChargeMode_Server");
             return AddToFastQueue(car);
         }
     }
     public boolean changeChargeCapacity_Waiting(Car car, double NewValue) {
         if (FastQueue.contains(car)) {
-                car.setRequestedChargingCapacity(NewValue);
+            logger.info("Car at FAST Waiting Queue");
+
+            for (Car car1 : FastQueue) {
+                if (car1.equals(car)) {
+                    logger.info("Change Value: " + car1.getRequestedChargingCapacity() + " ==> " + NewValue);
+                    car1.setRequestedChargingCapacity(NewValue);
+                }
+            }
+            logger.info("END========changeChargeCapacity_Server-Waiting");
                 return true;
         }
         else if (SlowQueue.contains(car)){
-            car.setRequestedChargingCapacity(NewValue);
+            logger.info("Car at SLOW Waiting Queue");
+
+            for (Car car1 : SlowQueue) {
+                if (car1.equals(car)) {
+                    logger.info("Change Value: " + car1.getRequestedChargingCapacity() + " ==> " + NewValue);
+                    car1.setRequestedChargingCapacity(NewValue);
+                }
+            }
+            logger.info("END========changeChargeCapacity_Server-Waiting");
             return true;
         }
+        logger.info("END========Car NOT Found");
         return false;
     }
     public boolean CancelCharging_Waiting(Car car) {
         if (FastQueue.contains(car)) {
-            logger.info("Cancel Charging Success at waitingZone FastQueue" + "Car "+ car.getPrimaryKey());
+            logger.info("Cancel Charging Success at waitingZone FastQueue " + "Car "+ car.getPrimaryKey());
             FastQueue.remove(car);
         }else {
-            logger.info("Cancel Charging Success at waitingZone SlowQueue" + "Car "+ car.getPrimaryKey());
+            logger.info("Cancel Charging Success at waitingZone SlowQueue " + "Car "+ car.getPrimaryKey());
             SlowQueue.remove(car);
         }
+        logger.info("End===========CancelCharging_Server() At WaitingZone");
         return true;
     }
     public synchronized boolean isEmpty() {

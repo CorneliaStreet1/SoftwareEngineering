@@ -5,8 +5,8 @@ import ChargeStation.*;
 import ChargeStation.FastChargeStation;
 import ChargeStation.SlowChargeStation;
 import Message.*;
+import pojo.User;
 import UserManagement.LoginResult;
-import UserManagement.User;
 import UserManagement.UserManager;
 import WaitingZone.WaitingZone;
 import com.google.gson.Gson;
@@ -58,25 +58,29 @@ public class Server {
         logger.info("Car " + car.getPrimaryKey());
             if (waitingZone.contains(car)) {
                 logger.info("Cancel Charging Success at waitingZone");
-                logger.info("End========CancelCharging_Server");
                 return waitingZone.CancelCharging_Waiting(car);
             }else {//如果不在等候区，直接分别遍历快慢队列。
                 for (FastChargeStation fastStation : FastStations) {
                     int f_index = fastStation.getChargeStationNumber();
                     if (fastStation.contains(car)) {//如果快充站包含
-                        if (CarToTimer.containsKey(car)) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
+                        car = fastStation.getCar(car);
+                        boolean contains_F = CarToTimer.containsKey(car);
+                        if (contains_F) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
                             CarToTimer.get(car).cancel(false);
+                            //logger.info("*******Car " + car.getPrimaryKey() + "FAST Timer Canceled:" + CarToTimer.get(car).isCancelled());
                             CarToTimer.remove(car);
                             logger.info("Remove Charging car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
                         }else {
                             logger.info("Remove Waiting car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
                         }
+                        logger.info("END========CancelCharging_Server");
                         return fastStation.CancelCharging(car);// 将车从队列移除
                     }
                 }
                 for (SlowChargeStation slowStation : SlowStations) {
                     int s_index = slowStation.getChargeStationNumber();
                     if (slowStation.contains(car)) {
+                        car = slowStation.getCar(car);
                         if (CarToTimer.containsKey(car)) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
                             CarToTimer.get(car).cancel(false);
                             CarToTimer.remove(car);
@@ -84,6 +88,7 @@ public class Server {
                         }else {
                             logger.info("Remove Waiting car From SLOW Station " + s_index + " Car " + car.getPrimaryKey());
                         }
+                        logger.info("END========CancelCharging_Server");
                         return slowStation.CancelCharging(car);
                     }
                 }
@@ -91,15 +96,26 @@ public class Server {
         return false;
     }
     public boolean ChangeChargeMode_Server(Car car) {
+        logger.info("START=========ChangeChargeMode_Server");
+        logger.info("Car " + car.getPrimaryKey());
         if (waitingZone.contains(car)) {
+            logger.info("Car At Waiting Zone");
             return waitingZone.changeChargeMode_Waiting(car);
         }
+        logger.info("!!!!!Request Denied, Car NOT at WaitingZone");
+        logger.info("END=============ChangeChargeMode_Server");
         return false;
     }
     public boolean ChangeChargeCapacity_Server(Car car, double val) {
+        logger.info("START=================ChangeChargeCapacity_Server");
+        logger.info("Car " + car.getPrimaryKey());
+        logger.info("New Value " + val);
         if (waitingZone.contains(car)) {
+            logger.info("Car At WaitingZone");
             return waitingZone.changeChargeCapacity_Waiting(car, val);
         }
+        logger.info("!!!!!Request Denied, Car NOT At WaitingZone");
+        logger.info("END=================ChangeChargeCapacity_Server");
         return false;
     }
     public int CheckSequenceNum_Server(Car car) {
@@ -157,10 +173,10 @@ public class Server {
                         msg_Authentication msgAuthentication = (msg_Authentication) message;
                         User user = UserManager.FindUserInfoByUsrUID(msgAuthentication.UserID);
                         if (user != null) {
-                            LoginResult loginResult = new LoginResult(true, user.isAdmin(), user.getUID());
+                            LoginResult loginResult = new LoginResult(true, user.getIsAdmin(), user.getUID());
                             msgAuthentication.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
                         }
-                    case "Enter_Waiting_Zone":
+                    case "Enter_Waiting_Zone"://已测
                         msg_EnterWaitingZone m = (msg_EnterWaitingZone) message;
                         boolean success = waitingZone.JoinWaitingZone(m.UserCar);
                         if (success) {//如果加入成功，尝试一次调度
@@ -174,7 +190,7 @@ public class Server {
                             m.Result_Json.complete(gson.toJson(false, boolean.class));
                         }
                         break;
-                    case "Charging_Complete":
+                    case "Charging_Complete"://已测
                         logger.info("START=====Message Charging_Complete");
                         //TODO 结算费用、将车从对应充电桩的队头移除。从Map移除对应的映射。各种结算和移除就在这里做吧（除了持久化，都做完了）
                         msg_ChargeComplete msgChargeComplete = (msg_ChargeComplete) message;
@@ -217,12 +233,13 @@ public class Server {
                         logger.info(">>>>>>Schedule At Message Charging_Complete");
                         Schedule();
                         break;
-                    case "Cancel_Charging":
+                    case "Cancel_Charging"://已测
                         msg_CancelCharging cancelCharging = (msg_CancelCharging) message;
                         boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
+                        cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
+
                         Schedule();
                         //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。最终决定不计算报表(已完成)。
-                        cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
                         break;
                     case "Check_Charging_Form":
                         //这个部分应该是从数据库里读取
@@ -240,12 +257,15 @@ public class Server {
                         LoginResult loginResult = UserManager.UserLogIn(msgUserLogin.UserName, msgUserLogin.UserPassword);
                         msgUserLogin.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
                         break;
-                    case "Change_Charging_Mode":
+                    case "Change_Charging_Mode"://已测
                         msg_ChangeChargingMode msgChangeChargingMode = (msg_ChangeChargingMode) message;
                         //TODO 改变充电模式。将改变的结果布尔值传递给客户端
+                        logger.info("=============At msg Change_Charging_Mode");
                         boolean modeResult = ChangeChargeMode_Server(msgChangeChargingMode.car);
+                        msgChangeChargingMode.Result_Json.complete(gson.toJson(modeResult, boolean.class));
                         break;
-                    case "Change_Charge_Capacity":
+                    case "Change_Charge_Capacity"://已测
+                        logger.info("==============At msg Change_Charge_Capacity");
                         msg_ChangeChargeCapacity msgChangeChargeCapacity = (msg_ChangeChargeCapacity) message;
                         boolean changeCapacityServer = ChangeChargeCapacity_Server(msgChangeChargeCapacity.car, msgChangeChargeCapacity.NewValue);
                         //TODO 改变充电电量.将结果返回给客户端(已做)
@@ -262,6 +282,7 @@ public class Server {
                         msgTurnOnStation.Result_Json.complete(gson.toJson(true, boolean.class));
                         break;
                     case "Turn_Off_Station":
+                        //TODO 开关充电桩需要和华子讨论一下。当充电桩还有车充电的时候，关闭充电桩会发生什么？还是仅允许充电桩空时关闭？
                         msg_TurnOffStation msgTurnOffStation = (msg_TurnOffStation) message;
                         if (msgTurnOffStation.StationIndex > 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOffStation.StationIndex).TurnOffStation();
@@ -301,7 +322,7 @@ public class Server {
                         msgStationFault.Result_Json.complete(gson.toJson(true, boolean.class));
                         //TODO 充电桩故障
                         break;
-                    case "Preview_queue _situation":
+                    case "Preview_queue_situation":
                         msg_PreviewQueueSituation msgPreviewQueueSituation = (msg_PreviewQueueSituation) message;
                         QueueSituation queueSituation = PreviewQueueSituation_Server(msgPreviewQueueSituation.car);
                         msgPreviewQueueSituation.Result_Json.complete(gson.toJson(queueSituation, queueSituation.getClass()));
