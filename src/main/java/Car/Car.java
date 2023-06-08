@@ -6,7 +6,11 @@ public class Car implements Comparable<Car>{
     protected int PrimaryKey;
     private double RequestedChargingCapacity; //车辆的请求充电量
     private double CarBatteryCapacity;// 车辆的电池容量
-    public Car(boolean isFastCharge,  double requestedChargingCapacity, double carBatteryCapacity) {
+    private int seqNum;
+
+
+
+    public Car(boolean isFastCharge, double requestedChargingCapacity, double carBatteryCapacity) {
         this.isFastCharge = isFastCharge;
         //PrimaryKey = nextPrimaryKey;
         RequestedChargingCapacity = requestedChargingCapacity;
@@ -39,7 +43,13 @@ public class Car implements Comparable<Car>{
         RequestedChargingCapacity = requestedChargingCapacity;
     }
 
+    public int getSeqNum() {
+        return seqNum;
+    }
 
+    public void setSeqNum(int seqNum) {
+        this.seqNum = seqNum;
+    }
     public boolean isFastCharging() {
         return isFastCharge;
     }
@@ -72,7 +82,7 @@ public class Car implements Comparable<Car>{
             throw new NullPointerException("Don't Give Me a NULL Car.Car!");
         }
         if (o.getClass() == this.getClass()) {
-            return (int) (this.RequestedChargingCapacity - o.RequestedChargingCapacity);
+            return (int) (this.seqNum - o.seqNum);
         }
         throw new IllegalArgumentException("Don't Give Me something that is NOT a Car.Car!");
     }

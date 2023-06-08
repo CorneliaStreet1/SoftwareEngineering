@@ -3,6 +3,7 @@
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
       <artifact name="SoftwareEngineering:Web exploded" />
+      <artifact name="SoftwareEngineering:Web exploded" />
     </artifacts-to-build>
   </component>
   <component name="AutoImportSettings">
@@ -10,39 +11,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cb0bfc8d-1361-4e17-a1ae-feaba056f73d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/UserManagement/SqlSessionFactoryUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mapper/UserMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/pojo/ChargingRecord.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/mapper/UserMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/LocalDateTimeDemo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/MybatisTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/mapper/UserMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/mybatis-config.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/SoftwareEngineering_Web_exploded.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/SoftwareEngineering_Web_exploded.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/httpRequests/http-requests-log.http" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/httpRequests/http-requests-log.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/DraftTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/如何在本地新建数据库和对应的表.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/META-INF/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/WEB-INF/classes/log4j2.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Car/Car.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Car/Car.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargeStation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargeStation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingOrderForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingOrderForm.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ClientController/Account/Account_register.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ClientController/Account/Account_register.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Message/msg_PreviewQueueSituation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Message/msg_PreviewQueueSituation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingOrderForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingRecord.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/UserManagement/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pojo/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/UserManagement/UserManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/UserManagement/UserManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/WEB-INF/web.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/index.jsp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/test.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/web/WEB-INF/web.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mybatis-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mybatis-config.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/持久化层.md" beforeDir="false" afterPath="$PROJECT_DIR$/持久化层.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/服务端整体设计.md" beforeDir="false" afterPath="$PROJECT_DIR$/服务端整体设计.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,31 +74,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "WebServerToolWindowFactoryState": "false",
-    "jdk.selected.JAVA_MODULE": "1.8",
-    "last_opened_file_path": "F:/file/code_file/idea_java_file/untitled1",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "project.structure.last.edited": "Facet",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.21839081",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;1.8&quot;,
+    &quot;last_opened_file_path&quot;: &quot;F:/file/code_file/idea_java_file/2023/5/SoftwareEngineering&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Facet&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.21839081&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web\WEB-INF\lib" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering" />
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\src\main" />
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web\WEB-INF\lib" />
     </key>
   </component>
   <component name="RunManager" selected="Tomcat 服务器.Tomcat 9.0.75">
@@ -324,6 +305,8 @@
       <workItem from="1685970146936" duration="10160000" />
       <workItem from="1686079602007" duration="95000" />
       <workItem from="1686146124207" duration="3443000" />
+      <workItem from="1686208417958" duration="1209000" />
+      <workItem from="1686211541131" duration="767000" />
     </task>
     <servers />
   </component>

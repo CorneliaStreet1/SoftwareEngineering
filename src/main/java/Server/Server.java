@@ -12,7 +12,6 @@ import WaitingZone.WaitingZone;
 import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.omg.PortableInterceptor.INACTIVE;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -169,14 +168,22 @@ public class Server {
                 throw new NullPointerException("NULL Message");
             }else {
                 switch (message.Type) {
-                    case "Authentication":
+                    case "Authentication"://已测
+                        logger.info("==========At msg Authentication");
                         msg_Authentication msgAuthentication = (msg_Authentication) message;
+                        logger.info("UID: " + msgAuthentication.UserID);
                         User user = UserManager.FindUserInfoByUsrUID(msgAuthentication.UserID);
                         if (user != null) {
+                            logger.info("Found user Successfully in DB");
                             LoginResult loginResult = new LoginResult(true, user.getIsAdmin(), user.getUID());
                             msgAuthentication.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
+                        }else {
+                            logger.info("User NOT FOUND in DB: UID" + msgAuthentication.UserID);
+                            msgAuthentication.Result_Json.complete(gson.toJson(null));
                         }
+                        break;
                     case "Enter_Waiting_Zone"://已测
+                        logger.info("==========At msg Enter_Waiting_Zone");
                         msg_EnterWaitingZone m = (msg_EnterWaitingZone) message;
                         boolean success = waitingZone.JoinWaitingZone(m.UserCar);
                         if (success) {//如果加入成功，尝试一次调度
@@ -206,11 +213,12 @@ public class Server {
                             double chargeFee = getChargeFee(StartTime, EndTime, 0.5);
                             double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
                             fastChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
-                            //TODO 将充电详单写入数据库
+                            //TODO 将充电详单写入数据库(已做未测，等待LYF测试)
                             LocalDateTime now = LocalDateTime.now();
                             //生成的订单如下，还没写入数据库
-                            ChargingOrderForm form = new ChargingOrderForm(now.toString() + " Car" + headCar_F.getPrimaryKey(), now,
+                            ChargingRecord form = new ChargingRecord(now.toString() + " Car" + headCar_F.getPrimaryKey(), now,
                                     msgChargeComplete.StationIndex, TotalElectricity, StartTime, EndTime, chargeFee, ServiceFee);
+                            form.StoreNewOrder();
                         } else {
                             SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
                             Car headCar_S = slowChargeStation.getCarQueue().removeFirst();
@@ -226,14 +234,16 @@ public class Server {
                             slowChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                             //TODO 将充电详单写入数据库
                             LocalDateTime now = LocalDateTime.now();
-                            ChargingOrderForm form = new ChargingOrderForm(now.toString() + " Car" + headCar_S.getPrimaryKey(), now,
+                            ChargingRecord form = new ChargingRecord(now.toString() + " Car" + headCar_S.getPrimaryKey(), now,
                                     msgChargeComplete.StationIndex, TotalElectricity, StartTime, EndTime, chargeFee, ServiceFee);
+                            form.StoreNewOrder();
                         }
                         logger.info("END=====Message Charging_Complete");
                         logger.info(">>>>>>Schedule At Message Charging_Complete");
                         Schedule();
                         break;
                     case "Cancel_Charging"://已测
+                        logger.info("==========At msg Cancel_Charging");
                         msg_CancelCharging cancelCharging = (msg_CancelCharging) message;
                         boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
                         cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
@@ -243,16 +253,26 @@ public class Server {
                         break;
                     case "Check_Charging_Form":
                         //这个部分应该是从数据库里读取
-                        //TODO 读取全部的充电详单并返回
+                        //TODO 读取全部的充电详单并返回(已做)
+                        msg_CheckChargingForm msgCheckChargingForm = (msg_CheckChargingForm) message;
+                        List<ChargingRecord> chargingRecords = ChargingRecord.FindAllOrderByUID(msgCheckChargingForm.car.getPrimaryKey());
+                        if (chargingRecords != null) {
+                            msgCheckChargingForm.Result_Json.complete(gson.toJson(chargingRecords, chargingRecords.getClass()));
+                        }else {
+                            msgCheckChargingForm.Result_Json.complete(gson.toJson(null));
+                        }
                         break;
-                    case "User_Registration":
+                    case "User_Registration"://已测
+                        logger.info("==========At msg User_Registration");
                         msg_UserRegistration msgUserRegistration = (msg_UserRegistration) message;
-                        //TODO 用户注册。并把结果返回客户端
+                        //TODO 用户注册。并把结果返回客户端(已做)
+                        logger.info("Name: " + msgUserRegistration.UserName, "isAdmin: " + msgUserRegistration.isAdmin);
                         boolean Result = UserManager.UserRegistration(msgUserRegistration.UserName, msgUserRegistration.UserPassword, msgUserRegistration.isAdmin);
                         msgUserRegistration.Result_Json.complete(gson.toJson(Result, boolean.class));
                         break;
-                    case "User_Login":
-                        //TODO 用户登录、并把结果返回客户端
+                    case "User_Login"://已测
+                        //TODO 用户登录、并把结果返回客户端(已做)
+                        logger.info("==========At msg User_Login");
                         msg_UserLogin msgUserLogin = (msg_UserLogin) message;
                         LoginResult loginResult = UserManager.UserLogIn(msgUserLogin.UserName, msgUserLogin.UserPassword);
                         msgUserLogin.Result_Json.complete(gson.toJson(loginResult, loginResult.getClass()));
@@ -301,7 +321,7 @@ public class Server {
                     case "Check_Station_Info":
                         msg_CheckStationInfo msgCheckStationInfo = (msg_CheckStationInfo) message;
                         List<StationInfo> stationInfos = CheckStationInfo_Server();
-                        //TODO 检查某个充电桩等候服务的车辆信息。将其返回给客户端(已做)
+                        //TODO 检查全部充电桩等候服务的车辆信息。将其返回给客户端(已做)
                         msgCheckStationInfo.Result_Json.complete(gson.toJson(stationInfos, stationInfos.getClass()));
                         break;
                     case "Show_Station_Table":
