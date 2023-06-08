@@ -24,7 +24,7 @@ public class Account_register extends HttpServlet {
     static class ReqBody {
         String username;
         String password;
-        String rePassword;
+        String re_password;
     }
 
     static class ResponseMsg {
@@ -64,7 +64,7 @@ public class Account_register extends HttpServlet {
 
             String username = reqBody.username;
             String password = reqBody.password;
-            String rePassword = reqBody.rePassword;
+            String re_password = reqBody.re_password;
 
             CompletableFuture<String> future = new CompletableFuture<>();
 

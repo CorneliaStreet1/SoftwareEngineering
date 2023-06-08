@@ -63,6 +63,7 @@ public class WaitingZone {
         return false;
     }
     public synchronized boolean JoinWaitingZone(Car car) {
+        car.setSeqNum(TotalCarCount);
         if (car.isFastCharging()) {
             return AddToFastQueue(car);
         }

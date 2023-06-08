@@ -1,0 +1,291 @@
+POST http://localhost:8080/kkk/account_register
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 72
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123",
+    "re_password": "123"
+}
+
+<> 2023-06-07T192607.404.html
+
+###
+
+POST http://localhost:8080/kkk/submit_request
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+###
+
+POST http://localhost:8080/kkk/submit_request
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+###
+
+POST http://localhost:8080/kkk/submit_request
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+###
+
+GET http://localhost:8080/kkk/query_order
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+###
+
+GET http://localhost:8080/kkk/query_order
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+<> 2023-06-05T215832.404.html
+
+###
+
+GET http://localhost:8080/kkk/account_login
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+<> 2023-06-05T215657.200.json
+
+###
+
+GET http://localhost:8080/kkk/preview_queue
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+###
+
+POST http://localhost:8080/kkk/preview_queue
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+<> 2023-06-05T215635.405.html
+
+###
+
+POST http://localhost:8080/kkk/account_login
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+<> 2023-06-05T214652.500.html
+
+###
+
+POST http://localhost:8080/kkk/account_login
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+<> 2023-06-05T213728.500.html
+
+###
+
+GET http://localhost:8080/kkk/account_login
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+<> 2023-06-05T213710.200.json
+
+###
+
+GET http://localhost:8080/kkk/preview_queue
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+###
+
+GET http://localhost:8080/kkk/preview_queue
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+###
+
+GET http://localhost:8080/kkk/preview_queue
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+###
+
+GET http://localhost:8080/kkk/preview_queue
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+<> 2023-06-05T211442.404.html
+
+###
+
+GET http://localhost:8080/kkk/preview_queue
+Accept: application/json
+Content-Type: application/json
+justAJoke: hhh
+Content-Length: 46
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+    "username":"hyh",
+    "password":"123"
+}
+
+<> 2023-06-05T203537.500.html
+
+###
+
