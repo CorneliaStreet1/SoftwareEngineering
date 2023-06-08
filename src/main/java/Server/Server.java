@@ -262,10 +262,14 @@ public class Server {
                     case "Cancel_Charging"://已测
                         logger.info("==========At msg Cancel_Charging");
                         msg_CancelCharging cancelCharging = (msg_CancelCharging) message;
-                        CarSet.remove(cancelCharging.UserCar.getPrimaryKey());
-                        boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
-                        cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
-                        Schedule();
+                        if (!CarSet.contains(cancelCharging.UserCar.getPrimaryKey())) {
+                            cancelCharging.Result_Json.complete(gson.toJson(false, boolean.class));
+                        }else {
+                            CarSet.remove(cancelCharging.UserCar.getPrimaryKey());
+                            boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
+                            cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
+                            Schedule();
+                        }
                         //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。最终决定不计算报表(已完成)。
                         break;
                     case "Check_Charging_Form":
