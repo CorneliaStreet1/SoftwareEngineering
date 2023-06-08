@@ -107,7 +107,7 @@ public class ChargeStation {
         isOnService = false;
     }
     public boolean isFaulty() {
-        return isFaulty;
+        return isFaulty && !isOnService;
     }
     public void FixStation() {
         isOnService = true;
@@ -185,10 +185,13 @@ public class ChargeStation {
          * 累计充电费用（只计算充电的费用）
          * 累计服务费用（只计算服务的费用）
          * */
+        logger.info("START========UpdateStationState");
+        logger.info("ChargeTime " + ChargeTime + "TotalElectricity " + TotalElectricity + "chargeFee \n" + chargeFee + "ServiceFee " +  ServiceFee);
         this.setAccumulated_Charging_Times(this.getAccumulated_Charging_Times() + 1);// 累计充电次数
         this.setTotal_Charging_TimeLength(this.getTotal_Charging_TimeLength() + ChargeTime); //累计充电总时长
         this.setTotal_ElectricityAmount_Charged(this.getTotal_ElectricityAmount_Charged() + TotalElectricity); //累计充电总电量
         this.setAccumulated_Charging_Cost(this.getAccumulated_Charging_Cost() + chargeFee); //累计电费
         this.setAccumulated_Service_Cost(this.getAccumulated_Service_Cost() + ServiceFee); //累计服务费
+        logger.info("END========UpdateStationState");
     }
 }

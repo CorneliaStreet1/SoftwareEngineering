@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import pojo.User;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -349,5 +351,166 @@ public class Server_UnitTest {
         server.run();
     }
 
+    /**
+     * 来自管理员的消息
+     * 检查所有充电桩的状态
+     */
+    @Test
+    public void Test_CheckAllStationState() {
+        Server server = new Server(2, 3);
+        Thread thread1 = new Thread(()-> {
+            try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(2000);
+                logger.info(Thread.currentThread().getName() + " Wake up");
+                for (int i = 0; i < 8; i++) {
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, i), new CompletableFuture<>()));
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.0116667, 0.05, i + 8), new CompletableFuture<>()));
+                }
+                logger.info(Thread.currentThread().getName() + " Adding msg complete. Starting State Checking");
+                for (int i = 0; i < 60; i++) {
+                    Thread.sleep(1000);
+                    CompletableFuture<String> re = new CompletableFuture<>();
+                    Server.MessageQueue.put(new msg_CheckAllStationState(re));
+                    logger.info("Checking State After " + i + " Seconds:");
+                    logger.info("********Current State： " + re.get());
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Car Adding Thread");
+        thread1.start();
+        server.run();
+    }
+    @Test
+    public void Debug_Test_CheckAllStationState() {
+        Server server = new Server(2, 3);
+        try {
+            /*
+            * 插入8辆快的，8辆慢的
+            * */
+            for (int i = 0; i < 8; i++) {
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, i), new CompletableFuture<>()));
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.0116667, 0.05, i + 8), new CompletableFuture<>()));
+            }
+            Thread checking = new Thread(() -> {
+                try {
+                    Thread.sleep(40 * 1000);
+                    CompletableFuture<String> re = new CompletableFuture<>();
+                    Server.MessageQueue.put(new msg_CheckAllStationState(re));
+                    logger.info("Checking Result: " + re.get());
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            checking.start();
+            server.run();
+            //Thread.sleep(60 * 1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Test
+    public void TestDuration() {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalDateTime localDateTime1 = localDateTime.plusSeconds(1);
+        System.out.println(Duration.between(localDateTime, localDateTime1).toMinutes());
+        System.out.println(Duration.between(localDateTime, localDateTime1).toMillis());
+    }
+    /*
+    * 测试预览排队情况：给定一辆车，
+    * 等候区的快/慢车的排队情况
+    * 充电等候的快/慢车排队情况
+    * */
+    @Test
+    public void Test_PreviewQueueSituation() {
+        boolean flag1 = false, flag2 = true;
+        if (flag1) {
+            //只测试等候区
+            Server server = new Server(0, 0);
+            Thread thread = new Thread(() -> {
+                try {
+                    logger.info("Test_PreviewQueueSituation CASE 1: ");
+                    for (int i = 0; i < 3; i++) {
+                        /*
+                        * 快队列:0 1 2
+                        * 慢队列:3 4 5
+                        * 消息队列中的顺序: 0 3 1 4 2 5
+                        * 每辆车对应的序号  0 1 2 3 4 5
+                        * */
+                        Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, i), new CompletableFuture<>()));
+                        Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.0116667, 0.05, i + 3), new CompletableFuture<>()));
+                    }
+                    for (int i = 0; i < 6; i++) {
+                        CompletableFuture<String> re = new CompletableFuture<>();
+                        Server.MessageQueue.put(new msg_PreviewQueueSituation(new Car(i), re));
+                        logger.info("Car" + i + " ********PreviewQueueSituation Result " + re.get());
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            thread.start();
+            server.run();
+        }
+        if (flag2) {
+            //测试充电区和等候区
+            Server server = new Server(2, 3);
+            Thread thread = new Thread(() -> {
+                try {
+                    logger.info("Test_PreviewQueueSituation CASE 1: ");
+                    for (int i = 0; i < 8; i++) {
+                        Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.5 * 10, 0.05, i), new CompletableFuture<>()));
+                        Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.116667 * 10, 0.05, i + 8), new CompletableFuture<>()));
+                    }
+                    for (int i = 0; i < 16; i++) {
+                        CompletableFuture<String> re = new CompletableFuture<>();
+                        Server.MessageQueue.put(new msg_PreviewQueueSituation(new Car(i), re));
+                        logger.info("Car " + i + " ********PreviewQueueSituation Result " + re.get());
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            thread.start();
+            server.run();
+        }
+    }
+    @Test
+    public void Debug_Test_PreviewQueueSituation() {
+        try {
+            Server server = new Server(0, 0);
+            for (int i = 0; i < 3; i++) {
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, i), new CompletableFuture<>()));
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.0116667, 0.05, i + 3), new CompletableFuture<>()));
+            }
+            for (int i = 0; i < 6; i++) {
+                CompletableFuture<String> re = new CompletableFuture<>();
+                Server.MessageQueue.put(new msg_PreviewQueueSituation(new Car(i), re));
+                //logger.info("Car" + i + " ********PreviewQueueSituation Result " + re.get());
+            }
+/*            Thread thread = new Thread(() -> {
+                try {
+                    for (int i = 0; i < 6; i++) {
+                        CompletableFuture<String> re = new CompletableFuture<>();
+                        Server.MessageQueue.put(new msg_PreviewQueueSituation(new Car(i), re));
+                        logger.info("Car" + i + " ********PreviewQueueSituation Result " + re.get());
+                    }
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            thread.start();*/
+            server.run();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    /*
+    * 测试检查全部充电桩等候服务的车辆信息
+    * */
+    @Test
+    public void Test_CheckStationInfo() {
 
+    }
 }

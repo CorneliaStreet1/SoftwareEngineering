@@ -10,16 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cb0bfc8d-1361-4e17-a1ae-feaba056f73d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/如何在本地新建数据库和对应的表.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Car/Car.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Car/Car.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargeStation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargeStation.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/UserManagement/UserManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/UserManagement/UserManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/mybatis-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mybatis-config.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/服务端整体设计.md" beforeDir="false" afterPath="$PROJECT_DIR$/服务端整体设计.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,17 +63,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "WebServerToolWindowFactoryState": "false",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "configurable.group.other",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.other&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering" />
@@ -90,7 +85,7 @@
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web\WEB-INF\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.Server_UnitTest.Test_Authentication">
+  <component name="RunManager" selected="JUnit.Server_UnitTest.Test_PreviewQueueSituation">
     <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
       <option name="appName" />
       <option name="appServicePlanName" />
@@ -121,51 +116,51 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="DraftTest.GsonTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="SoftwareEngineering" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="DraftTest" />
-      <option name="METHOD_NAME" value="GsonTest" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="MybatisTest.testSelectAll" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="SoftwareEngineering" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="MybatisTest" />
-      <option name="METHOD_NAME" value="testSelectAll" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Server_UnitTest.Test_Authentication" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Server_UnitTest.Debug_Test_CheckAllStationState" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SoftwareEngineering" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
-      <option name="METHOD_NAME" value="Test_Authentication" />
+      <option name="METHOD_NAME" value="Debug_Test_CheckAllStationState" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Server_UnitTest.Test_Login" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Server_UnitTest.Debug_Test_PreviewQueueSituation" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SoftwareEngineering" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
-      <option name="METHOD_NAME" value="Test_Login" />
+      <option name="METHOD_NAME" value="Debug_Test_PreviewQueueSituation" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Server_UnitTest.Test_UserRegister" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Server_UnitTest.TestDuration" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SoftwareEngineering" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
-      <option name="METHOD_NAME" value="Test_UserRegister" />
+      <option name="METHOD_NAME" value="TestDuration" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server_UnitTest.Test_CheckAllStationState" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
+      <option name="METHOD_NAME" value="Test_CheckAllStationState" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server_UnitTest.Test_PreviewQueueSituation" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="SoftwareEngineering" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
+      <option name="METHOD_NAME" value="Test_PreviewQueueSituation" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -261,20 +256,20 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.DraftTest.GsonTest" />
-      <item itemvalue="JUnit.Server_UnitTest.Test_Authentication" />
-      <item itemvalue="JUnit.Server_UnitTest.Test_Login" />
-      <item itemvalue="JUnit.Server_UnitTest.Test_UserRegister" />
-      <item itemvalue="JUnit.MybatisTest.testSelectAll" />
+      <item itemvalue="JUnit.Server_UnitTest.Debug_Test_CheckAllStationState" />
+      <item itemvalue="JUnit.Server_UnitTest.Debug_Test_PreviewQueueSituation" />
+      <item itemvalue="JUnit.Server_UnitTest.TestDuration" />
+      <item itemvalue="JUnit.Server_UnitTest.Test_CheckAllStationState" />
+      <item itemvalue="JUnit.Server_UnitTest.Test_PreviewQueueSituation" />
       <item itemvalue="Tomcat 服务器.Tomcat 9.0.75" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.Server_UnitTest.Test_Authentication" />
-        <item itemvalue="JUnit.Server_UnitTest.Test_Login" />
-        <item itemvalue="JUnit.Server_UnitTest.Test_UserRegister" />
-        <item itemvalue="JUnit.MybatisTest.testSelectAll" />
-        <item itemvalue="JUnit.DraftTest.GsonTest" />
+        <item itemvalue="JUnit.Server_UnitTest.Test_PreviewQueueSituation" />
+        <item itemvalue="JUnit.Server_UnitTest.Debug_Test_PreviewQueueSituation" />
+        <item itemvalue="JUnit.Server_UnitTest.Debug_Test_CheckAllStationState" />
+        <item itemvalue="JUnit.Server_UnitTest.TestDuration" />
+        <item itemvalue="JUnit.Server_UnitTest.Test_CheckAllStationState" />
       </list>
     </recent_temporary>
   </component>
@@ -301,6 +296,8 @@
       <workItem from="1685970146936" duration="10160000" />
       <workItem from="1686079602007" duration="95000" />
       <workItem from="1686155483399" duration="643000" />
+      <workItem from="1686158347727" duration="41000" />
+      <workItem from="1686203488977" duration="15888000" />
     </task>
     <servers />
   </component>
