@@ -328,12 +328,12 @@ public class Server {
                             FastChargeStation fastChargeStation = FastStations.get(msgTurnOffStation.StationIndex);
                             fastChargeStation.TurnOffStation();
                             HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
-                            fastChargeStation.FixStation();
+                            fastChargeStation.SetFaulty(false);
                         } else {
                             SlowChargeStation station = SlowStations.get(msgTurnOffStation.StationIndex - FastStations.size());
                             station.TurnOffStation();
                             HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
-                            station.FixStation();
+                            station.SetFaulty(false);
                         }
                         //TODO 关闭充电桩（是否需要传递什么东西给控制器？）
                         msgTurnOffStation.Result_Json.complete(gson.toJson(true, boolean.class));
