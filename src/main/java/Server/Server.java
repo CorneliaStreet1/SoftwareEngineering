@@ -314,7 +314,7 @@ public class Server {
                         break;
                     case "Turn_On_Station":
                         msg_TurnOnStation msgTurnOnStation = (msg_TurnOnStation) message;
-                        if (msgTurnOnStation.StationIndex > 0 && msgTurnOnStation.StationIndex < FastStations.size()) {
+                        if (msgTurnOnStation.StationIndex >= 0 && msgTurnOnStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOnStation.StationIndex).TurnOnStation();
                         } else {
                             SlowStations.get(msgTurnOnStation.StationIndex - FastStations.size()).TurnOnStation();
@@ -324,7 +324,7 @@ public class Server {
                         break;
                     case "Turn_Off_Station":
                         msg_TurnOffStation msgTurnOffStation = (msg_TurnOffStation) message;
-                        if (msgTurnOffStation.StationIndex > 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
+                        if (msgTurnOffStation.StationIndex >= 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOffStation.StationIndex).TurnOffStation();
                             HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
                         } else {
@@ -649,7 +649,7 @@ public class Server {
     }
     public boolean HandleStationError(int StationID, int SchedulingStrategy) {
         ChargeStation ErrorStation = null;
-        if ( StationID > 0 && StationID < FastStations.size()) {
+        if ( StationID >= 0 && StationID < FastStations.size()) {
             ErrorStation = FastStations.get(StationID);
         }else {
             ErrorStation = SlowStations.get(StationID - FastStations.size());

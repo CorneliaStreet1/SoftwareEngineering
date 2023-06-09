@@ -610,6 +610,8 @@ public class Server_UnitTest {
                 throw new RuntimeException(e);
             }
         }, "Faulting Thread");
+        thread.start();
+        server.run();
     }
     @Test
     public void Test_BugFix() {
