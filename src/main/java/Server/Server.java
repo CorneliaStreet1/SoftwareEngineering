@@ -325,11 +325,15 @@ public class Server {
                     case "Turn_Off_Station":
                         msg_TurnOffStation msgTurnOffStation = (msg_TurnOffStation) message;
                         if (msgTurnOffStation.StationIndex >= 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
-                            FastStations.get(msgTurnOffStation.StationIndex).TurnOffStation();
+                            FastChargeStation fastChargeStation = FastStations.get(msgTurnOffStation.StationIndex);
+                            fastChargeStation.TurnOffStation();
                             HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
+                            fastChargeStation.FixStation();
                         } else {
-                            SlowStations.get(msgTurnOffStation.StationIndex - FastStations.size()).TurnOffStation();
+                            SlowChargeStation station = SlowStations.get(msgTurnOffStation.StationIndex - FastStations.size());
+                            station.TurnOffStation();
                             HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
+                            station.FixStation();
                         }
                         //TODO 关闭充电桩（是否需要传递什么东西给控制器？）
                         msgTurnOffStation.Result_Json.complete(gson.toJson(true, boolean.class));
