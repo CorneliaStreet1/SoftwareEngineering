@@ -655,7 +655,7 @@ public class Server {
             ErrorStation = SlowStations.get(StationID - FastStations.size());
         }
         ErrorStation.DestroyStation();
-        if (CarToTimer.containsKey(ErrorStation.getCarQueue().getFirst())) {
+        if ( ErrorStation.getCarQueue().peekFirst() != null && CarToTimer.containsKey(ErrorStation.getCarQueue().peekFirst())) {
             CarToTimer.get(ErrorStation.getCarQueue().getFirst()).cancel(false);
             CarToTimer.remove(ErrorStation.getCarQueue().getFirst());
         }
@@ -810,18 +810,30 @@ public class Server {
         }
     }
     public double getChargeFee(LocalDateTime Start, LocalDateTime End, boolean isFast) {
-        double Ret = 0;
-        double start = Start.getHour() + Start.getMinute() / 60.0 + Start.getSecond() / 3600.0;
-        double end = End.getHour() + End.getMinute() / 60.0 + End.getSecond() / 3600.0;
-        /*
-        * 一天24小时分为：
-        * 0:00~7:00低谷 7:01~10:00平时 10:00~15:00高峰 15:00~18:00平时 18:00~21:00高峰 21:00 ~23:00平时 23:00~23:59低谷
-        * */
-        if (isFast) {
-            Ret = (new ChargingPriceCount().count(start, end));
+        if (Start.getDayOfYear() == End.getDayOfYear()) {
+            double Ret = 0;
+            double start = Start.getHour() + Start.getMinute() / 60.0 + Start.getSecond() / 3600.0;
+            double end = End.getHour() + End.getMinute() / 60.0 + End.getSecond() / 3600.0;
+            /*
+             * 一天24小时分为：
+             * 0:00~7:00低谷 7:01~10:00平时 10:00~15:00高峰 15:00~18:00平时 18:00~21:00高峰 21:00 ~23:00平时 23:00~23:59低谷
+             * */
+            if (isFast) {
+                Ret = (new ChargingPriceCount().count(start, end));
+            } else {
+                Ret = (new ChargingPriceCount(false).count(start, end));
+            }
+            return Ret;
         }else {
-            Ret = (new ChargingPriceCount(false).count(start, end));
+            double Start1 = Start.getHour() + Start.getMinute() / 60.0 + Start.getSecond() / 3600.0;
+            double End1 = 23.0 + (59.0 / 60.0) + (59.0 / 3600.0);
+            double Start2 = 0.0;
+            double End2 = End.getHour() + End.getMinute() / 60.0 + End.getSecond() / 3600.0;
+            if (isFast) {
+                return (new ChargingPriceCount()).count(Start1, End1) + (new ChargingPriceCount()).count(Start2, End2);
+            }else {
+                return (new ChargingPriceCount(false)).count(Start1, End1) + (new ChargingPriceCount(false)).count(Start2, End2);
+            }
         }
-        return Ret;
     }
 }
