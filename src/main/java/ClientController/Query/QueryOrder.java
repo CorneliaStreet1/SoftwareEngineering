@@ -1,11 +1,12 @@
 package ClientController.Query;
 
 import Car.Car;
+import ChargeStation.ChargingRecord;
+import Message.msg_CheckChargingForm;
 import Server.Server;
 import Server.ServerThread;
-import Message.msg_CheckChargingForm;
-
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
@@ -15,6 +16,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -33,6 +37,8 @@ public class QueryOrder extends HttpServlet {
         String service_cost;
         String total_cost;
         String pile_id;
+
+        RData(){}
 
         RData(String order_id, String create_time, String charged_amount, int charged_time, String begin_time,
               String end_time, String charging_cost, String service_cost, String total_cost, String pile_id){
@@ -64,57 +70,87 @@ public class QueryOrder extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
 
-        try {
-            String token = req.getHeader("Authorization");
+        String token = req.getHeader("Authorization");
 
+        Gson gson = new Gson();
+        int code = 0;
+        String message = "success";
+        RData[] data = null;
+
+
+        String userIdStr = null;
+        int userId = -1;
+        try {
             Claims claims = Jwts.parser()
                     .setSigningKey(ServerThread.secretKey)
                     .parseClaimsJws(token)
                     .getBody();
 
-            String userIdStr = claims.getSubject();
-            int userId = Integer.parseInt(userIdStr);
+            userIdStr = claims.getSubject();
+            userId = Integer.parseInt(userIdStr);
+        }
+        catch (Exception e) {
+            code = -1;
+            message = "token error";
+            ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            resp.getWriter().println(respJsonMsg);
+            return;
+        }
 
-            Gson gson = new Gson();
-            Car car = new Car(userId);
-            CompletableFuture<String> future = new CompletableFuture<>();
-            msg_CheckChargingForm msgCheckChargingForm = new msg_CheckChargingForm(car, future);
+        Car car = new Car(userId);
+        CompletableFuture<String> future = new CompletableFuture<>();
+        msg_CheckChargingForm msgCheckChargingForm = new msg_CheckChargingForm(car, future);
 
-            try {
-                Server.MessageQueue.put(msgCheckChargingForm);
-                String result = future.get();
-                //todo: 详单还没处理
+        try {
+            Server.MessageQueue.put(msgCheckChargingForm);
+            String result = future.get();
+            //todo: 详单还没处理
 
-                int code = 0;
-                String order_id = "20230501000001";
-                String create_time = "2023-05-01T12:11:11.000Z";
-                String charged_amount = "12.34";
-                int charged_time = 600;
-                String begin_time = "2023-05-01T11:11:11.000Z";
-                String end_time = "2023-05-01T12:11:11.000Z";
-                String charging_cost = "8.92";
-                String service_cost = "1.23";
-                String total_cost = "10.15";
-                String pile_id = "C01";
-                String message = "success";
+            Type type = new TypeToken<List< ChargingRecord >>() {}.getType();
+            List<ChargingRecord> chargingRecords = gson.fromJson(result, type);
 
-                RData[] data = new RData[1];
-                data[0] = new RData(order_id,create_time,charged_amount,
-                        charged_time, begin_time, end_time, charging_cost, service_cost,
-                        total_cost, pile_id);
-                ResponseMsg responseMsg = new ResponseMsg(code,message,data);
-
-                String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
-
-                resp.getWriter().println(respJsonMsg);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            if(chargingRecords != null) {
+                int size = chargingRecords.size();
+                data = new RData[size];
+                for(int i = 0; i < size; i++) {
+                    data[i] = new RData();
+                    RData d = data[i];
+                    ChargingRecord recordI = chargingRecords.get(i);
+                    d.order_id = recordI.getOrderId();
+                    d.create_time = String.valueOf(LocalDateTime.parse(recordI.getOrderGenerationTime()));
+                    d.charged_amount = String.valueOf(recordI.getTotalElectricityAmountCharged());
+                    d.charged_time = (int) recordI.getChargeTimeDuration();
+                    d.begin_time = String.valueOf(LocalDateTime.parse(recordI.getStartTime()));
+                    d.end_time = String.valueOf(LocalDateTime.parse(recordI.getEndTime()));
+                    d.charging_cost = String.valueOf(recordI.getElectricityCost());
+                    d.total_cost = String.valueOf(recordI.getTotalCost());
+                    int pileID = recordI.getChargeStationId();
+                    String pileIDStr = pileID > 2 ? "S" + pileID % 3 : "F" + pileID;
+                    d.pile_id = pileIDStr;
+                }
             }
+
+            ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+
+            resp.getWriter().println(respJsonMsg);
+        } catch (ExecutionException e) {
+            code = -1;
+            message = "ExecutionException";
+            ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            resp.getWriter().println(respJsonMsg);
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            code = -1;
+            message = "ExecutionException";
+            ResponseMsg responseMsg = new ResponseMsg(code,message,data);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            resp.getWriter().println(respJsonMsg);
+            throw new RuntimeException(e);
         }
-        catch (Exception e){
-            System.out.println(e);
-        }
+
     }
 }

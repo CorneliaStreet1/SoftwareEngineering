@@ -1,7 +1,14 @@
 package ChargeStation;
 
+import UserManagement.SqlSessionFactoryUtils;
 import UserManagement.UserManager;
+import mapper.RecordMapper;
+import mapper.UserMapper;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import pojo.User;
 
+import java.rmi.server.UID;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,21 +27,26 @@ import java.util.List;
 * 总费用
 * */
 public class ChargingRecord {
-    private String OrderID; //详单编号。目前准备做成生成时间 + 车辆ID的形式
-    private LocalDateTime Order_Generation_Time; //详单生成的时间
+    private static SqlSessionFactory sqlSessionFactory = SqlSessionFactoryUtils.getSqlSessionFactory();
+
+
+    private String OrderID; //详单编号。生成时间+序号，例如07T18:46:04.0473
+    private int Usrid;//用户id(车辆id)
+    private String Order_Generation_Time; //详单生成的时间，例如07T18:46:04.047
     private int ChargeStation_ID;//充电桩编号
     private double Total_Electricity_Amount_Charged; //充电电量
-    private LocalDateTime StartTime;
-    private LocalDateTime EndTime;//充电时长直接用起始时间相减
+    private String StartTime;
+    private String EndTime;//充电时长直接用起始时间相减
     private double ElectricityCost; //充电费用
     private double ServiceFee; //服务费
     private double TotalCost;//总花费
     private double ChargeTimeDuration;//单位：秒
 
-    public ChargingRecord(String orderID, LocalDateTime order_Generation_Time, int chargeStationID,
-                          double total_Electricity_Amount_Charged, LocalDateTime startTime, LocalDateTime endTime,
+    public ChargingRecord(String orderID, int userId, String order_Generation_Time, int chargeStationID,
+                          double total_Electricity_Amount_Charged, String startTime, String endTime,
                           double electricityCost, double serviceFee) {
         OrderID = orderID;
+        Usrid = userId;
         Order_Generation_Time = order_Generation_Time;
         ChargeStation_ID = chargeStationID;
         Total_Electricity_Amount_Charged = total_Electricity_Amount_Charged;
@@ -43,47 +55,63 @@ public class ChargingRecord {
         ElectricityCost = electricityCost;
         ServiceFee = serviceFee;
         TotalCost = ServiceFee + ElectricityCost;
-        ChargeTimeDuration = (Duration.between(startTime, endTime).toMinutes()) * 60;
+        ChargeTimeDuration = (Duration.between(LocalDateTime.parse(startTime),LocalDateTime.parse(endTime)).toMinutes()) * 60;
     }
     public double getChargeTimeDuration() {
         return ChargeTimeDuration;
     }
+    public int getUserId() {
+        return Usrid;
+    }
     public double getTotalCost() {
         return TotalCost;
     }
-    public String getOrderID() {
+    public String getOrderId() {
         return OrderID;
     }
-
-    public LocalDateTime getOrder_Generation_Time() {
-        return Order_Generation_Time;
-    }
-
-    public int getChargeStation_ID() {
+    public String getOrderGenerationTime() { return Order_Generation_Time; }
+    public int getChargeStationId() {
         return ChargeStation_ID;
     }
-
-    public double getTotal_Electricity_Amount_Charged() {
+    public double getTotalElectricityAmountCharged() {
         return Total_Electricity_Amount_Charged;
     }
-
-    public LocalDateTime getStartTime() {
-        return StartTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return EndTime;
-    }
-
+    public String getStartTime() { return StartTime; }
     public double getElectricityCost() {
         return ElectricityCost;
     }
-
+    public String getEndTime() { return EndTime; }
     public double getServiceFee() {
         return ServiceFee;
     }
+    public void setChargeTimeDuration(double chargeTimeDuration) { ChargeTimeDuration = chargeTimeDuration; }
+    public void setUsrid(int usrid) { Usrid = usrid; }
+    public void setTotalCost(double totalCost) { TotalCost = totalCost; }
+    public void setOrderID(String orderID) { OrderID = orderID; }
+    public void setOrder_Generation_Time(String order_Generation_Time) { Order_Generation_Time = order_Generation_Time; }
+    public void setChargeStation_ID(int chargeStation_ID) { ChargeStation_ID = chargeStation_ID; }
+    public void setTotal_Electricity_Amount_Charged(double total_Electricity_Amount_Charged) { Total_Electricity_Amount_Charged = total_Electricity_Amount_Charged; }
+    public void setStartTime(String startTime) { StartTime = startTime; }
+    public void setElectricityCost(double electricityCost) { ElectricityCost = electricityCost; }
+    public void setEndTime(String endTime) { EndTime = endTime; }
+    public void setServiceFee(double serviceFee) { ServiceFee = serviceFee; }
 
-    public boolean StoreNewOrder() {
+    @Override
+    public String toString() {
+        return "OrderID: " + OrderID +
+                "\nUsrid: " + Usrid +
+                "\nOrder_Generation_Time: " + Order_Generation_Time +
+                "\nChargeStation_ID: " + ChargeStation_ID +
+                "\nTotal_Electricity_Amount_Charged: " + Total_Electricity_Amount_Charged +
+                "\nStartTime: " + StartTime +
+                "\nEndTime: " + EndTime +
+                "\nElectricityCost: " + ElectricityCost +
+                "\nServiceFee: " + ServiceFee +
+                "\nTotalCost: " + TotalCost +
+                "\nChargeTimeDuration: " + ChargeTimeDuration;
+    }
+
+    public boolean StoreNewOrder(ChargingRecord chargingRecord) {
         //TODO：当this调用StoreNewOrder的时候，将this这个订单写入持久化层。
         // 存储成功返回True(虽然我目前还没想到怎么会存储失败)
         /*
@@ -92,7 +120,12 @@ public class ChargingRecord {
          * chargingOrderForm.StoreNewOrder()
          * 将会把chargingOrderForm这份订单存入持久化层
          */
-        return false;
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        RecordMapper recordMapper = sqlSession.getMapper(RecordMapper.class);
+        recordMapper.add(chargingRecord);
+        sqlSession.commit();
+        sqlSession.close();
+        return true;
     }
 
     /***
@@ -119,7 +152,14 @@ public class ChargingRecord {
             return null;
         }else {
             //TODO 条件成立的情况下，返回给我一个由订单构成的非空List。
-            return new ArrayList<ChargingRecord>();
+            SqlSession sqlSession = sqlSessionFactory.openSession();
+            RecordMapper recordMapper = sqlSession.getMapper(RecordMapper.class);
+            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            User user = userMapper.selectByUserName(userName);
+            List<ChargingRecord> chargingRecords = recordMapper.selectByUserId(user.getUID());
+            sqlSession.close();
+
+            return chargingRecords;
         }
     }
     /***
@@ -142,7 +182,12 @@ public class ChargingRecord {
             return null;
         }else {
             //TODO 条件成立的情况下，返回给我一个由订单构成的非空List。
-            return new ArrayList<ChargingRecord>();
+            SqlSession sqlSession = sqlSessionFactory.openSession();
+            RecordMapper recordMapper = sqlSession.getMapper(RecordMapper.class);
+            List<ChargingRecord> chargingRecords = recordMapper.selectByUserId(UID);
+            sqlSession.close();
+
+            return chargingRecords;
         }
     }
     //TODO 在完成了这三个方法之后，请顺手测试一下这三个方法。我已经直接在我的代码中调用这三个方法了

@@ -20,6 +20,6 @@ public class LocalDateTimeDemo {
         * 我觉得这样应该够用了？
         * */
         LocalDateTime dateTime = LocalDateTime.parse(s);
-        System.out.println();
+        System.out.println(dateTime);
     }
 }
