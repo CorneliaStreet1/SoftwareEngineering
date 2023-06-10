@@ -594,4 +594,41 @@ public class Server_UnitTest {
             }
         server.run();
     }
+    @Test
+    public void Test_Station_Fault() {
+        Server server = new Server(1, 0);
+        Thread thread = new Thread(() -> {
+            try {
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(2000);
+                logger.info(Thread.currentThread().getName() + " Wake up");
+                for (int i = 0; i < 8; i++) {
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, i), new CompletableFuture<>()));
+                    //Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.0116667, 0.05, i + 8), new CompletableFuture<>()));
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Faulting Thread");
+        thread.start();
+        server.run();
+    }
+    @Test
+    public void Test_BugFix() {
+        Server server = new Server(1,1);
+        Thread thread = new Thread(() -> {
+            try {
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.05, 0.05, 0), new CompletableFuture<>()));
+                Server.MessageQueue.put(new msg_CancelCharging(new Car(0), new CompletableFuture<>()));
+                Thread.sleep(1000);
+                CompletableFuture<String> re = new CompletableFuture<>();
+                Server.MessageQueue.put(new msg_PreviewQueueSituation(new Car(0), re));
+                logger.info("PreviewQueueSituation: " + re.get());
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Bug Fix Thread");
+        thread.start();
+        server.run();
+    }
 }

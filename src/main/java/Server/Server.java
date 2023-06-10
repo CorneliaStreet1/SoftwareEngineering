@@ -24,6 +24,7 @@ public class Server {
     电价单位都是 元/度
     */
     public static BlockingQueue<Message> MessageQueue = new LinkedBlockingQueue<>(); //消息队列。
+    private HashSet<Integer> CarSet;
     private boolean StopServer;
     private static final Logger logger = LogManager.getLogger(Server.class);
     private WaitingZone waitingZone;
@@ -48,6 +49,7 @@ public class Server {
             SlowTimers.add(Executors.newScheduledThreadPool(1));
         }
         CarToTimer = new ConcurrentHashMap<>();
+        CarSet = new HashSet<>();
     }
     public boolean CancelCharging_Server(Car car) {//car只需要主键对得上就行
         logger.info("START========CancelCharging_Server");
@@ -186,16 +188,22 @@ public class Server {
                     case "Enter_Waiting_Zone"://已测
                         logger.info("==========At msg Enter_Waiting_Zone");
                         msg_EnterWaitingZone m = (msg_EnterWaitingZone) message;
-                        boolean success = waitingZone.JoinWaitingZone(m.UserCar);
-                        if (success) {//如果加入成功，尝试一次调度
-                            logger.info("Enter_Waiting_Zone Success Car:" + m.UserCar.getPrimaryKey());
-                            logger.info("Start Schedule At Message Enter_Waiting_Zone Success");
-                            Schedule();
-                            m.Result_Json.complete(gson.toJson(true, boolean.class));
-                            //TODO 给客户端返回一个加入等候区成功的消息。这个True代表加入等候区成功，不代表其他事情。
-                        }else {
-                            logger.info("Enter_Waiting_Zone Fail Car:" + m.UserCar.getPrimaryKey());
+                        if (CarSet.contains(m.UserCar.getPrimaryKey())) {
                             m.Result_Json.complete(gson.toJson(false, boolean.class));
+                        }
+                        else {
+                            CarSet.add(m.UserCar.getPrimaryKey());
+                            boolean success = waitingZone.JoinWaitingZone(m.UserCar);
+                            if (success) {//如果加入成功，尝试一次调度
+                                logger.info("Enter_Waiting_Zone Success Car:" + m.UserCar.getPrimaryKey());
+                                logger.info("Start Schedule At Message Enter_Waiting_Zone Success");
+                                Schedule();
+                                m.Result_Json.complete(gson.toJson(true, boolean.class));
+                                //TODO 给客户端返回一个加入等候区成功的消息。这个True代表加入等候区成功，不代表其他事情。
+                            } else {
+                                logger.info("Enter_Waiting_Zone Fail Car:" + m.UserCar.getPrimaryKey());
+                                m.Result_Json.complete(gson.toJson(false, boolean.class));
+                            }
                         }
                         break;
                     case "Charging_Complete"://已测
@@ -206,6 +214,7 @@ public class Server {
                             FastChargeStation fastChargeStation = FastStations.get(msgChargeComplete.StationIndex);
                             Car headCar_F = fastChargeStation.getCarQueue().removeFirst();
                             CarToTimer.remove(headCar_F);
+                            CarSet.remove(headCar_F.getPrimaryKey());
                             logger.info("AT Charging_Complete >>>>>>>Fast Charge Complete Car:" + headCar_F.getPrimaryKey());
                             LocalDateTime StartTime = fastChargeStation.getCharge_StartTime();
                             LocalDateTime EndTime = fastChargeStation.getExpected_Charge_EndTime();
@@ -228,6 +237,7 @@ public class Server {
                             SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
                             Car headCar_S = slowChargeStation.getCarQueue().removeFirst();
                             CarToTimer.remove(headCar_S);
+                            CarSet.remove(headCar_S.getPrimaryKey());
                             logger.info("AT Charging_Complete >>>>>>> Slow Charge Complete Car:" + headCar_S.getPrimaryKey());
                             //TODO 生成充电详单、结算。更新充电桩的统计数据
                             LocalDateTime StartTime = slowChargeStation.getCharge_StartTime();
@@ -252,9 +262,14 @@ public class Server {
                     case "Cancel_Charging"://已测
                         logger.info("==========At msg Cancel_Charging");
                         msg_CancelCharging cancelCharging = (msg_CancelCharging) message;
-                        boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
-                        cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
-                        Schedule();
+                        if (!CarSet.contains(cancelCharging.UserCar.getPrimaryKey())) {
+                            cancelCharging.Result_Json.complete(gson.toJson(false, boolean.class));
+                        }else {
+                            CarSet.remove(cancelCharging.UserCar.getPrimaryKey());
+                            boolean cancelChargingServer = CancelCharging_Server(cancelCharging.UserCar);
+                            cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
+                            Schedule();
+                        }
                         //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。最终决定不计算报表(已完成)。
                         break;
                     case "Check_Charging_Form":
@@ -299,7 +314,7 @@ public class Server {
                         break;
                     case "Turn_On_Station":
                         msg_TurnOnStation msgTurnOnStation = (msg_TurnOnStation) message;
-                        if (msgTurnOnStation.StationIndex > 0 && msgTurnOnStation.StationIndex < FastStations.size()) {
+                        if (msgTurnOnStation.StationIndex >= 0 && msgTurnOnStation.StationIndex < FastStations.size()) {
                             FastStations.get(msgTurnOnStation.StationIndex).TurnOnStation();
                         } else {
                             SlowStations.get(msgTurnOnStation.StationIndex - FastStations.size()).TurnOnStation();
@@ -308,12 +323,17 @@ public class Server {
                         msgTurnOnStation.Result_Json.complete(gson.toJson(true, boolean.class));
                         break;
                     case "Turn_Off_Station":
-                        //TODO 开关充电桩需要和华子讨论一下。当充电桩还有车充电的时候，关闭充电桩会发生什么？还是仅允许充电桩空时关闭？
                         msg_TurnOffStation msgTurnOffStation = (msg_TurnOffStation) message;
-                        if (msgTurnOffStation.StationIndex > 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
-                            FastStations.get(msgTurnOffStation.StationIndex).TurnOffStation();
+                        if (msgTurnOffStation.StationIndex >= 0 && msgTurnOffStation.StationIndex < FastStations.size()) {
+                            FastChargeStation fastChargeStation = FastStations.get(msgTurnOffStation.StationIndex);
+                            fastChargeStation.TurnOffStation();
+                            HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
+                            fastChargeStation.SetFaulty(false);
                         } else {
-                            SlowStations.get(msgTurnOffStation.StationIndex - FastStations.size()).TurnOffStation();
+                            SlowChargeStation station = SlowStations.get(msgTurnOffStation.StationIndex - FastStations.size());
+                            station.TurnOffStation();
+                            HandleStationError(msgTurnOffStation.StationIndex, WaitingZone.Priority_Scheduling);
+                            station.SetFaulty(false);
                         }
                         //TODO 关闭充电桩（是否需要传递什么东西给控制器？）
                         msgTurnOffStation.Result_Json.complete(gson.toJson(true, boolean.class));
@@ -343,7 +363,6 @@ public class Server {
                         break;
                     case "Station_Fault":
                         msg_StationFault msgStationFault = (msg_StationFault) message;
-                        ChargeStation station = null;
                         HandleStationError(msgStationFault.StationIndex, msgStationFault.SchedulingStrategy);
                         msgStationFault.Result_Json.complete(gson.toJson(true, boolean.class));
                         //TODO 充电桩故障
@@ -360,14 +379,23 @@ public class Server {
         }
     }
     public QueueSituation PreviewQueueSituation_Server(Car car) {
+        logger.info("START=======================PreviewQueueSituation_Server");
+        logger.info("Car " + car.getPrimaryKey());
         if (car == null) {
             logger.info("!!!!!!Null Car At PreviewQueueSituation_Server");
+            logger.info("END=======================PreviewQueueSituation_Server");
             return null;
         }
         int charge_id = CheckSequenceNum_Server(car);
+        logger.info("charge_id " + charge_id);
+        if (charge_id < 0) {
+            logger.info("END=======================PreviewQueueSituation_Server");
+            return new QueueSituation(-1, -1, "NOTCHARGING", null);
+        }
         int queue_len = 0;
         for (Car car1 : waitingZone.getFastQueue()) {
             if (car1.equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, queue_len, "WAITINGSTAGE1", "WAITINGPLACE");
             }
             queue_len++;
@@ -375,6 +403,7 @@ public class Server {
         queue_len = 0;
         for (Car car1 : waitingZone.getSlowQueue()) {
             if (car1.equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, queue_len, "WAITINGSTAGE1", "WAITINGPLACE");
             }
             queue_len ++;
@@ -383,11 +412,14 @@ public class Server {
         for (int F_index = 0; F_index < FastStations.size(); F_index ++) {
             FastChargeStation fastStation = FastStations.get(F_index);
             if (fastStation.isFaulty()) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 0, "FAULTREQUEUE ", "Fast" + F_index);
             }
             if (fastStation.getCarQueue().getFirst().equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 0, "CHARGING", "Fast" + F_index);
             }else if (fastStation.getCarQueue().getLast().equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 1, "WAITINGSTAGE2", "Fast" + F_index);
             }
         }
@@ -395,14 +427,18 @@ public class Server {
         for (int S_index = 0;S_index < SlowStations.size(); S_index ++) {
             SlowChargeStation slowStation = SlowStations.get(S_index);
             if (slowStation.isFaulty()) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 0, "FAULTREQUEUE ", "Slow" + S_index);
             }
             if (slowStation.getCarQueue().getFirst().equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 0, "CHARGING", "Slow" + S_index);
             }else if (slowStation.getCarQueue().getLast().equals(car)) {
+                logger.info("END=======================PreviewQueueSituation_Server");
                 return new QueueSituation(charge_id, 1, "WAITINGSTAGE2", "Slow" + S_index);
             }
         }
+        logger.info("END=======================PreviewQueueSituation_Server");
         return new QueueSituation(-1, -1, "NOTCHARGING", null);
     }
     public List<StationForm> ShowStationTable() {
@@ -617,12 +653,16 @@ public class Server {
     }
     public boolean HandleStationError(int StationID, int SchedulingStrategy) {
         ChargeStation ErrorStation = null;
-        if (StationID < FastStations.size()) {
+        if ( StationID >= 0 && StationID < FastStations.size()) {
             ErrorStation = FastStations.get(StationID);
         }else {
             ErrorStation = SlowStations.get(StationID - FastStations.size());
         }
         ErrorStation.DestroyStation();
+        if ( ErrorStation.getCarQueue().peekFirst() != null && CarToTimer.containsKey(ErrorStation.getCarQueue().peekFirst())) {
+            CarToTimer.get(ErrorStation.getCarQueue().getFirst()).cancel(false);
+            CarToTimer.remove(ErrorStation.getCarQueue().getFirst());
+        }
         //只考虑单一充电桩故障，并且恰好该充电桩有车排队的情况
         if (SchedulingStrategy == WaitingZone.Priority_Scheduling) {
             waitingZone.StopService();
@@ -774,18 +814,30 @@ public class Server {
         }
     }
     public double getChargeFee(LocalDateTime Start, LocalDateTime End, boolean isFast) {
-        double Ret = 0;
-        double start = Start.getHour() + Start.getMinute() / 60.0 + Start.getSecond() / 3600.0;
-        double end = End.getHour() + End.getMinute() / 60.0 + End.getSecond() / 3600.0;
-        /*
-        * 一天24小时分为：
-        * 0:00~7:00低谷 7:01~10:00平时 10:00~15:00高峰 15:00~18:00平时 18:00~21:00高峰 21:00 ~23:00平时 23:00~23:59低谷
-        * */
-        if (isFast) {
-            Ret = (new ChargingPriceCount().count(start, end));
+        if (Start.getDayOfYear() == End.getDayOfYear()) {
+            double Ret = 0;
+            double start = Start.getHour() + Start.getMinute() / 60.0 + Start.getSecond() / 3600.0;
+            double end = End.getHour() + End.getMinute() / 60.0 + End.getSecond() / 3600.0;
+            /*
+             * 一天24小时分为：
+             * 0:00~7:00低谷 7:01~10:00平时 10:00~15:00高峰 15:00~18:00平时 18:00~21:00高峰 21:00 ~23:00平时 23:00~23:59低谷
+             * */
+            if (isFast) {
+                Ret = (new ChargingPriceCount().count(start, end));
+            } else {
+                Ret = (new ChargingPriceCount(false).count(start, end));
+            }
+            return Ret;
         }else {
-            Ret = (new ChargingPriceCount(false).count(start, end));
+            double Start1 = Start.getHour() + Start.getMinute() / 60.0 + Start.getSecond() / 3600.0;
+            double End1 = 23.0 + (59.0 / 60.0) + (59.0 / 3600.0);
+            double Start2 = 0.0;
+            double End2 = End.getHour() + End.getMinute() / 60.0 + End.getSecond() / 3600.0;
+            if (isFast) {
+                return (new ChargingPriceCount()).count(Start1, End1) + (new ChargingPriceCount()).count(Start2, End2);
+            }else {
+                return (new ChargingPriceCount(false)).count(Start1, End1) + (new ChargingPriceCount(false)).count(Start2, End2);
+            }
         }
-        return Ret;
     }
 }

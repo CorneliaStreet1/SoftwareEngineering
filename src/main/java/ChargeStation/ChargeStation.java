@@ -109,6 +109,9 @@ public class ChargeStation {
     public boolean isFaulty() {
         return isFaulty && !isOnService;
     }
+    public void SetFaulty(boolean b) {
+        isFaulty = b;
+    }
     public void FixStation() {
         isOnService = true;
         isFaulty = false;
