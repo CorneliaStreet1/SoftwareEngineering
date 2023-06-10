@@ -57,43 +57,43 @@ public class Server {
             return false;
         }
         logger.info("Car " + car.getPrimaryKey());
-            if (waitingZone.contains(car)) {
-                logger.info("Cancel Charging Success at waitingZone");
-                return waitingZone.CancelCharging_Waiting(car);
-            }else {//如果不在等候区，直接分别遍历快慢队列。
-                for (FastChargeStation fastStation : FastStations) {
-                    int f_index = fastStation.getChargeStationNumber();
-                    if (fastStation.contains(car)) {//如果快充站包含
-                        car = fastStation.getCar(car);
-                        boolean contains_F = CarToTimer.containsKey(car);
-                        if (contains_F) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
-                            CarToTimer.get(car).cancel(false);
-                            //logger.info("*******Car " + car.getPrimaryKey() + "FAST Timer Canceled:" + CarToTimer.get(car).isCancelled());
-                            CarToTimer.remove(car);
-                            logger.info("Remove Charging car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
-                        }else {
-                            logger.info("Remove Waiting car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
-                        }
-                        logger.info("END========CancelCharging_Server");
-                        return fastStation.CancelCharging(car);// 将车从队列移除
+        if (waitingZone.contains(car)) {
+            logger.info("Cancel Charging Success at waitingZone");
+            return waitingZone.CancelCharging_Waiting(car);
+        }else {//如果不在等候区，直接分别遍历快慢队列。
+            for (FastChargeStation fastStation : FastStations) {
+                int f_index = fastStation.getChargeStationNumber();
+                if (fastStation.contains(car)) {//如果快充站包含
+                    car = fastStation.getCar(car);
+                    boolean contains_F = CarToTimer.containsKey(car);
+                    if (contains_F) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
+                        CarToTimer.get(car).cancel(false);
+                        //logger.info("*******Car " + car.getPrimaryKey() + "FAST Timer Canceled:" + CarToTimer.get(car).isCancelled());
+                        CarToTimer.remove(car);
+                        logger.info("Remove Charging car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
+                    }else {
+                        logger.info("Remove Waiting car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
                     }
-                }
-                for (SlowChargeStation slowStation : SlowStations) {
-                    int s_index = slowStation.getChargeStationNumber();
-                    if (slowStation.contains(car)) {
-                        car = slowStation.getCar(car);
-                        if (CarToTimer.containsKey(car)) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
-                            CarToTimer.get(car).cancel(false);
-                            CarToTimer.remove(car);
-                            logger.info("Remove Charging car From SLOW Station " + s_index + " Car " + car.getPrimaryKey());
-                        }else {
-                            logger.info("Remove Waiting car From SLOW Station " + s_index + " Car " + car.getPrimaryKey());
-                        }
-                        logger.info("END========CancelCharging_Server");
-                        return slowStation.CancelCharging(car);
-                    }
+                    logger.info("END========CancelCharging_Server");
+                    return fastStation.CancelCharging(car);// 将车从队列移除
                 }
             }
+            for (SlowChargeStation slowStation : SlowStations) {
+                int s_index = slowStation.getChargeStationNumber();
+                if (slowStation.contains(car)) {
+                    car = slowStation.getCar(car);
+                    if (CarToTimer.containsKey(car)) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
+                        CarToTimer.get(car).cancel(false);
+                        CarToTimer.remove(car);
+                        logger.info("Remove Charging car From SLOW Station " + s_index + " Car " + car.getPrimaryKey());
+                    }else {
+                        logger.info("Remove Waiting car From SLOW Station " + s_index + " Car " + car.getPrimaryKey());
+                    }
+                    logger.info("END========CancelCharging_Server");
+                    return slowStation.CancelCharging(car);
+                }
+            }
+        }
         return false;
     }
     public boolean ChangeChargeMode_Server(Car car) {
@@ -230,8 +230,8 @@ public class Server {
                             //TODO 将充电详单写入数据库(已做未测，等待LYF测试)
                             LocalDateTime now = LocalDateTime.now();
                             //生成的订单如下，还没写入数据库
-                            ChargingRecord form = new ChargingRecord(now.toString() + WaitingZone.getTotalCarCount() + headCar_F.getPrimaryKey(), now,
-                                    msgChargeComplete.StationIndex, TotalElectricity, StartTime, EndTime, chargeFee, ServiceFee);
+                            ChargingRecord form = new ChargingRecord(now.toString() + WaitingZone.getTotalCarCount() , headCar_F.getPrimaryKey(), now.toString(),
+                                    msgChargeComplete.StationIndex, TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
                             //form.StoreNewOrder();
                         } else {
                             SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
@@ -251,8 +251,8 @@ public class Server {
                             slowChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                             //TODO 将充电详单写入数据库
                             LocalDateTime now = LocalDateTime.now();
-                            ChargingRecord form = new ChargingRecord( now.toString() + WaitingZone.getTotalCarCount() + headCar_S.getPrimaryKey(), now,
-                                    msgChargeComplete.StationIndex, TotalElectricity, StartTime, EndTime, chargeFee, ServiceFee);
+                            ChargingRecord form = new ChargingRecord( now.toString() + WaitingZone.getTotalCarCount() , headCar_S.getPrimaryKey(), now.toString(),
+                                    msgChargeComplete.StationIndex, TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
                             //form.StoreNewOrder();
                         }
                         logger.info("END=====Message Charging_Complete");
@@ -484,7 +484,7 @@ public class Server {
                     fastStation.getTotal_Charging_TimeLength(), fastStation.getTotal_ElectricityAmount_Charged());
             states.add(F_stationState);
         }
-       //int s_index = 0;
+        //int s_index = 0;
         for (SlowChargeStation slowStation : SlowStations) {
             StationState S_stationState = new StationState(slowStation.getChargeStationNumber(), slowStation.isFaulty(), slowStation.isOnService(), slowStation.getAccumulated_Charging_Times(),
                     slowStation.getTotal_Charging_TimeLength(), slowStation.getTotal_ElectricityAmount_Charged());
@@ -574,70 +574,70 @@ public class Server {
                 logger.info("----------------WaitingZone Empty");
             }
             //从等候区到各个充电桩的调度完成
-                //接下来遍历每个充电桩，如果桩非空且在运行，就启动对应的定时器
+            //接下来遍历每个充电桩，如果桩非空且在运行，就启动对应的定时器
             //快充桩
             logger.info("STATR==============================Set Fast Station Timer");
             for (int i = 0; i < FastStations.size(); i++) {
-                    FastChargeStation fastChargeStation = FastStations.get(i);
-                    if (fastChargeStation.isOnService() && (!fastChargeStation.isFaulty())) {
-                        if (fastChargeStation.Size() > 0) {
-                            final int F_Index = i;
-                            final int f_index = fastChargeStation.getChargeStationNumber();
-                            Car F_headCar = fastChargeStation.getCarQueue().getFirst();
-                            if (!CarToTimer.containsKey(F_headCar)) {// 如果headCar还没有被定时，那么启动定时，加入映射关系
-                                double F_Time_Hour = F_headCar.getRequestedChargingCapacity() / FastChargeStation.ChargingSpeed;
-                                double F_Time_Second = F_Time_Hour * 60 * 60;// 单位:秒
-                                fastChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
-                                fastChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) F_Time_Second));// 充电结束预期时间点
-                                ScheduledExecutorService F_scheduledExecutorService = FastTimers.get(i);
-                                ScheduledFuture<?> F_schedule = F_scheduledExecutorService.schedule(() -> {
-                                    Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
-                                    logger.info("\n>>>>>>>>>>>>>>>>>>>>>>Timer Trigger>>FAST Station "+ F_Index +  " charge Timer Complete\n");
-                                    msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null, F_Index, true);
-                                    try {
-                                        MessageQueue.put(msgChargeComplete);
-                                    } catch (InterruptedException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }, (long) F_Time_Second, TimeUnit.SECONDS);
-                                CarToTimer.put(F_headCar, F_schedule); //将车和其定时器映射关系加入Map
-                                logger.info("Set a Fast Car Timer in Fast Station:"+ f_index + " Car " + F_headCar.getPrimaryKey() + " ETA:" + F_Time_Second);
-                            }
+                FastChargeStation fastChargeStation = FastStations.get(i);
+                if (fastChargeStation.isOnService() && (!fastChargeStation.isFaulty())) {
+                    if (fastChargeStation.Size() > 0) {
+                        final int F_Index = i;
+                        final int f_index = fastChargeStation.getChargeStationNumber();
+                        Car F_headCar = fastChargeStation.getCarQueue().getFirst();
+                        if (!CarToTimer.containsKey(F_headCar)) {// 如果headCar还没有被定时，那么启动定时，加入映射关系
+                            double F_Time_Hour = F_headCar.getRequestedChargingCapacity() / FastChargeStation.ChargingSpeed;
+                            double F_Time_Second = F_Time_Hour * 60 * 60;// 单位:秒
+                            fastChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
+                            fastChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) F_Time_Second));// 充电结束预期时间点
+                            ScheduledExecutorService F_scheduledExecutorService = FastTimers.get(i);
+                            ScheduledFuture<?> F_schedule = F_scheduledExecutorService.schedule(() -> {
+                                Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
+                                logger.info("\n>>>>>>>>>>>>>>>>>>>>>>Timer Trigger>>FAST Station "+ F_Index +  " charge Timer Complete\n");
+                                msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null, F_Index, true);
+                                try {
+                                    MessageQueue.put(msgChargeComplete);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }, (long) F_Time_Second, TimeUnit.SECONDS);
+                            CarToTimer.put(F_headCar, F_schedule); //将车和其定时器映射关系加入Map
+                            logger.info("Set a Fast Car Timer in Fast Station:"+ f_index + " Car " + F_headCar.getPrimaryKey() + " ETA:" + F_Time_Second);
                         }
                     }
+                }
             }
             logger.info("END==============================Set Fast Station Timer");
             //慢充桩
             logger.info("STATR==============================Set Slow Station Timer");
-                for (int i = 0; i < SlowStations.size(); i++) {
-                    SlowChargeStation slowChargeStation = SlowStations.get(i);
-                    final int s_index = slowChargeStation.getChargeStationNumber();
-                    if (slowChargeStation.isOnService() && (!slowChargeStation.isFaulty())) {
-                        if (slowChargeStation.Size() > 0) {
-                            final int Index = i;
-                            Car headCar = slowChargeStation.getCarQueue().getFirst();
-                            if (!CarToTimer.containsKey(headCar)) {// 如果headCar还没有被定时，那么启动定时
-                                double Time_Hour = headCar.getRequestedChargingCapacity() / SlowChargeStation.ChargingSpeed;
-                                double Time_Second = Time_Hour * 60 * 60;// 单位:秒
-                                slowChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
-                                slowChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) Time_Second));// 充电结束预期时间点
-                                ScheduledExecutorService scheduledExecutorService = SlowTimers.get(i);
-                                ScheduledFuture<?> schedule = scheduledExecutorService.schedule(() -> {
-                                    logger.info("\n>>>>>>>>>>>>>>>>>>>>>>Timer Trigger>>SLOW Station "+ s_index +  " charge Timer Complete\n");
-                                    Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
-                                    msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null, Index, false);
-                                    try {
-                                        MessageQueue.put(msgChargeComplete);
-                                    } catch (InterruptedException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }, (long) Time_Second, TimeUnit.SECONDS);
-                                CarToTimer.put(headCar, schedule); //将车和其定时器映射关系加入Map
-                                logger.info("Add a Slow Car Timer in  Slow Station "+ s_index + " Car " + headCar.getPrimaryKey() + " ETA:" + Time_Second);
-                            }
+            for (int i = 0; i < SlowStations.size(); i++) {
+                SlowChargeStation slowChargeStation = SlowStations.get(i);
+                final int s_index = slowChargeStation.getChargeStationNumber();
+                if (slowChargeStation.isOnService() && (!slowChargeStation.isFaulty())) {
+                    if (slowChargeStation.Size() > 0) {
+                        final int Index = i;
+                        Car headCar = slowChargeStation.getCarQueue().getFirst();
+                        if (!CarToTimer.containsKey(headCar)) {// 如果headCar还没有被定时，那么启动定时
+                            double Time_Hour = headCar.getRequestedChargingCapacity() / SlowChargeStation.ChargingSpeed;
+                            double Time_Second = Time_Hour * 60 * 60;// 单位:秒
+                            slowChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
+                            slowChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) Time_Second));// 充电结束预期时间点
+                            ScheduledExecutorService scheduledExecutorService = SlowTimers.get(i);
+                            ScheduledFuture<?> schedule = scheduledExecutorService.schedule(() -> {
+                                logger.info("\n>>>>>>>>>>>>>>>>>>>>>>Timer Trigger>>SLOW Station "+ s_index +  " charge Timer Complete\n");
+                                Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
+                                msg_ChargeComplete msgChargeComplete = new msg_ChargeComplete(null, Index, false);
+                                try {
+                                    MessageQueue.put(msgChargeComplete);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }, (long) Time_Second, TimeUnit.SECONDS);
+                            CarToTimer.put(headCar, schedule); //将车和其定时器映射关系加入Map
+                            logger.info("Add a Slow Car Timer in  Slow Station "+ s_index + " Car " + headCar.getPrimaryKey() + " ETA:" + Time_Second);
                         }
                     }
                 }
+            }
             logger.info("END==============================Set Slow Station Timer");
             logger.info("END-------------Schedule()----------------\n");
         }

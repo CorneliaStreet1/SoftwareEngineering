@@ -6,6 +6,7 @@
     
     <typeAliases>
         <package name="pojo"/>
+        <package name="ChargeStation"/>
     </typeAliases>
 
     <environments default="development">
@@ -15,7 +16,7 @@
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
                 <property name="url" value="jdbc:mysql:///chargingsystem?useSSL=false"/>
                 <property name="username" value="root"/>
-                <property name="password" value="MySQL@1121jyq"/>
+                <property name="password" value="1234"/>
             </dataSource>
         </environment>
     </environments>
