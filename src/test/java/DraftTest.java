@@ -6,5 +6,6 @@ public class DraftTest {
     public void GsonTest() {
         Gson gson = new Gson();
         System.out.println(gson.toJson(null));
+        System.out.println();
     }
 }
