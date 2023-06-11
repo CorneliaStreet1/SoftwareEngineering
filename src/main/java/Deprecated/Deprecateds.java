@@ -1,17 +1,5 @@
 package Deprecated;
 
-import Car.Car;
-import ChargeStation.ChargeStation;
-import Message.msg_ChargeComplete;
-import Server.Server;
-import com.google.gson.Gson;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class Deprecateds {
 
     /*class WaitingZone{

@@ -3,11 +3,8 @@ package ClientController.Account;
 import Message.msg_UserLogin;
 import Server.Server;
 import Server.ServerThread;
-
 import UserManagement.LoginResult;
 import com.google.gson.Gson;
-
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -69,70 +66,101 @@ public class Account_login extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
 
+        int code = 0;
+        String message = "success";
+        RData data = null;
+
+
+
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = new BufferedReader(req.getReader());
+        String line;
+        while( ( line = br.readLine()) != null){
+            System.out.println("k");
+            sb.append(line);
+        }
+        String requestBody = sb.toString();
+
+        Gson gson = new Gson();
+
+        ReqBody reqBody = gson.fromJson(requestBody,ReqBody.class);
+
+        String username = reqBody.username;
+        String password = reqBody.password;
+
         try {
-            StringBuilder sb = new StringBuilder();
-            BufferedReader br = new BufferedReader(req.getReader());
-            String line;
-            while( ( line = br.readLine()) != null){
-                System.out.println("k");
-                sb.append(line);
-            }
-            String requestBody = sb.toString();
+            username = reqBody.username;
+            password = reqBody.password;
+        }
+        catch (NullPointerException e) {
+            code = -1;
+            message = "post body error";
+            ResponseMsg responseMsg = new ResponseMsg(code, data, message);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            resp.getWriter().println(respJsonMsg);
+            System.out.println(e);
+            return;
+        }
 
-            Gson gson = new Gson();
+        CompletableFuture<String> future = new CompletableFuture<>();
 
-            ReqBody reqBody = gson.fromJson(requestBody,ReqBody.class);
+        msg_UserLogin msgUserLogin = new msg_UserLogin(username, password, future);
 
-            String username = reqBody.username;
-            String password = reqBody.password;
+        try {
+            Server.MessageQueue.put(msgUserLogin);
+            String result = future.get();
+            LoginResult loginResult = gson.fromJson(result, LoginResult.class);
 
-            CompletableFuture<String> future = new CompletableFuture<>();
+            if (loginResult.Login_Success) {
+                int userId = loginResult.User_ID;
+                boolean is_admin = loginResult.isAdmin;
 
-            msg_UserLogin msgUserLogin = new msg_UserLogin(username, password, future);
-
-            try {
-                Server.MessageQueue.put(msgUserLogin);
-                System.out.println("put");
-                String result = future.get();
-                System.out.println("get");
-                LoginResult loginResult = gson.fromJson(result, LoginResult.class);
-
-                int code = 0;
-                String message = "success";
-                RData data = null;
-
-                if (loginResult.Login_Success) {
-                    int userId = loginResult.User_ID;
-                    boolean is_admin = loginResult.isAdmin;
-
-
-                    String token = Jwts.builder()
+                String token = null;
+                try {
+                    token = Jwts.builder()
                             .setSubject(String.valueOf(userId))
                             .signWith(SignatureAlgorithm.HS256, ServerThread.secretKey)
                             .compact();
-
-                    data = new RData(token, is_admin);
                 }
-                else {
+                catch (Exception e) {
                     code = -1;
-                    message = "user name or password error";
+                    message = "generate token error";
+                    ResponseMsg responseMsg = new ResponseMsg(code, data, message);
+                    String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+                    resp.getWriter().println(respJsonMsg);
+                    System.out.println(e);
                 }
+
+                data = new RData(token, is_admin);
+            }
+            else {
+                code = -1;
+                message = "user name or password error";
+            }
 
 //            String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImppbnVvIiwiaWF0IjoxNTE2MjM5MDIyfQ.WhOxJUL0ZfPW6zrLNdkbQvoE8JObEB_5kr9DkgEVDeE";
 
-                ResponseMsg responseMsg = new ResponseMsg(code, data, message);
-                String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
-
-                resp.getWriter().println(respJsonMsg);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        catch (Exception e){
+            ResponseMsg responseMsg = new ResponseMsg(code, data, message);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            resp.getWriter().println(respJsonMsg);
+        } catch (ExecutionException e) {
+            code = -1;
+            message = "ExecutionException";
+            ResponseMsg responseMsg = new ResponseMsg(code, data, message);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            resp.getWriter().println(respJsonMsg);
             System.out.println(e);
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            code = -1;
+            message = "InterruptedException e";
+            ResponseMsg responseMsg = new ResponseMsg(code, data, message);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            resp.getWriter().println(respJsonMsg);
+            System.out.println(e);
+            throw new RuntimeException(e);
         }
+
 
 
     }

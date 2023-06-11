@@ -4,7 +4,6 @@ import Car.Car;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.LocalTime;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class ChargeStation {

@@ -1,7 +1,4 @@
 package ClientInterface;
-import com.google.gson.Gson;
-import com.mashape.unirest.http.*;
-import com.mashape.unirest.http.exceptions.UnirestException;
 
 
 import java.util.Scanner;
