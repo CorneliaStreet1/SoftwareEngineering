@@ -11,37 +11,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cb0bfc8d-1361-4e17-a1ae-feaba056f73d" name="Default Changelist" comment="workspace.xml">
-      <change afterPath="$PROJECT_DIR$/.idea/httpRequests/2023-06-07T192607.404.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingRecord.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/Server/ChargingPriceCount.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/DraftTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/LocalDateTimeDemo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/mapper/UserMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/mybatis-config.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/如何在本地新建数据库和对应的表.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/SoftwareEngineering_Web_exploded.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/SoftwareEngineering_Web_exploded.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/httpRequests/http-requests-log.http" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/httpRequests/http-requests-log.http" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mapper/RecordMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/META-INF/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/SoftwareEngineering_Web_exploded/WEB-INF/classes/log4j2.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Car/Car.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Car/Car.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargeStation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargeStation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingOrderForm.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ClientController/Account/Account_register.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ClientController/Account/Account_register.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Server/TimeSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/TimeSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/UserManagement/UserManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/UserManagement/UserManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/WaitingZone/WaitingZone.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/mybatis-config.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/WEB-INF/web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/web/WEB-INF/web.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/index.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/test.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/test.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/web/WEB-INF/web.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/持久化层.md" beforeDir="false" afterPath="$PROJECT_DIR$/持久化层.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/服务端整体设计.md" beforeDir="false" afterPath="$PROJECT_DIR$/服务端整体设计.md" afterDir="false" />
->>>>>>> 6559bb49aef569d8ba9bd2b4c290ce5b3eca09e5
+      <change beforePath="$PROJECT_DIR$/target/classes/mybatis-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mybatis-config.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,8 +68,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/AllCodes/Java/SoftwareEngineering/src/main/java/mapper&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\AllCodes\Java\SoftwareEngineering\src\main\java\mapper" />
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web\WEB-INF\lib" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -103,7 +90,7 @@
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.Server_UnitTest.Test_ShowStationTable">
+  <component name="RunManager" selected="JUnit.MybatisTest.testAddRecord">
     <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
       <option name="appName" />
       <option name="appServicePlanName" />
@@ -134,11 +121,11 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Server_UnitTest.Debug_Test_PreviewQueueSituation" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="MybatisTest.testAddRecord" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SoftwareEngineering" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
-      <option name="METHOD_NAME" value="Debug_Test_PreviewQueueSituation" />
+      <option name="MAIN_CLASS_NAME" value="MybatisTest" />
+      <option name="METHOD_NAME" value="testAddRecord" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -164,11 +151,11 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Server_UnitTest.Test_PreviewQueueSituation" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Server_UnitTest.Test_Check_Charging_Form" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SoftwareEngineering" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
-      <option name="METHOD_NAME" value="Test_PreviewQueueSituation" />
+      <option name="METHOD_NAME" value="Test_Check_Charging_Form" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -274,23 +261,24 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.MybatisTest.testAddRecord" />
+      <item itemvalue="JUnit.Server_UnitTest.Test_Check_Charging_Form" />
       <item itemvalue="JUnit.Server_UnitTest.Debug_Test_ShowStationTable" />
       <item itemvalue="JUnit.Server_UnitTest.Test_CheckStationInfo" />
       <item itemvalue="JUnit.Server_UnitTest.Test_ShowStationTable" />
-      <item itemvalue="JUnit.Server_UnitTest.Debug_Test_PreviewQueueSituation" />
-      <item itemvalue="JUnit.Server_UnitTest.Test_PreviewQueueSituation" />
+      <item itemvalue="Tomcat 服务器.Tomcat 9.0.75" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.MybatisTest.testAddRecord" />
+        <item itemvalue="JUnit.Server_UnitTest.Test_Check_Charging_Form" />
         <item itemvalue="JUnit.Server_UnitTest.Test_ShowStationTable" />
         <item itemvalue="JUnit.Server_UnitTest.Debug_Test_ShowStationTable" />
         <item itemvalue="JUnit.Server_UnitTest.Test_CheckStationInfo" />
-        <item itemvalue="JUnit.Server_UnitTest.Test_PreviewQueueSituation" />
-        <item itemvalue="JUnit.Server_UnitTest.Debug_Test_PreviewQueueSituation" />
       </list>
     </recent_temporary>
   </component>
-  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="应用程序级" UseSingleDictionary="true" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -320,6 +308,8 @@
       <workItem from="1686289504536" duration="3158000" />
       <workItem from="1686329847544" duration="27000" />
       <workItem from="1686387251993" duration="937000" />
+      <workItem from="1686415754032" duration="1419000" />
+      <workItem from="1686460919844" duration="837000" />
     </task>
     <servers />
   </component>
@@ -366,9 +356,7 @@
         </entry>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
@@ -377,7 +365,9 @@
   <component name="XDebuggerManager">
     <pin-to-top-manager>
       <pinned-members>
+        <PinnedItemInfo parentTag="Server.Server" memberName="waitingZone" />
         <PinnedItemInfo />
+        <PinnedItemInfo parentTag="Server.Server" memberName="StopServer" />
       </pinned-members>
     </pin-to-top-manager>
   </component>

@@ -232,7 +232,7 @@ public class Server {
                             //生成的订单如下，还没写入数据库
                             ChargingRecord form = new ChargingRecord(now.toString() + WaitingZone.getTotalCarCount() , headCar_F.getPrimaryKey(), now.toString(),
                                     msgChargeComplete.StationIndex, TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
-                            //form.StoreNewOrder();
+                            form.StoreNewOrder(form);
                         } else {
                             SlowChargeStation slowChargeStation = SlowStations.get(msgChargeComplete.StationIndex);
                             Car headCar_S = slowChargeStation.getCarQueue().removeFirst();
@@ -253,7 +253,7 @@ public class Server {
                             LocalDateTime now = LocalDateTime.now();
                             ChargingRecord form = new ChargingRecord( now.toString() + WaitingZone.getTotalCarCount() , headCar_S.getPrimaryKey(), now.toString(),
                                     msgChargeComplete.StationIndex, TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
-                            //form.StoreNewOrder();
+                            form.StoreNewOrder(form);
                         }
                         logger.info("END=====Message Charging_Complete");
                         logger.info(">>>>>>Schedule At Message Charging_Complete");
@@ -270,7 +270,8 @@ public class Server {
                             cancelCharging.Result_Json.complete(gson.toJson(cancelChargingServer, boolean.class));
                             Schedule();
                         }
-                        //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。最终决定不计算报表(已完成)。
+                        //TODO 取消充电，并进行一次充电的调度。将取消的结果返回客户端。
+                        // 补上计算报表(已完成)。
                         break;
                     case "Check_Charging_Form":
                         //这个部分应该是从数据库里读取

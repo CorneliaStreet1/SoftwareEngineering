@@ -6,6 +6,7 @@
     
     <typeAliases>
         <package name="pojo"/>
+        <package name="ChargeStation"/>
     </typeAliases>
 
     <environments default="development">

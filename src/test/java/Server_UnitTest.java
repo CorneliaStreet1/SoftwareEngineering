@@ -596,6 +596,8 @@ public class Server_UnitTest {
     }
     @Test
     public void Test_Station_Fault() {
+
+        //TODO 还没测试
         Server server = new Server(1, 0);
         Thread thread = new Thread(() -> {
             try {
@@ -628,6 +630,29 @@ public class Server_UnitTest {
                 throw new RuntimeException(e);
             }
         }, "Bug Fix Thread");
+        thread.start();
+        server.run();
+    }
+
+    @Test
+    public void Test_Check_Charging_Form() {
+        Server server = new Server(6, 0);
+        Thread thread = new Thread(() -> {
+            try {
+                for (int i = 0; i < 10; i++) {
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.005, 0.05, 0), new CompletableFuture<>()));
+                    Thread.sleep(1000);
+                }
+                logger.info(Thread.currentThread().getName() + " Sleeping");
+                Thread.sleep(45000);
+                logger.info(Thread.currentThread().getName() + " Wake up");
+                CompletableFuture<String> completableFuture = new CompletableFuture<>();
+                Server.MessageQueue.put(new msg_CheckChargingForm(new Car(0), completableFuture));
+                logger.info("**************Order Checking Result: " + completableFuture.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Order Thread");
         thread.start();
         server.run();
     }
