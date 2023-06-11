@@ -2,8 +2,6 @@ package Message;
 
 import Car.Car;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class msg_ChangeChargingMode extends Message{

@@ -43,7 +43,7 @@ public class ChargingPriceCount {
         this.timeBlocks = timeBlocks;
     }
 
-    double count(double begin, double end) {
+    double count(double begin, double end) {// 这个函数只能计算一天的费用，且在00:00的分界线需要分成两段处理，所以大于1天的，请直接按一天的计费，最后模天数剩余的小时再用这个函数计算
         if(begin > end){
             return -1;
         }

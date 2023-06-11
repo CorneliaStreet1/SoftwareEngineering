@@ -1,10 +1,11 @@
 package ManagerController;
 
+import ChargeStation.StationInfo;
 import Message.msg_CheckStationInfo;
+import Server.Server;
 import Server.ServerThread;
-
-
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
@@ -14,6 +15,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @WebServlet("/query_queue")
 public class QueryQueue extends HttpServlet {
@@ -25,6 +30,8 @@ public class QueryQueue extends HttpServlet {
         String battery_size;
         String require_amount;
         int waiting_time;
+
+        RData(){}
 
         RData(String pile_id, String username, String battery_size,
               String require_amount, int waiting_time){
@@ -51,51 +58,73 @@ public class QueryQueue extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
 
-        try {
-            String token = req.getHeader("Authorization");
+        String token = req.getHeader("Authorization");
+        int code = 0;
+        String message = "success";
+        RData[] data = null;
+        Gson gson = new Gson();
 
+        String userIdStr;
+        int userId;
+
+        try {
             Claims claims = Jwts.parser()
                     .setSigningKey(ServerThread.secretKey)
                     .parseClaimsJws(token)
                     .getBody();
 
-            String userIdStr = claims.getSubject();
-            int userId = Integer.parseInt(userIdStr);
+            userIdStr = claims.getSubject();
+            userId = Integer.parseInt(userIdStr);
+        }
+        catch (Exception e){
+            code = -1;
+            message = "token error";
+            ResponseMsg responseMsg = new ResponseMsg(code, message, data);
+            String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
+            resp.getWriter().println(respJsonMsg);
+            System.out.println(e);
+            return;
+        }
 
-            Gson gson = new Gson();
 
-//        msg_CheckStationInfo msgCheckStationInfo = new msg_CheckStationInfo();
+        CompletableFuture<String> future = new CompletableFuture<>();
+        msg_CheckStationInfo msgCheckStationInfo = new msg_CheckStationInfo(future);
 
-            int code = 0;
-            String message = "success";
+        try {
+            Server.MessageQueue.put(msgCheckStationInfo);
+            String result = future.get();
+
+            Type type = new TypeToken<List<StationInfo>>(){}.getType();
+            List<StationInfo> stationInfos = gson.fromJson(result, type);
 
 
-            RData[] data = new RData[1];
+            if(stationInfos != null) {
+                int size = stationInfos.size();
+                data = new RData[size];
+                for(int i = 0; i < size; i++) {
+                    data[i] = new RData();
+                    RData d = data[i];
+                    StationInfo infoI = stationInfos.get(i);
+                    int pileID = infoI.StationID;
+                    String pileIDStr = pileID > 2 ? "S" + pileID % 3 : "F" + pileID;
+                    d.pile_id = pileIDStr;
+                    d.username = infoI.UserID;
+                    d.battery_size = String.valueOf(infoI.CarBatteryCapacity);
+                    d.require_amount = String.valueOf(infoI.RequestedChargingCapacity);
+                    d.waiting_time = (int)infoI.WaitingTime;
+                }
+            }
+
 //        data[0] = new RData();
             ResponseMsg responseMsg = new ResponseMsg(code,message,data);
 
             String respJsonMsg = gson.toJson(responseMsg,ResponseMsg.class);
 
             resp.getWriter().println(respJsonMsg);
-
-//            resp.getWriter().println("{\n" +
-//                    "    \"code\": 0,\n" +
-//                    "    \"message\": \"success\",\n" +
-//                    "    \"data\": [\n" +
-//                    "        {\n" +
-//                    "            \"pile_id\": \"P1\",\n" +
-//                    "            \"username\": \"12345678\",\n" +
-//                    "            \"battery_size\": \"60.00\",\n" +
-//                    "            \"require_amount\": \"12.34\",\n" +
-//                    "            \"waiting_time\": 600\n" +
-//                    "        }\n" +
-//                    "    ]\n" +
-//                    "}");
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        catch (Exception e) {
-            System.out.println(e);
-        }
-
-
     }
 }
