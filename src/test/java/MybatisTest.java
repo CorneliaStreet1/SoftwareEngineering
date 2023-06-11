@@ -221,7 +221,7 @@ public class MybatisTest {
         LocalDateTime localDateTime = LocalDateTime.now();
         String s0 = localDateTime.toString();
 
-        ChargingRecord chargingRecord = new ChargingRecord("2023-06-07T18:46:04.0478",3,s0,3,
+        ChargingRecord chargingRecord = new ChargingRecord("2023-06-07T18:46:04.0489",1,s0,3,
                 32.32,s1,s2,23.32,2.3);
 
         //1. 加载mybatis的核心配置文件，获取 SqlSessionFactory

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mapper.RecordMapper">
+    
+    <resultMap id="recordResultMap" type="chargingRecord">
+        <id column="order_id" property="OrderID" />
+        <result column="user_id" property="Usrid" />
+        <result column="order_generation_time" property="Order_Generation_Time" />
+        <result column="charge_station_id" property="ChargeStation_ID" />
+        <result column="total_electricity_amount_charged" property="Total_Electricity_Amount_Charged" />
+        <result column="start_time" property="StartTime" />
+        <result column="end_time" property="EndTime" />
+        <result column="electricity_cost" property="ElectricityCost" />
+        <result column="service_fee" property="ServiceFee" />
+        <result column="total_cost" property="TotalCost" />
+        <result column="charge_time_duration" property="ChargeTimeDuration" />
+    </resultMap>
+
+
+
+    <select id="selectALLRecord" resultMap="recordResultMap">
+        select *
+        from charging_record;
+    </select>
+
+
+    <select id="selectByUserId" resultMap="recordResultMap">
+        select *
+        from charging_record where user_id = #{userId};
+    </select>
+
+
+    <insert id="add">
+        insert charging_record(order_id, user_id, order_generation_time, charge_station_id, total_electricity_amount_charged, start_time, end_time, electricity_cost ,service_fee,total_cost,charge_time_duration)
+        values (#{orderId}, #{userId}, #{orderGenerationTime}, #{chargeStationId}, #{totalElectricityAmountCharged}, #{startTime}, #{endTime}, #{electricityCost}, #{serviceFee}, #{totalCost}, #{chargeTimeDuration});
+    </insert>
+
+</mapper>
