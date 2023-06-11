@@ -212,7 +212,7 @@ public class MybatisTest {
 
     }
 
-    @Testtgit
+    @Test
     public void testAddRecord() throws IOException {
 
         //模拟接受参数
