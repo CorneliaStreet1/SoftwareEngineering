@@ -55,7 +55,7 @@ public class ChargingRecord {
         ElectricityCost = electricityCost;
         ServiceFee = serviceFee;
         TotalCost = ServiceFee + ElectricityCost;
-        ChargeTimeDuration = (Duration.between(LocalDateTime.parse(startTime),LocalDateTime.parse(endTime)).toMinutes()) * 60;
+        ChargeTimeDuration = (Duration.between(LocalDateTime.parse(startTime),LocalDateTime.parse(endTime)).toMillis()) / 1000.0;
     }
     public double getChargeTimeDuration() {
         return ChargeTimeDuration;
@@ -158,7 +158,6 @@ public class ChargingRecord {
             User user = userMapper.selectByUserName(userName);
             List<ChargingRecord> chargingRecords = recordMapper.selectByUserId(user.getUID());
             sqlSession.close();
-
             return chargingRecords;
         }
     }

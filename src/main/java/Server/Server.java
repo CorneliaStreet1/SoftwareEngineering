@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -588,8 +589,10 @@ public class Server {
                         if (!CarToTimer.containsKey(F_headCar)) {// 如果headCar还没有被定时，那么启动定时，加入映射关系
                             double F_Time_Hour = F_headCar.getRequestedChargingCapacity() / FastChargeStation.ChargingSpeed;
                             double F_Time_Second = F_Time_Hour * 60 * 60;// 单位:秒
+                            double F_Time_Nano = F_Time_Second * 1000000000;
                             fastChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
-                            fastChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) F_Time_Second));// 充电结束预期时间点
+                            //fastChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) F_Time_Second));// 充电结束预期时间点
+                            fastChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusNanos((long) F_Time_Nano));// 充电结束预期时间点
                             ScheduledExecutorService F_scheduledExecutorService = FastTimers.get(i);
                             ScheduledFuture<?> F_schedule = F_scheduledExecutorService.schedule(() -> {
                                 Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
@@ -620,8 +623,9 @@ public class Server {
                         if (!CarToTimer.containsKey(headCar)) {// 如果headCar还没有被定时，那么启动定时
                             double Time_Hour = headCar.getRequestedChargingCapacity() / SlowChargeStation.ChargingSpeed;
                             double Time_Second = Time_Hour * 60 * 60;// 单位:秒
+                            double S_Time_Nano = Time_Second * 1000000000;
                             slowChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
-                            slowChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) Time_Second));// 充电结束预期时间点
+                            slowChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusNanos((long) S_Time_Nano));// 充电结束预期时间点
                             ScheduledExecutorService scheduledExecutorService = SlowTimers.get(i);
                             ScheduledFuture<?> schedule = scheduledExecutorService.schedule(() -> {
                                 logger.info("\n>>>>>>>>>>>>>>>>>>>>>>Timer Trigger>>SLOW Station "+ s_index +  " charge Timer Complete\n");

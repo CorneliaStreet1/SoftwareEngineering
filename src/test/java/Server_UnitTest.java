@@ -1,6 +1,8 @@
 import Car.Car;
+import ChargeStation.ChargingRecord;
 import Message.*;
 import Server.Server;
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
@@ -8,6 +10,7 @@ import pojo.User;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -640,14 +643,14 @@ public class Server_UnitTest {
         Thread thread = new Thread(() -> {
             try {
                 for (int i = 0; i < 10; i++) {
-                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.005, 0.05, 0), new CompletableFuture<>()));
+                    Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.005, 0.05, 1), new CompletableFuture<>()));
                     Thread.sleep(1000);
                 }
                 logger.info(Thread.currentThread().getName() + " Sleeping");
-                Thread.sleep(45000);
+                Thread.sleep(1000);
                 logger.info(Thread.currentThread().getName() + " Wake up");
                 CompletableFuture<String> completableFuture = new CompletableFuture<>();
-                Server.MessageQueue.put(new msg_CheckChargingForm(new Car(0), completableFuture));
+                Server.MessageQueue.put(new msg_CheckChargingForm(new Car(1), completableFuture));
                 logger.info("**************Order Checking Result: " + completableFuture.get());
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
@@ -655,5 +658,16 @@ public class Server_UnitTest {
         }, "Order Thread");
         thread.start();
         server.run();
+    }
+    @Test
+    public void Debug_Check_Charging_Form() {
+        try {
+            Server server = new Server(1, 0);
+            //Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.005, 0.05, 114), new CompletableFuture<>()));
+            Server.MessageQueue.put(new msg_CheckChargingForm(new Car(1), new CompletableFuture<>()));
+            server.run();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
