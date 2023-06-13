@@ -12,7 +12,6 @@
   <component name="ChangeListManager">
     <list default="true" id="cb0bfc8d-1361-4e17-a1ae-feaba056f73d" name="Default Changelist" comment="workspace.xml">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingRecord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ChargeStation/ChargingRecord.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Server/Server.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/Server_UnitTest.java" afterDir="false" />
     </list>
@@ -89,7 +88,7 @@
       <recent name="F:\file\code_file\idea_java_file\2023\5\SoftwareEngineering\web" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.Server_UnitTest.Test_Check_Charging_Form">
+  <component name="RunManager" selected="JUnit.Server_UnitTest.Test_Cancel_Check_Charging_Form">
     <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
       <option name="appName" />
       <option name="appServicePlanName" />
@@ -140,11 +139,11 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Server_UnitTest.Debug_Test_ShowStationTable" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Server_UnitTest.Test_Cancel_Check_Charging_Form" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SoftwareEngineering" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="Server_UnitTest" />
-      <option name="METHOD_NAME" value="Debug_Test_ShowStationTable" />
+      <option name="METHOD_NAME" value="Test_Cancel_Check_Charging_Form" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -261,19 +260,19 @@
     </configuration>
     <list>
       <item itemvalue="JUnit.Server_UnitTest.Debug_Check_Charging_Form" />
+      <item itemvalue="JUnit.Server_UnitTest.Test_Cancel_Check_Charging_Form" />
       <item itemvalue="JUnit.MybatisTest.testAddRecord" />
       <item itemvalue="JUnit.Server_UnitTest.Test_Check_Charging_Form" />
-      <item itemvalue="JUnit.Server_UnitTest.Debug_Test_ShowStationTable" />
       <item itemvalue="JUnit.Server_UnitTest.Test_ShowStationTable" />
       <item itemvalue="Tomcat 服务器.Tomcat 9.0.75" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.Server_UnitTest.Test_Check_Charging_Form" />
+        <item itemvalue="JUnit.Server_UnitTest.Test_Cancel_Check_Charging_Form" />
         <item itemvalue="JUnit.Server_UnitTest.Debug_Check_Charging_Form" />
+        <item itemvalue="JUnit.Server_UnitTest.Test_Check_Charging_Form" />
         <item itemvalue="JUnit.MybatisTest.testAddRecord" />
         <item itemvalue="JUnit.Server_UnitTest.Test_ShowStationTable" />
-        <item itemvalue="JUnit.Server_UnitTest.Debug_Test_ShowStationTable" />
       </list>
     </recent_temporary>
   </component>
@@ -312,7 +311,7 @@
       <workItem from="1686462959335" duration="234000" />
       <workItem from="1686463661884" duration="530000" />
       <workItem from="1686490727830" duration="96000" />
-      <workItem from="1686666056273" duration="3381000" />
+      <workItem from="1686666056273" duration="5538000" />
     </task>
     <servers />
   </component>
@@ -366,6 +365,25 @@
     </option>
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/test/java/Server_UnitTest.java</url>
+          <line>666</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/Server/Server.java</url>
+          <line>187</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/Server/Server.java</url>
+          <line>309</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="Server.Server" memberName="waitingZone" />

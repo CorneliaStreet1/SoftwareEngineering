@@ -664,10 +664,39 @@ public class Server_UnitTest {
         try {
             Server server = new Server(1, 0);
             //Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.005, 0.05, 114), new CompletableFuture<>()));
-            Server.MessageQueue.put(new msg_CheckChargingForm(new Car(1), new CompletableFuture<>()));
+            Server.MessageQueue.put(new msg_CheckChargingForm(new Car(1919), new CompletableFuture<>()));
             server.run();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+    /*
+    * 测试中途取消充电的车子的订单是否也被成功计入
+    * 一辆慢车一辆快车
+    * */
+    @Test
+    public void Test_Cancel_Check_Charging_Form() {
+        Server server = new Server(1, 1);
+        Thread thread = new Thread(() -> {
+            logger.info(Thread.currentThread().getName() + " ");
+            try {
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 0.5, 0.05,4), new CompletableFuture<>()));
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 0.116667, 0.05,5), new CompletableFuture<>()));
+                Thread.sleep(10 * 1000);
+                Server.MessageQueue.put(new msg_CancelCharging(new Car(4), new CompletableFuture<>()));
+                Server.MessageQueue.put(new msg_CancelCharging(new Car(5), new CompletableFuture<>()));
+                CompletableFuture<String> completableFuture = new CompletableFuture<>();
+                CompletableFuture<String> completableFuture2 = new CompletableFuture<>();
+                Server.MessageQueue.put(new msg_CheckChargingForm(new Car(4), completableFuture));
+                Server.MessageQueue.put(new msg_CheckChargingForm(new Car(5), completableFuture2));
+                logger.info("**************Order Checking Result: " + completableFuture.get());
+                logger.info("**************Order Checking Result: " + completableFuture2.get());
+
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Test Thread");
+        thread.start();
+        server.run();
     }
 }

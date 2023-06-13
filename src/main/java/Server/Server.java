@@ -68,10 +68,25 @@ public class Server {
                     car = fastStation.getCar(car);
                     boolean contains_F = CarToTimer.containsKey(car);
                     if (contains_F) {//如果这辆车正在充电的话，取消其定时任务。凡是取消的车，其数据都不计入充电桩
+                        logger.info("Remove Charging car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
                         CarToTimer.get(car).cancel(false);
                         //logger.info("*******Car " + car.getPrimaryKey() + "FAST Timer Canceled:" + CarToTimer.get(car).isCancelled());
                         CarToTimer.remove(car);
-                        logger.info("Remove Charging car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
+                        LocalDateTime StartTime = fastStation.getCharge_StartTime();
+                        LocalDateTime EndTime = LocalDateTime.now();
+                        logger.info("Charge START Time: " + StartTime);
+                        logger.info("Charge END Time: " + EndTime);
+                        double duration = Duration.between(StartTime, EndTime).toMillis() / 1000.0;
+                        logger.info("duration in Seconds: " + duration);
+                        double TotalElectricity = (duration/ 60.0) * FastChargeStation.ChargingSpeed_PerMinute;
+                        double chargeFee = getChargeFee(StartTime, EndTime, true);
+                        logger.info("chargeFee: " + chargeFee);
+                        double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
+                        fastStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
+                        LocalDateTime now = LocalDateTime.now();
+                        ChargingRecord form = new ChargingRecord(now.toString() + WaitingZone.getTotalCarCount() , car.getPrimaryKey(), now.toString(),
+                                fastStation.getChargeStationNumber(), TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
+                        form.StoreNewOrder(form);
                     }else {
                         logger.info("Remove Waiting car From FAST Station " + f_index + " Car " + car.getPrimaryKey());
                     }
@@ -87,6 +102,20 @@ public class Server {
                         CarToTimer.get(car).cancel(false);
                         CarToTimer.remove(car);
                         logger.info("Remove Charging car From SLOW Station " + s_index + " Car " + car.getPrimaryKey());
+                        LocalDateTime StartTime = slowStation.getCharge_StartTime();
+                        LocalDateTime EndTime = LocalDateTime.now();
+                        double duration = Duration.between(StartTime, EndTime).toMillis() / 1000.0;
+                        logger.info("duration in Seconds: " + duration);
+                        double TotalElectricity = (duration/ 60.0) * SlowChargeStation.ChargingSpeed_PerMinute;
+                        double chargeFee = getChargeFee(StartTime, EndTime, false);
+                        logger.info("chargeFee: " + chargeFee);
+                        double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
+                        slowStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
+                        //TODO 将充电详单写入数据库
+                        LocalDateTime now = LocalDateTime.now();
+                        ChargingRecord form = new ChargingRecord( now.toString() + WaitingZone.getTotalCarCount() , car.getPrimaryKey(), now.toString(),
+                                slowStation.getChargeStationNumber(), TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
+                        form.StoreNewOrder(form);
                     }else {
                         logger.info("Remove Waiting car From SLOW Station " + s_index + " Car " + car.getPrimaryKey());
                     }
