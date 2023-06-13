@@ -26,6 +26,8 @@ public class Server {
     */
     public static BlockingQueue<Message> MessageQueue = new LinkedBlockingQueue<>(); //消息队列。
     private HashSet<Integer> CarSet;
+    private TimeSystem timeSystem;
+    private int TimeFactor;
     private boolean StopServer;
     private static final Logger logger = LogManager.getLogger(Server.class);
     private WaitingZone waitingZone;
@@ -35,6 +37,10 @@ public class Server {
     private List<ScheduledExecutorService> FastTimers;//每个快充站的计时器构成的List
     private List<ScheduledExecutorService> SlowTimers; //每个慢充站的计时器构成的的List
     public Server(int FastStationCount, int SlowStationCount) {
+        timeSystem = new TimeSystem();
+        TimeFactor = 100;
+        timeSystem.writeTimeFactor(TimeFactor);
+        timeSystem.start();
         StopServer = false;
         FastStations = new ArrayList<>(FastStationCount);
         SlowStations = new ArrayList<>(SlowStationCount);
@@ -73,7 +79,8 @@ public class Server {
                         //logger.info("*******Car " + car.getPrimaryKey() + "FAST Timer Canceled:" + CarToTimer.get(car).isCancelled());
                         CarToTimer.remove(car);
                         LocalDateTime StartTime = fastStation.getCharge_StartTime();
-                        LocalDateTime EndTime = LocalDateTime.now();
+                        //LocalDateTime Real_EndTime = timeSystem.getCurrentTime();
+                        LocalDateTime EndTime = timeSystem.getCurrentTime();
                         logger.info("Charge START Time: " + StartTime);
                         logger.info("Charge END Time: " + EndTime);
                         double duration = Duration.between(StartTime, EndTime).toMillis() / 1000.0;
@@ -83,7 +90,7 @@ public class Server {
                         logger.info("chargeFee: " + chargeFee);
                         double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
                         fastStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
-                        LocalDateTime now = LocalDateTime.now();
+                        LocalDateTime now = timeSystem.getCurrentTime();
                         ChargingRecord form = new ChargingRecord(now.toString() + WaitingZone.getTotalCarCount() , car.getPrimaryKey(), now.toString(),
                                 fastStation.getChargeStationNumber(), TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
                         form.StoreNewOrder(form);
@@ -103,7 +110,7 @@ public class Server {
                         CarToTimer.remove(car);
                         logger.info("Remove Charging car From SLOW Station " + s_index + " Car " + car.getPrimaryKey());
                         LocalDateTime StartTime = slowStation.getCharge_StartTime();
-                        LocalDateTime EndTime = LocalDateTime.now();
+                        LocalDateTime EndTime = timeSystem.getCurrentTime();
                         double duration = Duration.between(StartTime, EndTime).toMillis() / 1000.0;
                         logger.info("duration in Seconds: " + duration);
                         double TotalElectricity = (duration/ 60.0) * SlowChargeStation.ChargingSpeed_PerMinute;
@@ -112,7 +119,7 @@ public class Server {
                         double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
                         slowStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                         //TODO 将充电详单写入数据库
-                        LocalDateTime now = LocalDateTime.now();
+                        LocalDateTime now = timeSystem.getCurrentTime();
                         ChargingRecord form = new ChargingRecord( now.toString() + WaitingZone.getTotalCarCount() , car.getPrimaryKey(), now.toString(),
                                 slowStation.getChargeStationNumber(), TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
                         form.StoreNewOrder(form);
@@ -247,10 +254,11 @@ public class Server {
                             CarSet.remove(headCar_F.getPrimaryKey());
                             logger.info("AT Charging_Complete >>>>>>>Fast Charge Complete Car:" + headCar_F.getPrimaryKey());
                             LocalDateTime StartTime = fastChargeStation.getCharge_StartTime();
-                            LocalDateTime EndTime = fastChargeStation.getExpected_Charge_EndTime();
+                            LocalDateTime Real_EndTime = fastChargeStation.getExpected_Charge_EndTime();
                             logger.info("Charge START Time: " + StartTime);
-                            logger.info("Charge END Time: " + EndTime);
-                            double duration = Duration.between(StartTime, EndTime).toMillis() / 1000.0;
+                            logger.info("Charge Real_EndTime: " + Real_EndTime);
+                            double duration = Duration.between(StartTime, Real_EndTime).toMillis() / 1000.0 * TimeFactor;
+                            LocalDateTime EndTime = Real_EndTime.plusSeconds((long) duration);
                             logger.info("duration in Seconds: " + duration);
                             double TotalElectricity = (duration/ 60.0) * FastChargeStation.ChargingSpeed_PerMinute;
                             double chargeFee = getChargeFee(StartTime, EndTime, true);
@@ -258,7 +266,7 @@ public class Server {
                             double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
                             fastChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                             //TODO 将充电详单写入数据库(已做未测，等待LYF测试)
-                            LocalDateTime now = LocalDateTime.now();
+                            LocalDateTime now = timeSystem.getCurrentTime();
                             //生成的订单如下，还没写入数据库
                             ChargingRecord form = new ChargingRecord(now.toString() + WaitingZone.getTotalCarCount() , headCar_F.getPrimaryKey(), now.toString(),
                                     msgChargeComplete.StationIndex, TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
@@ -271,8 +279,9 @@ public class Server {
                             logger.info("AT Charging_Complete >>>>>>> Slow Charge Complete Car:" + headCar_S.getPrimaryKey());
                             //TODO 生成充电详单、结算。更新充电桩的统计数据
                             LocalDateTime StartTime = slowChargeStation.getCharge_StartTime();
-                            LocalDateTime EndTime = slowChargeStation.getExpected_Charge_EndTime();
-                            double duration = Duration.between(StartTime, EndTime).toMillis() / 1000.0;
+                            LocalDateTime Real_EndTime = slowChargeStation.getExpected_Charge_EndTime();
+                            double duration = Duration.between(StartTime, Real_EndTime).toMillis() / 1000.0 * TimeFactor;
+                            LocalDateTime EndTime = Real_EndTime.plusSeconds((long) duration);
                             logger.info("duration in Seconds: " + duration);
                             double TotalElectricity = (duration/ 60.0) * SlowChargeStation.ChargingSpeed_PerMinute;
                             double chargeFee = getChargeFee(StartTime, EndTime, false);
@@ -280,7 +289,7 @@ public class Server {
                             double ServiceFee = TotalElectricity * ChargeStation.SERVICE_PRICE;
                             slowChargeStation.UpdateStationState(duration, TotalElectricity, chargeFee, ServiceFee);
                             //TODO 将充电详单写入数据库
-                            LocalDateTime now = LocalDateTime.now();
+                            LocalDateTime now = timeSystem.getCurrentTime();
                             ChargingRecord form = new ChargingRecord( now.toString() + WaitingZone.getTotalCarCount() , headCar_S.getPrimaryKey(), now.toString(),
                                     msgChargeComplete.StationIndex, TotalElectricity, StartTime.toString(), EndTime.toString(), chargeFee, ServiceFee);
                             form.StoreNewOrder(form);
@@ -476,13 +485,13 @@ public class Server {
         List<StationForm> re = new ArrayList<>();
         for (int index = 0; index < FastStations.size(); index ++) {
             FastChargeStation station = FastStations.get(index);
-            re.add(new StationForm(LocalDateTime.now(), index,station.getAccumulated_Charging_Times(),
+            re.add(new StationForm(timeSystem.getCurrentTime(), index,station.getAccumulated_Charging_Times(),
                     station.getTotal_Charging_TimeLength(), station.getTotal_ElectricityAmount_Charged(),
                     station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost()));
         }
         for (int index = 0; index < SlowStations.size(); index ++){
             SlowChargeStation station = SlowStations.get(index);
-            re.add(new StationForm(LocalDateTime.now(), index + FastStations.size(),station.getAccumulated_Charging_Times(),
+            re.add(new StationForm(timeSystem.getCurrentTime(), index + FastStations.size(),station.getAccumulated_Charging_Times(),
                     station.getTotal_Charging_TimeLength(), station.getTotal_ElectricityAmount_Charged(),
                     station.getAccumulated_Charging_Cost(), station.getAccumulated_Service_Cost()));
         }
@@ -617,11 +626,10 @@ public class Server {
                         Car F_headCar = fastChargeStation.getCarQueue().getFirst();
                         if (!CarToTimer.containsKey(F_headCar)) {// 如果headCar还没有被定时，那么启动定时，加入映射关系
                             double F_Time_Hour = F_headCar.getRequestedChargingCapacity() / FastChargeStation.ChargingSpeed;
-                            double F_Time_Second = F_Time_Hour * 60 * 60;// 单位:秒
+                            double F_Time_Second = F_Time_Hour * 60 * 60 / TimeFactor;// 单位:秒。加速了100倍的
                             double F_Time_Nano = F_Time_Second * 1000000000;
-                            fastChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
-                            //fastChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusSeconds((long) F_Time_Second));// 充电结束预期时间点
-                            fastChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusNanos((long) F_Time_Nano));// 充电结束预期时间点
+                            fastChargeStation.setCharge_StartTime(timeSystem.getCurrentTime());// 充电开始时间
+                            fastChargeStation.setExpected_Charge_EndTime(timeSystem.getCurrentTime().plusNanos((long) F_Time_Nano));// 充电结束预期时间点
                             ScheduledExecutorService F_scheduledExecutorService = FastTimers.get(i);
                             ScheduledFuture<?> F_schedule = F_scheduledExecutorService.schedule(() -> {
                                 Gson gson = new Gson();//给消息队列发一条消息，说充电完成，是什么类型的桩，是几号桩
@@ -634,7 +642,7 @@ public class Server {
                                 }
                             }, (long) F_Time_Second, TimeUnit.SECONDS);
                             CarToTimer.put(F_headCar, F_schedule); //将车和其定时器映射关系加入Map
-                            logger.info("Set a Fast Car Timer in Fast Station:"+ f_index + " Car " + F_headCar.getPrimaryKey() + " ETA:" + F_Time_Second);
+                            logger.info("Set a Fast Car Timer in Fast Station:"+ f_index + " Car " + F_headCar.getPrimaryKey() + " ETA:" + F_Time_Second * TimeFactor);
                         }
                     }
                 }
@@ -651,10 +659,10 @@ public class Server {
                         Car headCar = slowChargeStation.getCarQueue().getFirst();
                         if (!CarToTimer.containsKey(headCar)) {// 如果headCar还没有被定时，那么启动定时
                             double Time_Hour = headCar.getRequestedChargingCapacity() / SlowChargeStation.ChargingSpeed;
-                            double Time_Second = Time_Hour * 60 * 60;// 单位:秒
+                            double Time_Second = Time_Hour * 60 * 60 / TimeFactor;// 单位:秒。加速了100倍的
                             double S_Time_Nano = Time_Second * 1000000000;
-                            slowChargeStation.setCharge_StartTime(LocalDateTime.now());// 充电开始时间
-                            slowChargeStation.setExpected_Charge_EndTime(LocalDateTime.now().plusNanos((long) S_Time_Nano));// 充电结束预期时间点
+                            slowChargeStation.setCharge_StartTime(timeSystem.getCurrentTime());// 充电开始时间
+                            slowChargeStation.setExpected_Charge_EndTime(timeSystem.getCurrentTime().plusNanos((long) S_Time_Nano));// 充电结束预期时间点
                             ScheduledExecutorService scheduledExecutorService = SlowTimers.get(i);
                             ScheduledFuture<?> schedule = scheduledExecutorService.schedule(() -> {
                                 logger.info("\n>>>>>>>>>>>>>>>>>>>>>>Timer Trigger>>SLOW Station "+ s_index +  " charge Timer Complete\n");
@@ -667,7 +675,7 @@ public class Server {
                                 }
                             }, (long) Time_Second, TimeUnit.SECONDS);
                             CarToTimer.put(headCar, schedule); //将车和其定时器映射关系加入Map
-                            logger.info("Add a Slow Car Timer in  Slow Station "+ s_index + " Car " + headCar.getPrimaryKey() + " ETA:" + Time_Second);
+                            logger.info("Add a Slow Car Timer in  Slow Station "+ s_index + " Car " + headCar.getPrimaryKey() + " ETA:" + Time_Second * TimeFactor);
                         }
                     }
                 }

@@ -699,4 +699,37 @@ public class Server_UnitTest {
         thread.start();
         server.run();
     }
+    @Test
+    public void Test_Time_System() {
+        Server server = new Server(1, 1);
+        Thread thread = new Thread(() -> {
+            try {
+                logger.info(Thread.currentThread().getName());
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 30, 30, 5), new CompletableFuture<>()));
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 7, 30, 4), new CompletableFuture<>()));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Time Thread");
+        thread.start();
+        server.run();
+    }
+    @Test
+    public void Test_Time_System_Cancel() {
+        Server server = new Server(1, 1);
+        Thread thread = new Thread(() -> {
+            try {
+                logger.info(Thread.currentThread().getName());
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(true, 30, 30, 15), new CompletableFuture<>()));
+                Server.MessageQueue.put(new msg_EnterWaitingZone(new Car(false, 7, 30, 14), new CompletableFuture<>()));
+                Thread.sleep(10 * 1800);
+                Server.MessageQueue.put(new msg_CancelCharging(new Car(15), new CompletableFuture<>()));
+                Server.MessageQueue.put(new msg_CancelCharging(new Car(14), new CompletableFuture<>()));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }, "Time Thread");
+        thread.start();
+        server.run();
+    }
 }
