@@ -2,7 +2,7 @@
 
 2023/6/18已验收
 这里的项目跑不了，但是代码还有一些微小的bug，懒得再在这边修了。
-修了bug，可以跑的在@conttonb的仓库下。
+修了bug，可以跑的在[@cottonb](https://github.com/cottonb)的仓库下。
 
 # 服务端
 
